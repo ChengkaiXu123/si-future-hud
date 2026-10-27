@@ -22,3 +22,6 @@ playwright-report/
 coverage/
 blob-report/
 .swiftpm/
+
+# GitLab Pages output (scripts/build-site.sh)
+/public

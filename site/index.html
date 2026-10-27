@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SI Future HUD</title>
+<meta name="description" content="SI Future HUD: your AI agents, living at the edge of your screen. 你的 AI 助手们，就住在屏幕边上。">
+<link rel="icon" href="assets/favicon.png">
+<meta property="og:title" content="SI Future HUD">
+<meta property="og:image" content="media/social-preview.jpg">
+<!--
+  The SI Future HUD product site, published by GitLab Pages (.gitlab-ci.yml,
+  scripts/build-site.sh). Every text exists twice, class="zh" and class="en";
+  the toggle sets html[data-lang] and CSS shows one. Motion: reveals on
+  IntersectionObserver, scroll-linked scenes (hero, statement, paper plane)
+  on one requestAnimationFrame loop, all off under prefers-reduced-motion.
+  Media comes from docs/si-future-hud/media (copied to media/ on build).
+-->
+<style>
+:root{
+  --bg:#04050a;--ink:#f5f6fb;--muted:#a3a9c2;--faint:#757b94;--line:rgba(255,255,255,.09);
+  --card:rgba(255,255,255,.04);--violet:#8f8cff;--mint:#43e0a5;--amber:#f5c652;--coral:#ff7a6b;
+  --ease:cubic-bezier(.2,.75,.15,1);--wrap:1180px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 -apple-system,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip}
+html[data-lang="zh"] .en,html[data-lang="en"] .zh{display:none!important}
+a{color:inherit}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 28px}
+::selection{background:rgba(143,140,255,.4)}
+
+/* ---------- bar ---------- */
+.progress{position:fixed;left:0;top:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(var(--read,0));z-index:40;background:linear-gradient(90deg,#43e0a5,#f5c652,#ff7a6b,#8f8cff)}
+.bar{position:fixed;inset:0 0 auto 0;z-index:30;transition:background .4s,border-color .4s,transform .45s var(--ease);border-bottom:1px solid transparent}
+.bar.solid{background:rgba(4,5,10,.66);backdrop-filter:saturate(1.6) blur(20px);-webkit-backdrop-filter:saturate(1.6) blur(20px);border-color:var(--line)}
+.bar.hide{transform:translateY(-100%)}
+.bar .wrap{display:flex;align-items:center;gap:20px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;text-decoration:none;letter-spacing:.01em}
+.brand img{width:38px}
+.bar nav{display:flex;gap:26px;margin-left:auto;font-size:14px;color:var(--muted)}
+.bar nav a{text-decoration:none;transition:color .2s}
+.bar nav a:hover{color:var(--ink)}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:rgba(255,255,255,.05)}
+.lang button{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;color:var(--muted);transition:background .25s,color .25s}
+.lang button[aria-pressed="true"]{background:var(--ink);color:#0a0b12}
+.lang button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(46px) scale(.985);filter:blur(8px);transition:opacity 1.1s var(--ease),transform 1.1s var(--ease),filter 1.1s var(--ease);transition-delay:var(--d,0s)}
+.reveal.in{opacity:1;transform:none;filter:none}
+.zoom{transform:scale(.86);opacity:.2;transition:transform 1.6s var(--ease),opacity 1.6s var(--ease)}
+.zoom.in{transform:none;opacity:1}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100vh;padding:120px 0 0;overflow:hidden;text-align:center}
+.aurora{position:absolute;inset:-30% -20% 0;pointer-events:none;filter:blur(30px);opacity:.95}
+.aurora i{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:float 18s ease-in-out infinite alternate}
+.aurora i:nth-child(1){width:60vw;height:60vw;left:40%;top:6%;background:radial-gradient(closest-side,rgba(110,96,255,.55),transparent)}
+.aurora i:nth-child(2){width:46vw;height:46vw;left:-6%;top:-6%;background:radial-gradient(closest-side,rgba(60,110,255,.38),transparent);animation-duration:22s}
+.aurora i:nth-child(3){width:40vw;height:40vw;left:62%;top:48%;background:radial-gradient(closest-side,rgba(46,214,160,.22),transparent);animation-duration:26s}
+.aurora i:nth-child(4){width:44vw;height:44vw;left:16%;top:56%;background:radial-gradient(closest-side,rgba(255,128,92,.20),transparent);animation-duration:20s}
+@keyframes float{to{transform:translate3d(-6%,5%,0) scale(1.12)}}
+.hero-copy{position:relative;z-index:2;will-change:transform,opacity}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,246,251,.76);padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:conic-gradient(#33d69f,#f7d046,#ff6363,#7d8bff,#33d69f);box-shadow:0 0 14px rgba(125,139,255,.9);animation:spin 4s linear infinite}
+.eyebrow small{letter-spacing:.06em;text-transform:none;font-size:13px;opacity:.75}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{margin:26px auto 0;font-size:clamp(46px,8.2vw,108px);line-height:.98;letter-spacing:-.045em;font-weight:780}
+html[data-lang="en"] h1{font-size:clamp(40px,6.6vw,90px)}
+h1 .line{display:block;overflow:hidden;padding:.04em 0 .08em}
+h1 .line>span{display:inline-block;transform:translateY(110%);animation:rise 1.25s var(--ease) forwards;animation-delay:var(--d,.1s)}
+@keyframes rise{to{transform:none}}
+.grad{background:linear-gradient(92deg,#a7b6ff 0%,#c9b2ff 30%,#ffc2a8 62%,#9ff0cf 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 8s ease-in-out infinite alternate}
+@keyframes sheen{to{background-position:100% 0}}
+.lead{max-width:40em;margin:28px auto 0;font-size:clamp(17px,1.8vw,21px);color:var(--muted);opacity:0;animation:fadeup 1.2s var(--ease) .75s forwards}
+.lead b{color:var(--ink);font-weight:600}
+@keyframes fadeup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:34px;opacity:0;animation:fadeup 1.2s var(--ease) .95s forwards}
+.btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:999px;font-weight:700;font-size:16px;text-decoration:none;transition:transform .25s var(--ease),box-shadow .25s}
+.btn:hover{transform:translateY(-2px) scale(1.02)}
+.btn:focus-visible{outline:3px solid var(--amber);outline-offset:4px}
+.btn.primary{background:#fff;color:#0a0b12;box-shadow:0 12px 40px rgba(143,140,255,.35)}
+.btn.primary::after{content:"";position:absolute;inset:-2px;border-radius:inherit;z-index:-1;background:conic-gradient(from var(--a,0deg),#43e0a5,#f5c652,#ff7a6b,#8f8cff,#43e0a5);filter:blur(10px);opacity:.75;animation:ring 5s linear infinite}
+@property --a{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes ring{to{--a:360deg}}
+.btn.ghost{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);backdrop-filter:blur(8px)}
+.meta{margin-top:18px;font-size:14px;color:var(--faint);opacity:0;animation:fadeup 1.2s var(--ease) 1.1s forwards}
+
+.stage{position:relative;z-index:1;width:min(560px,86vw);margin:56px auto 0;will-change:transform}
+.bezel{position:absolute;left:50%;top:0;width:min(1200px,140vw);height:18px;transform:translateX(-50%);background:linear-gradient(180deg,#1b1c22,#0a0a0d);border-bottom:1px solid rgba(255,255,255,.08);z-index:3;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.notch-glow{position:absolute;left:50%;top:-30px;width:78%;height:140px;transform:translateX(-50%);border-radius:50%;background:conic-gradient(from var(--a,0deg),rgba(67,224,165,.9),rgba(245,198,82,.9),rgba(255,122,107,.9),rgba(143,140,255,.9),rgba(67,224,165,.9));filter:blur(46px);opacity:.55;animation:ring 9s linear infinite,breathe 3.6s ease-in-out infinite;z-index:0}
+@keyframes breathe{50%{opacity:.85;transform:translateX(-50%) scale(1.08)}}
+.drop{position:relative;z-index:2;clip-path:inset(0 0 100% 0 round 0 0 30px 30px);animation:dropopen 1.5s var(--ease) 1.1s forwards;filter:drop-shadow(0 40px 80px rgba(0,0,0,.6))}
+.drop img{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%)}
+@keyframes dropopen{to{clip-path:inset(0 0 0 0 round 0 0 30px 30px)}}
+.scroll-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);z-index:3}
+.scroll-hint::after{content:"";display:block;width:1px;height:34px;margin:10px auto 0;background:linear-gradient(var(--faint),transparent);animation:hint 2s ease-in-out infinite}
+@keyframes hint{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---------- sections ---------- */
+section{position:relative;padding:140px 0}
+.kicker{font-size:14px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--violet)}
+h2{font-size:clamp(34px,5.4vw,68px);line-height:1.04;letter-spacing:-.04em;margin:14px 0 0;font-weight:760}
+.sub{color:var(--muted);font-size:clamp(17px,1.7vw,21px);max-width:44em;margin:20px 0 0}
+.center{text-align:center}
+.center .sub{margin-left:auto;margin-right:auto}
+
+/* statement: words light up with scroll */
+.statement{min-height:220vh;padding:0}
+.statement .pin{position:sticky;top:0;height:100vh;display:grid;place-items:center}
+.statement p{font-size:clamp(28px,4.4vw,56px);line-height:1.22;letter-spacing:-.025em;font-weight:700;max-width:22em;margin:0 auto;padding:0 28px}
+.statement .w{color:rgba(245,246,251,.16);transition:color .35s}
+.statement .w.lit{color:var(--ink)}
+.statement .w.lit.hot{background:linear-gradient(92deg,#a7b6ff,#ffc2a8);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* numbers */
+.numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:10px}
+.num{padding:34px 26px;border-radius:26px;background:var(--card);border:1px solid var(--line)}
+.num b{display:block;font-size:clamp(46px,6vw,76px);line-height:1;letter-spacing:-.04em;font-weight:780;background:linear-gradient(180deg,#fff,#9aa1ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.num span{display:block;margin-top:10px;color:var(--muted);font-size:15px}
+
+/* feature cards with spotlight */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:56px}
+.card{position:relative;border-radius:28px;overflow:hidden;background:var(--card);border:1px solid var(--line);isolation:isolate}
+.card::before{content:"";position:absolute;inset:0;z-index:-1;opacity:0;transition:opacity .4s;background:radial-gradient(520px circle at var(--mx,50%) var(--my,0%),rgba(143,140,255,.20),transparent 60%)}
+.card:hover::before{opacity:1}
+.card .media{aspect-ratio:960/440;background:#0a0c18;border-bottom:1px solid var(--line);overflow:hidden}
+.card .media img{width:100%;height:100%;object-fit:cover;transform:scale(1.04);transition:transform 1.2s var(--ease)}
+.card:hover .media img{transform:scale(1.08)}
+.card .body{padding:26px 28px 30px}
+.card h3{margin:0;font-size:22px;letter-spacing:-.015em}
+.card p{margin:10px 0 0;color:var(--muted);font-size:16px}
+.card.big{grid-column:1/-1}
+.card.big .media{aspect-ratio:1920/880}
+
+/* the paper-plane scene */
+.flight{min-height:420vh;padding:0}
+.flight .pin{position:sticky;top:0;height:100vh;display:grid;grid-template-rows:auto 1fr auto;padding:96px 0 40px;overflow:hidden}
+.flight .head{text-align:center}
+.sky{position:relative;width:min(1000px,92vw);margin:0 auto;align-self:center}
+.sky svg{width:100%;height:auto;overflow:visible}
+.node{position:absolute;width:13%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 50% 35%,#1d2030,#0b0c14);border:1px solid rgba(255,255,255,.12);display:grid;place-items:center;box-shadow:0 0 0 0 rgba(143,140,255,0);transition:box-shadow .6s,transform .6s var(--ease)}
+.node img{width:56%}
+.node.on{box-shadow:0 0 0 6px rgba(143,140,255,.18),0 0 60px rgba(143,140,255,.55);transform:translate(-50%,-50%) scale(1.06)}
+.node em{position:absolute;top:104%;font-style:normal;font-size:14px;color:var(--muted);white-space:nowrap}
+.bubble{position:absolute;transform:translate(-50%,-100%);padding:8px 14px;border-radius:12px;font-size:14px;font-weight:700;white-space:nowrap;opacity:0;transition:opacity .4s,transform .5s var(--ease);pointer-events:none}
+.bubble.show{opacity:1;transform:translate(-50%,-118%)}
+.b-claude{background:#d97757}.b-codex{background:#10a37f}
+.sendcard{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%) scale(.92);width:min(380px,74vw);padding:16px 18px;border-radius:18px;background:rgba(14,15,24,.92);border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 80px rgba(0,0,0,.6);opacity:0;transition:opacity .45s,transform .6s var(--ease);font-size:14px}
+.sendcard.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.sendcard .to{color:var(--faint);font-size:12.5px}
+.sendcard .msg{margin:6px 0 12px}
+.sendcard .row{display:flex;justify-content:space-between}
+.sendcard .no,.sendcard .yes{font-size:13px;font-weight:700;padding:6px 14px;border-radius:9px}
+.sendcard .no{background:rgba(255,99,99,.14);color:#ff8b8b}
+.sendcard .yes{background:rgba(67,224,165,.16);color:#6ff0bd;transition:background .3s,box-shadow .3s,transform .3s}
+.sendcard.pressed .yes{background:#43e0a5;color:#062016;box-shadow:0 0 24px rgba(67,224,165,.7);transform:scale(.95)}
+.caption{position:relative;width:100%;height:3.4em;text-align:center;font-size:clamp(20px,2.4vw,30px);font-weight:700;letter-spacing:-.02em}
+.caption>div{position:absolute;inset:0;opacity:0;transform:translateY(14px);transition:opacity .5s,transform .6s var(--ease)}
+.caption>div.on{opacity:1;transform:none}
+.caption small{display:block;font-size:15px;font-weight:500;color:var(--muted);margin-top:4px;letter-spacing:0}
+
+/* one more thing */
+.omt{background:#000;text-align:center;padding:180px 0 140px}
+.omt .big{font-size:clamp(44px,8vw,104px);font-weight:780;letter-spacing:-.045em;line-height:1}
+.omt .dot{display:inline-block;width:.24em;height:.24em;border-radius:50%;background:#2f7bff;margin-left:.06em;box-shadow:0 0 30px rgba(47,123,255,.9);transform:scale(0);transition:transform .9s var(--ease) .6s}
+.omt .in .dot{transform:scale(1)}
+.omt .wide{margin:70px auto 0;max-width:1000px;border-radius:30px;overflow:hidden;border:1px solid var(--line);box-shadow:0 40px 120px rgba(47,123,255,.15)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;text-align:left}
+.pair figure{margin:0}
+.pair img{border-radius:20px;border:1px solid var(--line)}
+.pair figcaption{color:var(--faint);font-size:14.5px;margin-top:12px}
+
+/* table */
+.tablewrap{overflow-x:auto;margin-top:46px;border-radius:24px;border:1px solid var(--line);background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:15.5px;min-width:640px}
+th,td{padding:16px 18px;border-bottom:1px solid var(--line);text-align:center}
+tr:last-child td{border-bottom:0}
+th:first-child,td:first-child{text-align:left;font-weight:600}
+th{color:var(--faint);font-weight:600;font-size:13px;letter-spacing:.05em}
+td.ok{color:var(--mint);font-weight:800}
+.note{color:var(--faint);font-size:14.5px;margin-top:16px}
+
+/* install */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:56px;counter-reset:s}
+.step{counter-increment:s;padding:30px;border-radius:26px;background:var(--card);border:1px solid var(--line)}
+.step::before{content:counter(s);display:grid;place-items:center;width:40px;height:40px;border-radius:50%;margin-bottom:18px;font-weight:800;color:#d6d6ff;background:radial-gradient(circle at 30% 30%,rgba(143,140,255,.5),rgba(143,140,255,.12))}
+.step h3{margin:0;font-size:19px}
+.step p{margin:10px 0 0;color:var(--muted);font-size:15.5px}
+code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:7px;padding:1px 6px;color:#e5e7ff}
+pre{margin:14px 0 0;background:#0b0d18;border:1px solid var(--line);border-radius:12px;padding:12px 14px;overflow-x:auto}
+pre code{background:none;border:0;padding:0;font-size:12.5px}
+.panelbox{margin-top:22px;padding:28px 30px;border-radius:26px;background:var(--card);border:1px solid var(--line)}
+.panelbox h3{margin:0;font-size:18px}
+.ticks{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+.ticks li{position:relative;padding-left:30px;color:var(--muted)}
+.ticks li::before{content:"";position:absolute;left:4px;top:.55em;width:11px;height:11px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px rgba(67,224,165,.7)}
+.warn{background:linear-gradient(180deg,rgba(245,198,82,.12),rgba(245,198,82,.04));border-color:rgba(245,198,82,.38)}
+.warn h3{color:#ffe1a0}
+.warn ul{margin:16px 0 0;padding-left:20px;color:#e6dfcb}
+.warn li{margin:9px 0}
+.warn b{color:#fff}
+
+/* docs */
+.links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:52px}
+.link{position:relative;display:block;text-decoration:none;padding:24px 26px;border-radius:22px;background:var(--card);border:1px solid var(--line);overflow:hidden;transition:transform .35s var(--ease),border-color .35s}
+.link:hover{transform:translateY(-4px);border-color:rgba(143,140,255,.5)}
+.link::after{content:"→";position:absolute;right:22px;top:22px;color:var(--violet);transition:transform .35s var(--ease)}
+.link:hover::after{transform:translateX(5px)}
+.link b{display:block;font-size:18px;padding-right:24px}
+.link span{display:block;color:var(--muted);font-size:14.5px;margin-top:8px}
+.link:focus-visible{outline:3px solid var(--violet);outline-offset:3px}
+
+.final{text-align:center;padding:160px 0 150px}
+.final h2{font-size:clamp(40px,6.4vw,84px)}
+footer{border-top:1px solid var(--line);padding:40px 0 60px;color:var(--faint);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+footer a{color:var(--muted)}
+
+@media (max-width:900px){
+  .bar nav{display:none}.lang{margin-left:auto}
+  .grid,.pair{grid-template-columns:1fr}.card.big{grid-column:auto}
+  .numbers{grid-template-columns:1fr 1fr}
+  .steps,.links{grid-template-columns:1fr}
+  section{padding:100px 0}
+  .node{width:18%}.node em{font-size:12px}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  .hero{padding-top:100px}
+  .numbers{gap:12px}.num{padding:24px 18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal,.zoom{opacity:1;transform:none;filter:none}
+  h1 .line>span{transform:none}
+  .lead,.actions,.meta{opacity:1}
+  .drop{clip-path:none}
+  .statement{min-height:auto}.statement .pin{position:static;height:auto;padding:120px 0}
+  .statement .w{color:var(--ink)}
+}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/logo.png" alt="">SI Future HUD</a>
+    <nav>
+      <a href="#features"><span class="zh">功能</span><span class="en">Features</span></a>
+      <a href="#messaging"><span class="zh">互相传话</span><span class="en">Messaging</span></a>
+      <a href="#ecosystem">One more thing</a>
+      <a href="#install"><span class="zh">安装</span><span class="en">Install</span></a>
+      <a href="#docs"><span class="zh">文档</span><span class="en">Docs</span></a>
+    </nav>
+    <div class="lang" role="group" aria-label="Language / 语言">
+      <button type="button" data-set-lang="zh" aria-pressed="true">中文</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<!-- ======================= hero ======================= -->
+<div class="hero">
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="hero-copy wrap">
+    <span class="eyebrow"><i></i>SI Future HUD <small>· v0.1.4</small></span>
+    <h1>
+      <span class="zh"><span class="line"><span style="--d:.15s">你的 AI 助手们，</span></span><span class="line"><span style="--d:.32s">就住在<span class="grad">屏幕边上。</span></span></span></span>
+      <span class="en"><span class="line"><span style="--d:.15s">Your AI agents,</span></span><span class="line"><span style="--d:.32s">at the <span class="grad">edge of your screen.</span></span></span></span>
+    </h1>
+    <p class="lead">
+      <span class="zh">额度、实时状态、审批，还有<b>助手之间互相传话</b>，都在 MacBook 刘海旁边。Claude Code、Codex、Cursor、Grok Bot 和程小帮，一眼看清谁在忙、谁在等你。</span>
+      <span class="en">Quotas, live states, approvals and <b>agent‑to‑agent messages</b>, right around your MacBook's notch. See at a glance which of Claude Code, Codex, Cursor, Grok Bot and Chengxiaobang is busy, and which one is waiting for you.</span>
+    </p>
+    <div class="actions">
+      <a class="btn primary" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD_0.1.4_aarch64.dmg"><span class="zh">下载 SI Future HUD</span><span class="en">Download for Mac</span></a>
+      <a class="btn ghost" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">▶&nbsp;<span class="zh">看 2 分半宣传片</span><span class="en">Watch the film</span></a>
+    </div>
+    <p class="meta"><span class="zh">macOS 12 及以上 · Apple 芯片 · 版本 0.1.4 · 下载需登录公司 GitLab</span><span class="en">macOS 12+ · Apple silicon · version 0.1.4 · downloads need your company GitLab sign‑in</span></p>
+  </div>
+  <div class="stage" aria-hidden="true">
+    <div class="bezel"></div>
+    <div class="notch-glow"></div>
+    <div class="drop"><img src="assets/panel.webp" width="820" height="880" alt=""></div>
+  </div>
+  <div class="scroll-hint"><span class="zh">向下滚动</span><span class="en">Scroll</span></div>
+</div>
+
+<!-- ======================= statement ======================= -->
+<section class="statement" aria-label="SI Future HUD">
+  <div class="pin">
+    <p class="zh" data-words>你把活交给 Claude Code、Codex、Cursor、Grok Bot 和程小帮，然后去忙自己的事。SI Future HUD 让它们一直待在你的余光里：谁在思考，谁在等你，谁的额度快见底了。</p>
+    <p class="en" data-words>You hand work to Claude Code, Codex, Cursor, Grok Bot and Chengxiaobang, then get on with yours. SI Future HUD keeps all of them in the corner of your eye: who is thinking, who is waiting for you, whose quota is running low.</p>
+  </div>
+</section>
+
+<!-- ======================= numbers ======================= -->
+<section style="padding-top:20px">
+  <div class="wrap">
+    <div class="numbers">
+      <div class="num reveal"><b data-count="5">0</b><span><span class="zh">个助手实测接入</span><span class="en">agents tested</span></span></div>
+      <div class="num reveal" style="--d:.1s"><b data-count="8">0</b><span><span class="zh">种机器人状态</span><span class="en">bot states</span></span></div>
+      <div class="num reveal" style="--d:.2s"><b data-count="3">0</b><span><span class="zh">种外观，任意屏幕边</span><span class="en">looks, any edge</span></span></div>
+      <div class="num reveal" style="--d:.3s"><b data-count="100" data-suffix="%">0</b><span><span class="zh">数据只在本机</span><span class="en">local, no telemetry</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= features ======================= -->
+<section id="features">
+  <div class="wrap">
+    <div class="kicker reveal"><span class="zh">它做什么</span><span class="en">What it does</span></div>
+    <h2 class="reveal" style="--d:.08s"><span class="zh">不用切窗口，<br>一切都在眼角。</span><span class="en">Everything they do,<br>in the corner of your eye.</span></h2>
+    <div class="grid">
+      <article class="card big reveal">
+        <div class="media"><img loading="lazy" src="media/notch-drop.webp" alt=""></div>
+        <div class="body">
+          <h3><span class="zh">鼠标移上刘海，一切尽收眼底</span><span class="en">Hover the notch. See everything.</span></h3>
+          <p><span class="zh">带发光边的刘海整块弹下来，竖着列出每个助手的账户、每个额度窗口和重置时间。颜色跟着最紧的那份额度走：绿、黄、红，干活时呼吸得更快。</span><span class="en">The glowing notch drops open into one panel: every agent's account, every quota window and when it resets. The colour follows the tightest quota (green, yellow, red) and breathes faster while they work.</span></p>
+        </div>
+      </article>
+      <article class="card reveal">
+        <div class="media"><img loading="lazy" src="media/approval.webp" alt=""></div>
+        <div class="body">
+          <h3><span class="zh">在 HUD 上直接审批</span><span class="en">Approve right there</span></h3>
+          <p><span class="zh">「是否允许执行」带着完整命令弹到 HUD 上：批准一次、拒绝或始终允许。放着不管 10 分钟后交还给助手，从不替你决定。</span><span class="en">Requests arrive with the full command: Allow once, Deny or Always allow. Left alone, they go back to the agent after 10 minutes; it never decides for you.</span></p>
+        </div>
+      </article>
+      <article class="card reveal" style="--d:.12s">
+        <div class="media"><img loading="lazy" src="media/quota-out.webp" alt=""></div>
+        <div class="body">
+          <h3><span class="zh">额度不会突然见底</span><span class="en">Never run out by surprise</span></h3>
+          <p><span class="zh">快用完先提醒，用完了小机器人晕倒；重置时弹出「已重置」，圆环回到绿色。</span><span class="en">A warning first, a fainting bot when it's gone, and a <i>Reset</i> notice when the ring turns green again.</span></p>
+        </div>
+      </article>
+      <article class="card reveal">
+        <div class="media"><img loading="lazy" src="media/usage-lens.webp" alt=""></div>
+        <div class="body">
+          <h3><span class="zh">细节随时看</span><span class="en">Details on demand</span></h3>
+          <p><span class="zh">额度、消耗速度、回复速度、累计消耗、估算花费五种看法，还有 Token 图表和每个会话的子 agent。</span><span class="en">Quota, burn rate, reply rate, consumed and estimated cost, plus token charts and every session's sub‑agents.</span></p>
+        </div>
+      </article>
+      <article class="card reveal" style="--d:.12s">
+        <div class="media"><img loading="lazy" src="media/drag.webp" alt=""></div>
+        <div class="body">
+          <h3><span class="zh">三种外观，任意一条边</span><span class="en">Three looks, any edge</span></h3>
+          <p><span class="zh">刘海、动态、简约。拖到哪条边都行：上下边横排，左右边竖排。</span><span class="en">Notch, Dynamic and Simple. Drag it to any edge: horizontal at the top and bottom, vertical on the sides.</span></p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= bots ======================= -->
+<section class="center" style="padding-top:40px">
+  <div class="wrap">
+    <div class="kicker reveal"><span class="zh">活起来的助手</span><span class="en">They come alive</span></div>
+    <h2 class="reveal" style="--d:.08s"><span class="zh">每个助手，<br>都有自己的小机器人。</span><span class="en">Every agent<br>has its own little bot.</span></h2>
+    <p class="sub reveal" style="--d:.16s"><span class="zh">思考、压缩上下文、改代码、跑命令、等你批准、提问、完成、额度用完，它们会演给你看。</span><span class="en">Thinking, compacting, editing, running a command, waiting for you, asking, done, out of quota: they act it out.</span></p>
+    <div class="zoom" style="margin-top:60px;border-radius:30px;overflow:hidden;border:1px solid var(--line)"><img loading="lazy" src="media/bots.webp" alt=""></div>
+  </div>
+</section>
+
+<!-- ======================= paper plane ======================= -->
+<section class="flight" id="messaging">
+  <div class="pin">
+    <div class="head wrap">
+      <div class="kicker"><span class="zh">互相传话</span><span class="en">Agent‑to‑agent messages</span></div>
+      <h2 style="font-size:clamp(30px,4.4vw,56px)"><span class="zh">它们互相请教，<span class="grad">每一条都经你同意。</span></span><span class="en">They ask each other, <span class="grad">with your OK.</span></span></h2>
+    </div>
+    <div class="sky">
+      <svg viewBox="0 0 1000 420" aria-hidden="true">
+        <defs><linearGradient id="trail" x1="0" x2="1"><stop offset="0" stop-color="#d97757"/><stop offset="1" stop-color="#10a37f"/></linearGradient></defs>
+        <path id="out" d="M140 250 C 330 40, 670 40, 860 250" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-dasharray="6 9"/>
+        <path id="outLit" d="M140 250 C 330 40, 670 40, 860 250" fill="none" stroke="url(#trail)" stroke-width="3" stroke-linecap="round"/>
+        <path id="back" d="M860 250 C 670 420, 330 420, 140 250" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-dasharray="6 9"/>
+        <path id="backLit" d="M860 250 C 670 420, 330 420, 140 250" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round"/>
+        <g id="plane" opacity="0"><path d="M-16 -12 L18 0 L-16 12 L-9 0 Z" fill="#fff"/><path d="M-9 0 L18 0" stroke="rgba(0,0,0,.25)" stroke-width="1.2"/></g>
+      </svg>
+      <div class="node" id="nClaude" style="left:14%;top:59.5%"><img src="assets/agent-claude.png" alt=""><em>Claude Code</em></div>
+      <div class="node" id="nCodex" style="left:86%;top:59.5%"><img src="assets/agent-chatgpt.png" alt=""><em>Codex</em></div>
+      <div class="bubble b-claude" id="bAsk" style="left:14%;top:42%"><span class="zh">让我问问 Codex</span><span class="en">Let me ask Codex</span></div>
+      <div class="bubble b-codex" id="bGot" style="left:86%;top:42%"><span class="zh">收到！</span><span class="en">Got it!</span></div>
+      <div class="bubble b-claude" id="bBack" style="left:14%;top:42%"><span class="zh">收到回信</span><span class="en">Reply received</span></div>
+      <div class="sendcard" id="card">
+        <div class="to">Claude Code → Codex · hud_send_message</div>
+        <div class="msg"><span class="zh">行程卡片现在显示同行人了吗？</span><span class="en">Does the trip card show the travellers yet?</span></div>
+        <div class="row"><span class="no"><span class="zh">拒绝</span><span class="en">Deny</span></span><span class="yes"><span class="zh">发送</span><span class="en">Send</span></span></div>
+      </div>
+    </div>
+    <div class="caption wrap" aria-live="polite">
+      <div data-step="0"><span class="zh">Claude 想问 Codex 一件事。</span><span class="en">Claude wants to ask Codex something.</span><small><span class="zh">它调用 HUD 的 hud_send_message，消息先停在 HUD 上。</span><span class="en">It calls the HUD's hud_send_message; the message waits on the HUD.</span></small></div>
+      <div data-step="1"><span class="zh">你点「发送」。</span><span class="en">You press Send.</span><small><span class="zh">不点就不发；点「拒绝」，纸飞机直接掉下来。</span><span class="en">No Send, no message. Deny, and the plane falls.</span></small></div>
+      <div data-step="2"><span class="zh">纸飞机飞进 Codex 打开着的对话。</span><span class="en">A paper plane flies into Codex's open conversation.</span><small><span class="zh">标明来自另一个助手，不会冒充你。</span><span class="en">Marked as from another agent, never as you.</span></small></div>
+      <div data-step="3"><span class="zh">回信飞回发问的那个对话。</span><span class="en">The reply flies back to the conversation that asked.</span><small><span class="zh">Claude Code、Codex 桌面版和程小帮都能互相传话。</span><span class="en">Claude Code, Codex desktop and Chengxiaobang can all message each other.</span></small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= one more thing ======================= -->
+<section class="omt" id="ecosystem">
+  <div class="wrap">
+    <div class="big reveal">One more thing<span class="dot"></span></div>
+    <h2 class="reveal" style="--d:.2s;margin-top:40px;font-size:clamp(28px,4vw,50px)"><span class="zh">借助程小帮，<span class="grad">让每个助手都懂公司的业务。</span></span><span class="en">Your company's knowledge, <span class="grad">for every agent.</span></span></h2>
+    <p class="sub reveal" style="--d:.3s;margin-left:auto;margin-right:auto"><span class="zh">程小帮连着公司的知识库、MCP 和插件。编程助手遇到代码里找不到答案的业务问题，比如「同行人有人数上限吗？儿童怎么计价？」，就去问它。程小帮查完把答案分别送回，助手们再讨论到一致。</span><span class="en">Chengxiaobang (程小帮), Trip.com's AI workbench, is connected to the company's knowledge base, MCP and plugins. When a coding agent hits a business question the code can't answer, it asks Chengxiaobang, which looks it up and answers each agent; then they agree.</span></p>
+    <div class="wide zoom"><img loading="lazy" src="media/ecosystem.jpg" alt=""></div>
+    <div class="pair">
+      <figure class="reveal"><img loading="lazy" src="media/ask-chengxiaobang.webp" alt=""><figcaption><span class="zh">问懂行的人。每一条照样要你点「发送」。</span><span class="en">Ask the one who knows. Every message still waits for your Send.</span></figcaption></figure>
+      <figure class="reveal" style="--d:.12s"><img loading="lazy" src="media/debate.webp" alt=""><figcaption><span class="zh">再一起拍板：最多 8 位，后端校验加前端提示，儿童单独计价。</span><span class="en">Then they agree: at most 8 travellers, checked on the server with a hint in the app, children priced separately.</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= agents ======================= -->
+<section id="agents">
+  <div class="wrap">
+    <div class="kicker reveal"><span class="zh">支持的助手</span><span class="en">Supported agents</span></div>
+    <h2 class="reveal" style="--d:.08s"><span class="zh">你在用的，基本都在。</span><span class="en">The agents you already use.</span></h2>
+    <div class="tablewrap reveal" style="--d:.16s">
+      <table>
+        <thead><tr>
+          <th><span class="zh">助手</span><span class="en">Agent</span></th><th><span class="zh">额度</span><span class="en">Quota</span></th><th><span class="zh">实时状态</span><span class="en">Live state</span></th><th><span class="zh">审批</span><span class="en">Approvals</span></th><th><span class="zh">提问</span><span class="en">Questions</span></th><th><span class="zh">回复提醒</span><span class="en">Replies</span></th><th><span class="zh">互相传话</span><span class="en">Messaging</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Claude Code</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td><span class="zh">能发能收</span><span class="en">send + receive</span></td></tr>
+          <tr><td>Codex</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td><span class="zh">能发能收（桌面版）</span><span class="en">send + receive (desktop)</span></td></tr>
+          <tr><td><span class="zh">程小帮</span><span class="en">Chengxiaobang</span></td><td><span class="zh">近 24 小时用量</span><span class="en">last 24 h tokens</span></td><td class="ok">✓</td><td></td><td class="ok">✓</td><td class="ok">✓</td><td><span class="zh">能发能收</span><span class="en">send + receive</span></td></tr>
+          <tr><td>Cursor</td><td class="ok">✓</td><td class="ok">✓</td><td></td><td></td><td class="ok">✓</td><td></td></tr>
+          <tr><td>Grok Bot</td><td class="ok">✓</td><td class="ok">✓</td><td></td><td><span class="zh">只显示</span><span class="en">display</span></td><td class="ok">✓</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><span class="zh">Agent HUD 支持的其他助手（DeepSeek、GitHub Copilot CLI、OpenCode、Kimi 等）也都保留；上表五个是这个版本实际测过的。</span><span class="en">Everything else Agent HUD supports (DeepSeek, GitHub Copilot CLI, OpenCode, Kimi and more) comes along; the five above were tested with this build.</span></p>
+  </div>
+</section>
+
+<!-- ======================= install ======================= -->
+<section id="install">
+  <div class="wrap">
+    <div class="kicker reveal"><span class="zh">首次安装</span><span class="en">First install</span></div>
+    <h2 class="reveal" style="--d:.08s"><span class="zh">五分钟装好。</span><span class="en">Five minutes.</span></h2>
+    <p class="sub reveal" style="--d:.16s"><span class="zh">大部分时间在等 macOS 问你信不信任它。</span><span class="en">Most of it is macOS asking whether you trust it.</span></p>
+    <div class="steps">
+      <div class="step reveal">
+        <h3><span class="zh">拖进「应用程序」</span><span class="en">Drag to Applications</span></h3>
+        <p><span class="zh">打开 DMG，把 SI Future HUD 拖进「应用程序」。<b>不要在 DMG 窗口里直接打开</b>，否则自动配置不会生效。</span><span class="en">Open the DMG and drag SI Future HUD into Applications. <b>Don't open it from the DMG window</b>, or the automatic set‑up can't run.</span></p>
+      </div>
+      <div class="step reveal" style="--d:.1s">
+        <h3><span class="zh">放行一次</span><span class="en">Allow it once</span></h3>
+        <p><span class="zh">临时签名的内部版本第一次会被拦下：「系统设置 → 隐私与安全性」点「仍要打开」。提示「已损坏」时运行：</span><span class="en">It's ad‑hoc signed, so the first launch is blocked: System Settings → Privacy &amp; Security → Open Anyway. If it says "damaged", run:</span></p>
+        <pre><code>xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"</code></pre>
+      </div>
+      <div class="step reveal" style="--d:.2s">
+        <h3><span class="zh">每个助手的最后一步</span><span class="en">Finish each agent</span></h3>
+        <p><span class="zh">终端里的 <code>claude</code> 登录一次；程小帮「插件」页启用一次 SI Future HUD；Cursor 在桌面版里登录。</span><span class="en">Sign in to the terminal <code>claude</code> once; enable SI Future HUD on Chengxiaobang's Plugins page; sign in to Cursor in its desktop app.</span></p>
+      </div>
+    </div>
+    <div class="panelbox reveal">
+      <h3><span class="zh">第一次打开时，它会自动：</span><span class="en">On first launch it sets itself up:</span></h3>
+      <ul class="ticks">
+        <li><span class="zh">给 Claude Code 装好插件，把「HUD 工具」加进 Claude Code 和 Codex；</span><span class="en">installs its Claude Code plugin and adds the HUD tools to Claude Code and Codex;</span></li>
+        <li><span class="zh">打开「客户端回调」，让审批弹到 HUD 上；</span><span class="en">turns on client hooks so approvals reach the HUD;</span></li>
+        <li><span class="zh">给程小帮放好插件。每一步只做一次，你删掉的不会再加回来。</span><span class="en">drops its plugin into Chengxiaobang. Each step runs once; nothing you remove is put back.</span></li>
+      </ul>
+    </div>
+    <div class="panelbox warn reveal">
+      <h3><span class="zh">⚠️ 用之前请先看这几条</span><span class="en">⚠️ Read this before your first day with it</span></h3>
+      <ul>
+        <li><span class="zh"><b>要装命令行版。</b>HUD 通过 <code>claude</code>、<code>codex</code> 命令接入。只用桌面版也要装上，再重开 HUD；不然 Claude 收发不了传话，Codex 发不出去。</span><span class="en"><b>Install the command‑line tools.</b> The HUD connects through <code>claude</code> and <code>codex</code>. Install them even if you only use the desktop apps, then reopen the HUD; otherwise Claude can't send or receive messages and Codex can't send.</span></li>
+        <li><span class="zh"><b>Claude 的额度要终端里的 <code>claude</code> 登录着。</b>桌面 App 的登录和终端不共用；显示「已退出登录」时，在终端运行 <code>claude</code> 登录。</span><span class="en"><b>Claude's quota needs the terminal <code>claude</code> signed in.</b> The desktop app's sign‑in is separate; if it says signed out, run <code>claude</code> in a terminal and sign in.</span></li>
+        <li><span class="zh"><b>Codex 只有桌面版的对话能收传话</b>，对方正在干活时收不了。</span><span class="en"><b>Codex receives only in desktop conversations</b>, and not while a turn is running.</span></li>
+        <li><span class="zh"><b>程小帮每次重启后</b>，要点开某个对话一次，那个对话才能收传话。</span><span class="en"><b>After each Chengxiaobang restart</b>, open a conversation once so it can receive.</span></li>
+        <li><span class="zh"><b>卸载要按顺序：</b>先在设置里关掉「客户端回调」，再删 App。</span><span class="en"><b>Uninstall in order:</b> turn Client hooks off first, then remove the app.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= docs ======================= -->
+<section id="docs">
+  <div class="wrap">
+    <div class="kicker reveal"><span class="zh">装好之后</span><span class="en">After installing</span></div>
+    <h2 class="reveal" style="--d:.08s"><span class="zh">想了解更多。</span><span class="en">Go deeper.</span></h2>
+    <div class="links">
+      <a class="link zh reveal" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/docs/si-future-hud/INSTALL.zh-CN.md"><b>安装指南</b><span>每一步、每个系统弹窗是什么意思，升级和卸载。</span></a>
+      <a class="link en reveal" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/docs/si-future-hud/INSTALL.md"><b>Install guide</b><span>Every step, what each macOS prompt means, updating and removing.</span></a>
+      <a class="link zh reveal" style="--d:.08s" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/docs/si-future-hud/GUIDE.zh-CN.md"><b>使用指南</b><span>三种外观、机器人状态、面板、审批，设置在哪。</span></a>
+      <a class="link en reveal" style="--d:.08s" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/docs/si-future-hud/GUIDE.md"><b>User guide</b><span>The looks, the bots, the panel, approvals and where each setting is.</span></a>
+      <a class="link zh reveal" style="--d:.16s" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/docs/si-future-hud/MESSAGING.zh-CN.md"><b>互相传话</b><span>怎么让助手们传话，谁能收发，安全规则和局限。</span></a>
+      <a class="link en reveal" style="--d:.16s" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/docs/si-future-hud/MESSAGING.md"><b>Messaging</b><span>How to ask, who can send and receive, the rules and limits.</span></a>
+      <a class="link zh reveal" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/docs/si-future-hud/TROUBLESHOOTING.zh-CN.md"><b>常见问题</b><span>踩过的每个坑，原因和解决办法。</span></a>
+      <a class="link en reveal" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/docs/si-future-hud/TROUBLESHOOTING.md"><b>Troubleshooting</b><span>Every snag we know of, with its cause and fix.</span></a>
+      <a class="link reveal" style="--d:.08s" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/blob/main/CHANGELOG.md"><b><span class="zh">更新记录</span><span class="en">Changelog</span></b><span><span class="zh">每个版本加了什么、改了什么。</span><span class="en">What each version added and changed.</span></span></a>
+      <a class="link reveal" style="--d:.16s" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud"><b><span class="zh">源码</span><span class="en">Source</span></b><span><span class="zh">基于开源的 Agent HUD，改动清单都在 CHANGES.md。</span><span class="en">Built on open‑source Agent HUD; every change is in CHANGES.md.</span></span></a>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2 class="reveal"><span class="zh">让快的更准，<br><span class="grad">让强的更懂。</span></span><span class="en">Make the fast more precise.<br><span class="grad">Make the strong understand.</span></span></h2>
+    <div class="actions reveal" style="--d:.15s;opacity:1;animation:none">
+      <a class="btn primary" href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD_0.1.4_aarch64.dmg"><span class="zh">下载 SI Future HUD</span><span class="en">Download for Mac</span></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><span class="zh">所有数据都留在你的电脑上，没有遥测，也没有自动更新。宣传片和截图均为演示数据。</span><span class="en">Everything stays on your Mac: no telemetry, no auto‑update. The film and screenshots use sample data.</span></div>
+    <div><span class="zh">基于 <a href="https://github.com/jazzenchen/agent-hud-open">Agent HUD</a>（Apache‑2.0）· 作者 <a href="http://git.dev.sh.ctripcorp.com/ckxu">许成凯</a> · <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/issues">反馈问题</a></span><span class="en">Built on <a href="https://github.com/jazzenchen/agent-hud-open">Agent HUD</a> (Apache‑2.0) · by <a href="http://git.dev.sh.ctripcorp.com/ckxu">Chengkai Xu</a> · <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/issues">Report a problem</a></span></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var ease = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+
+  /* ---- language ---- */
+  var titles = { zh: "SI Future HUD · 你的 AI 助手们，就住在屏幕边上", en: "SI Future HUD · Your AI agents, at the edge of your screen" };
+  function stored() { try { return localStorage.getItem("si-hud-lang"); } catch (e) { return null; } }
+  function remember(l) { try { localStorage.setItem("si-hud-lang", l); } catch (e) {} }
+  function setLang(l) {
+    root.setAttribute("data-lang", l);
+    root.setAttribute("lang", l === "zh" ? "zh-CN" : "en");
+    document.title = titles[l];
+    document.querySelectorAll("[data-set-lang]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-set-lang") === l)); });
+    update();
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-set-lang]");
+    if (b) { setLang(b.getAttribute("data-set-lang")); remember(b.getAttribute("data-set-lang")); }
+  });
+
+  /* ---- words of the statement, one span each (CJK by character) ---- */
+  document.querySelectorAll("[data-words]").forEach(function (p) {
+    var text = p.textContent, cjk = /[㐀-鿿]/.test(text);
+    var parts = cjk ? Array.from(text) : text.split(/(\s+)/);
+    p.textContent = "";
+    var hot = cjk ? /[余光等你见底]/ : /^(eye:|corner|waiting|low\.)$/;
+    parts.forEach(function (t) {
+      if (/^\s+$/.test(t)) { p.appendChild(document.createTextNode(t)); return; }
+      var s = document.createElement("span"); s.className = "w" + (hot.test(t) ? " hot" : ""); s.textContent = t; p.appendChild(s);
+    });
+  });
+
+  /* ---- reveals and counters ---- */
+  function count(el) {
+    var target = +el.getAttribute("data-count"), suffix = el.getAttribute("data-suffix") || "", t0 = null;
+    if (reduce) { el.textContent = target + suffix; return; }
+    function step(ts) { if (!t0) t0 = ts; var k = clamp((ts - t0) / 1400, 0, 1); el.textContent = Math.round(target * ease(k)) + suffix; if (k < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("in");
+      e.target.querySelectorAll && e.target.querySelectorAll("[data-count]").forEach(count);
+      io.unobserve(e.target);
+    });
+  }, { threshold: 0.16, rootMargin: "0px 0px -6% 0px" });
+  document.querySelectorAll(".reveal,.zoom").forEach(function (el) { io.observe(el); });
+
+  /* ---- spotlight on cards ---- */
+  document.querySelectorAll(".card").forEach(function (c) {
+    c.addEventListener("pointermove", function (e) {
+      var r = c.getBoundingClientRect();
+      c.style.setProperty("--mx", (e.clientX - r.left) + "px");
+      c.style.setProperty("--my", (e.clientY - r.top) + "px");
+    });
+  });
+
+  /* ---- scroll-linked scenes ---- */
+  var bar = document.querySelector(".bar"), progress = document.querySelector(".progress");
+  var heroCopy = document.querySelector(".hero-copy"), stage = document.querySelector(".stage");
+  var statement = document.querySelector(".statement");
+  var flight = document.querySelector(".flight");
+  var plane = document.getElementById("plane");
+  var out = document.getElementById("out"), back = document.getElementById("back");
+  var outLit = document.getElementById("outLit"), backLit = document.getElementById("backLit");
+  var outLen = out.getTotalLength(), backLen = back.getTotalLength();
+  outLit.style.strokeDasharray = backLit.style.strokeDasharray = "0 99999";
+  var card = document.getElementById("card"), nClaude = document.getElementById("nClaude"), nCodex = document.getElementById("nCodex");
+  var bAsk = document.getElementById("bAsk"), bGot = document.getElementById("bGot"), bBack = document.getElementById("bBack");
+  var steps = document.querySelectorAll(".caption [data-step]");
+  var lastY = 0;
+
+  function sectionProgress(el) {
+    var r = el.getBoundingClientRect(), total = r.height - innerHeight;
+    return total > 0 ? clamp(-r.top / total, 0, 1) : 0;
+  }
+  function fly(path, len, lit, k) {
+    var d = len * k, p = path.getPointAtLength(d), q = path.getPointAtLength(Math.min(len, d + 1));
+    var angle = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
+    plane.setAttribute("transform", "translate(" + p.x + " " + p.y + ") rotate(" + angle + ")");
+    lit.style.strokeDasharray = d + " 99999";
+  }
+  function update() {
+    var y = window.scrollY, h = document.documentElement.scrollHeight - innerHeight;
+    progress.style.setProperty("--read", h > 0 ? y / h : 0);
+    bar.classList.toggle("solid", y > 40);
+    bar.classList.toggle("hide", y > lastY && y > innerHeight * 1.2);
+    lastY = y;
+    if (reduce) return;
+
+    // hero: the copy lifts and fades, the panel comes forward
+    var k = clamp(y / innerHeight, 0, 1);
+    heroCopy.style.transform = "translateY(" + (-k * 120) + "px)";
+    heroCopy.style.opacity = String(1 - k * 1.25);
+    stage.style.transform = "translateY(" + (-k * 40) + "px) scale(" + (1 + k * 0.12) + ")";
+
+    // statement: words light up one after another
+    var s = sectionProgress(statement);
+    statement.querySelectorAll("p").forEach(function (p) {
+      if (getComputedStyle(p).display === "none") return;
+      var words = p.querySelectorAll(".w"), lit = Math.round(clamp((s - 0.08) / 0.75, 0, 1) * words.length);
+      words.forEach(function (w, i) { w.classList.toggle("lit", i < lit); });
+    });
+
+    // paper plane: ask, Send, fly out, fly back
+    var f = sectionProgress(flight), step;
+    card.classList.toggle("show", f > 0.04 && f < 0.36);
+    card.classList.toggle("pressed", f > 0.2 && f < 0.36);
+    nClaude.classList.toggle("on", f < 0.36 || f > 0.86);
+    nCodex.classList.toggle("on", f > 0.56 && f < 0.86);
+    bAsk.classList.toggle("show", f > 0.04 && f < 0.3);
+    bGot.classList.toggle("show", f > 0.56 && f < 0.7);
+    bBack.classList.toggle("show", f > 0.88);
+    if (f < 0.36) { plane.setAttribute("opacity", "0"); outLit.style.strokeDasharray = backLit.style.strokeDasharray = "0 99999"; }
+    else if (f < 0.58) { plane.setAttribute("opacity", "1"); fly(out, outLen, outLit, ease(clamp((f - 0.36) / 0.2, 0, 1))); backLit.style.strokeDasharray = "0 99999"; }
+    else if (f < 0.66) { plane.setAttribute("opacity", "0"); outLit.style.strokeDasharray = outLen + " 99999"; }
+    else { plane.setAttribute("opacity", f > 0.9 ? "0" : "1"); fly(back, backLen, backLit, ease(clamp((f - 0.66) / 0.22, 0, 1))); outLit.style.strokeDasharray = outLen + " 99999"; }
+    step = f < 0.2 ? 0 : f < 0.36 ? 1 : f < 0.62 ? 2 : 3;
+    steps.forEach(function (el) { el.classList.toggle("on", +el.getAttribute("data-step") === step); });
+  }
+  var ticking = false;
+  addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(function () { ticking = false; update(); }); } }, { passive: true });
+  addEventListener("resize", update);
+
+  setLang(stored() || ((navigator.language || "zh").toLowerCase().indexOf("zh") === 0 ? "zh" : "en"));
+  if (reduce) { steps.forEach(function (el, i) { el.classList.toggle("on", i === 3); }); plane.setAttribute("opacity", "0"); }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Publishes the product site (site/ plus the README media) as GitLab Pages:
+# https://pages.release.ctripcorp.com/ckxu/si-future-hud/
+pages:
+  stage: deploy
+  # The company runners cannot reliably reach Docker Hub; this internal mirror
+  # (the one cct/agentpet publishes with) only needs a POSIX shell here.
+  image: hub.cloud.ctripcorp.com/library/python:3.12.13@sha256:8e464b5be53149edaace5d43ff9402246e0e5810862baf64d6780dc6693b5e30
+  script:
+    - sh scripts/build-site.sh
+  artifacts:
+    paths:
+      - public
+  rules:
+    # Compared with the literal branch name: on this GitLab instance
+    # `$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH` filters the job out.
+    - if: $CI_COMMIT_BRANCH == "main"
