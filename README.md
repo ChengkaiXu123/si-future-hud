@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">
+  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
     <img src="docs/si-future-hud/media/hero.jpg" alt="SI Future HUD: your AI agents, living at the edge of your screen. The MacBook's notch dropped open into a panel listing every agent's quota: Claude, OpenAI, Chengxiaobang, Cursor and Grok Bot" width="100%">
   </a>
 </p>
@@ -22,7 +22,7 @@
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
   &nbsp;|&nbsp;
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/"><b>Website</b></a> ·
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">Watch the film</a> ·
+  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">Watch the film</a> ·
   <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">Download</a> ·
   <a href="docs/si-future-hud/INSTALL.md">Install</a> ·
   <a href="docs/si-future-hud/GUIDE.md">Guide</a> ·
@@ -42,7 +42,7 @@ When two of your agents need to compare notes, they can now send each other a me
 SI Future HUD is a customized build of the open‑source [Agent HUD](https://github.com/jazzenchen/agent-hud-open). It adds agent‑to‑agent messaging, the Chengxiaobang (程小帮) integration, live states for Cursor and Grok Bot, and an install that sets itself up.
 
 <p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">
+  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
     <img src="docs/si-future-hud/media/poster.jpg" alt="Still from the product film: the opened notch panel" width="72%">
   </a><br>
   <sub>▶ <b>Watch the 2½‑minute film</b> (1080p60, MP4, 34 MB) · sample data throughout</sub>
@@ -188,7 +188,7 @@ Everything else Agent HUD supports comes along too, for example DeepSeek, GitHub
 
 ## Get started
 
-1. **Download** `SI-Future-HUD_0.1.4_aarch64.dmg` from the [latest release](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest). You need an Apple silicon Mac with macOS 12 or newer.
+1. **Download** [SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg) (45 MB, no sign‑in), or from the [release page](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest) with its checksums. You need an Apple silicon Mac with macOS 12 or newer.
 2. **Drag** SI Future HUD into **Applications**, then open it from there.
 3. **Allow it once.** In **System Settings → Privacy & Security**, click **Open Anyway**. The build is ad‑hoc signed, not notarized.
 

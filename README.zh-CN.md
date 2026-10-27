@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">
+  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
     <img src="docs/si-future-hud/media/hero.jpg" alt="SI Future HUD：你的 AI 助手们，就住在屏幕边上。MacBook 的刘海弹开成一块面板，列出 Claude、OpenAI、程小帮、Cursor 和 Grok Bot 的额度" width="100%">
   </a>
 </p>
@@ -22,7 +22,7 @@
   <a href="README.md">English</a> · <strong>简体中文</strong>
   &nbsp;|&nbsp;
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/"><b>产品网页</b></a> ·
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">看宣传片</a> ·
+  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">看宣传片</a> ·
   <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">下载</a> ·
   <a href="docs/si-future-hud/INSTALL.zh-CN.md">安装</a> ·
   <a href="docs/si-future-hud/GUIDE.zh-CN.md">使用指南</a> ·
@@ -42,7 +42,7 @@
 SI Future HUD 基于开源项目 [Agent HUD](https://github.com/jazzenchen/agent-hud-open) 定制。在它之上加了：助手之间互相传话、接入程小帮、Cursor 和 Grok Bot 的实时状态，以及装好就自动配置。
 
 <p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">
+  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
     <img src="docs/si-future-hud/media/poster.jpg" alt="宣传片截图：刘海弹开后的面板" width="72%">
   </a><br>
   <sub>▶ <b>看 2 分半的宣传片</b>（1080p60，MP4，34 MB）· 片中均为演示数据</sub>
@@ -188,7 +188,7 @@ Agent HUD 支持的其他助手也都保留，比如 DeepSeek、GitHub Copilot C
 
 ## 开始使用
 
-1. **下载**：从[最新版本](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)下载 `SI-Future-HUD_0.1.4_aarch64.dmg`。需要 Apple 芯片的 Mac，macOS 12 或更新。
+1. **下载**：直接下载 [SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg)（45 MB，免登录），或者到[发布页](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)下载（带校验文件）。需要 Apple 芯片的 Mac，macOS 12 或更新。
 2. **拖进「应用程序」**，再从「应用程序」里打开。
 3. **放行一次**：在「系统设置 → 隐私与安全性」里点「仍要打开」。这是临时签名的内部版本，没有经过苹果公证。
 

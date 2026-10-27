@@ -25,7 +25,7 @@ You can install them later. The HUD tries again every time it starts.
 
 ## 1 · Download
 
-From the [latest release](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest), download:
+The quickest: **[SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg)** (45 MB, no sign‑in). Or, from the [release page](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest) (company GitLab sign‑in), download:
 
 - `SI-Future-HUD_0.1.4_aarch64.dmg`: the app
 - `SHA256SUMS.txt`: checksums, if you want to verify the download
