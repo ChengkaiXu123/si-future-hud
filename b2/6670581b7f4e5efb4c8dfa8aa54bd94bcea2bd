@@ -1,0 +1,47 @@
+docs/si-future-hud/INSTALL.md
+  s_d48b3b8d3c26d0::t_73a46c67f85438 135
+  s_d48b3b8d3c26d0::t_3740d8fd1a3773 134
+  s_d48b3b8d3c26d0::t_632c67a31b89e9 103
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 15,20,81
+docs/si-future-hud/MESSAGING.zh-CN.md
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 63
+README.zh-CN.md
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 204-205
+docs/si-future-hud/TROUBLESHOOTING.zh-CN.md
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 38,43,116,224
+  s_d48b3b8d3c26d0::t_632c67a31b89e9 46
+docs/si-future-hud/INSTALL.zh-CN.md
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 15,20,81
+  s_d48b3b8d3c26d0::t_73a46c67f85438 135
+  s_d48b3b8d3c26d0::t_632c67a31b89e9 103
+  s_d48b3b8d3c26d0::t_3740d8fd1a3773 134
+docs/si-future-hud/GUIDE.md
+  s_d48b3b8d3c26d0::t_f5b95943dc9c01 95
+docs/si-future-hud/GUIDE.zh-CN.md
+  s_d48b3b8d3c26d0::t_f5b95943dc9c01 95
+docs/si-future-hud/MESSAGING.md
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 63
+site/index.html
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 511-512
+docs/si-future-hud/TROUBLESHOOTING.md
+  s_d48b3b8d3c26d0::t_632c67a31b89e9 46
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 38,43,116,224
+README.md
+  s_d48b3b8d3c26d0::t_b85c55ddc47cb0 204-205
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "b26670581b7f4e5efb4c8dfa8aa54bd94bcea2bd",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
