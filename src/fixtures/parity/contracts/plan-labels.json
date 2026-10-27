@@ -1,0 +1,427 @@
+{
+  "cases" : [
+    {
+      "args" : {
+        "plan" : "max_5x",
+        "provider" : "claude"
+      },
+      "expected" : {
+        "en" : "Max x5",
+        "zh" : "Max x5"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "claude-max_5x"
+    },
+    {
+      "args" : {
+        "plan" : "max_20x",
+        "provider" : "claude"
+      },
+      "expected" : {
+        "en" : "Max x20",
+        "zh" : "Max x20"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "claude-max_20x"
+    },
+    {
+      "args" : {
+        "plan" : "MAX_20X",
+        "provider" : "claude"
+      },
+      "expected" : {
+        "en" : "Max x20",
+        "zh" : "Max x20"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "claude-MAX_20X"
+    },
+    {
+      "args" : {
+        "plan" : "pro",
+        "provider" : "claude"
+      },
+      "expected" : {
+        "en" : "Pro",
+        "zh" : "Pro"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "claude-pro"
+    },
+    {
+      "args" : {
+        "plan" : "team",
+        "provider" : "claude"
+      },
+      "expected" : {
+        "en" : "Team",
+        "zh" : "Team"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "claude-team"
+    },
+    {
+      "args" : {
+        "plan" : "enterprise",
+        "provider" : "claude"
+      },
+      "expected" : {
+        "en" : "Enterprise",
+        "zh" : "Enterprise"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "claude-enterprise"
+    },
+    {
+      "args" : {
+        "plan" : "free",
+        "provider" : "claude"
+      },
+      "expected" : {
+        "en" : "Free",
+        "zh" : "Free"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "claude-free"
+    },
+    {
+      "args" : {
+        "plan" : "prolite",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Pro x5",
+        "zh" : "Pro x5"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-prolite"
+    },
+    {
+      "args" : {
+        "plan" : "pro",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Pro x20",
+        "zh" : "Pro x20"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-pro"
+    },
+    {
+      "args" : {
+        "plan" : "PRO",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Pro x20",
+        "zh" : "Pro x20"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-PRO"
+    },
+    {
+      "args" : {
+        "plan" : "plus",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Plus",
+        "zh" : "Plus"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-plus"
+    },
+    {
+      "args" : {
+        "plan" : "team",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Team",
+        "zh" : "Team"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-team"
+    },
+    {
+      "args" : {
+        "plan" : "business",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Business",
+        "zh" : "Business"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-business"
+    },
+    {
+      "args" : {
+        "plan" : "free",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Free",
+        "zh" : "Free"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-free"
+    },
+    {
+      "args" : {
+        "plan" : "edu",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Edu",
+        "zh" : "Edu"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-edu"
+    },
+    {
+      "args" : {
+        "plan" : "enterprise",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Enterprise",
+        "zh" : "Enterprise"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-enterprise"
+    },
+    {
+      "args" : {
+        "plan" : "go",
+        "provider" : "codex"
+      },
+      "expected" : {
+        "en" : "Go",
+        "zh" : "Go"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "codex-go"
+    },
+    {
+      "args" : {
+        "plan" : "pro",
+        "provider" : "cursor"
+      },
+      "expected" : {
+        "en" : "Pro",
+        "zh" : "Pro"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "cursor-pro"
+    },
+    {
+      "args" : {
+        "plan" : "pro_plus",
+        "provider" : "cursor"
+      },
+      "expected" : {
+        "en" : "Pro_Plus",
+        "zh" : "Pro_Plus"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "cursor-pro_plus"
+    },
+    {
+      "args" : {
+        "plan" : "ultra",
+        "provider" : "cursor"
+      },
+      "expected" : {
+        "en" : "Ultra",
+        "zh" : "Ultra"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "cursor-ultra"
+    },
+    {
+      "args" : {
+        "plan" : "free_trial",
+        "provider" : "cursor"
+      },
+      "expected" : {
+        "en" : "Free_Trial",
+        "zh" : "Free_Trial"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "cursor-free_trial"
+    },
+    {
+      "args" : {
+        "plan" : "hobby",
+        "provider" : "cursor"
+      },
+      "expected" : {
+        "en" : "Hobby",
+        "zh" : "Hobby"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "cursor-hobby"
+    },
+    {
+      "args" : {
+        "plan" : "Pro+ Plan",
+        "provider" : "cursor"
+      },
+      "expected" : {
+        "en" : "Pro+ Plan",
+        "zh" : "Pro+ Plan"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "cursor-Pro+_Plan"
+    },
+    {
+      "args" : {
+        "plan" : "business",
+        "provider" : "cursor"
+      },
+      "expected" : {
+        "en" : "Business",
+        "zh" : "Business"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "cursor-business"
+    },
+    {
+      "args" : {
+        "plan" : "individual",
+        "provider" : "copilot"
+      },
+      "expected" : {
+        "en" : "Individual",
+        "zh" : "Individual"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "copilot-individual"
+    },
+    {
+      "args" : {
+        "plan" : "copilot pro",
+        "provider" : "copilot"
+      },
+      "expected" : {
+        "en" : "Copilot Pro",
+        "zh" : "Copilot Pro"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "copilot-copilot_pro"
+    },
+    {
+      "args" : {
+        "plan" : "business",
+        "provider" : "copilot"
+      },
+      "expected" : {
+        "en" : "Business",
+        "zh" : "Business"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "copilot-business"
+    },
+    {
+      "args" : {
+        "plan" : "free_limited_copilot",
+        "provider" : "copilot"
+      },
+      "expected" : {
+        "en" : "Free_Limited_Copilot",
+        "zh" : "Free_Limited_Copilot"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "copilot-free_limited_copilot"
+    },
+    {
+      "args" : {
+        "plan" : "moderato",
+        "provider" : "kimi"
+      },
+      "expected" : {
+        "en" : "Moderato",
+        "zh" : "Moderato"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "kimi-moderato"
+    },
+    {
+      "args" : {
+        "plan" : "Allegretto",
+        "provider" : "kimi"
+      },
+      "expected" : {
+        "en" : "Allegretto",
+        "zh" : "Allegretto"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "kimi-Allegretto"
+    },
+    {
+      "args" : {
+        "plan" : "SuperGrok",
+        "provider" : "grok-cli"
+      },
+      "expected" : {
+        "en" : "Supergrok",
+        "zh" : "Supergrok"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "grok-cli-SuperGrok"
+    },
+    {
+      "args" : {
+        "plan" : "supergrok_heavy",
+        "provider" : "grok-cli"
+      },
+      "expected" : {
+        "en" : "Supergrok_Heavy",
+        "zh" : "Supergrok_Heavy"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "grok-cli-supergrok_heavy"
+    },
+    {
+      "args" : {
+        "plan" : "g1-pro-tier",
+        "provider" : "antigravity"
+      },
+      "expected" : {
+        "en" : "G1-Pro-Tier",
+        "zh" : "G1-Pro-Tier"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "antigravity-g1-pro-tier"
+    },
+    {
+      "args" : {
+        "plan" : "standard-tier",
+        "provider" : "antigravity"
+      },
+      "expected" : {
+        "en" : "Standard-Tier",
+        "zh" : "Standard-Tier"
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "antigravity-standard-tier"
+    },
+    {
+      "args" : {
+        "plan" : "",
+        "provider" : "deepseek"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "AccountObservation.planLabel",
+      "name" : "deepseek-empty"
+    }
+  ],
+  "contract" : "plan-labels",
+  "owner" : "rust",
+  "reference" : "Sources/AgentHUDCore/Models/Accounts/ProviderAccount.swift (planLabel); Settings/SourceStatus.swift (planLabel)"
+}

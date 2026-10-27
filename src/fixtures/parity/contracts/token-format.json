@@ -1,0 +1,521 @@
+{
+  "cases" : [
+    {
+      "args" : {
+        "tokens" : 0
+      },
+      "expected" : {
+        "en" : "0",
+        "zh" : "0"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-0"
+    },
+    {
+      "args" : {
+        "tokens" : 950
+      },
+      "expected" : {
+        "en" : "950",
+        "zh" : "950"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-950"
+    },
+    {
+      "args" : {
+        "tokens" : 999
+      },
+      "expected" : {
+        "en" : "999",
+        "zh" : "999"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-999"
+    },
+    {
+      "args" : {
+        "tokens" : 1000
+      },
+      "expected" : {
+        "en" : "1.0k",
+        "zh" : "1.0k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-1000"
+    },
+    {
+      "args" : {
+        "tokens" : 1049
+      },
+      "expected" : {
+        "en" : "1.0k",
+        "zh" : "1.0k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-1049"
+    },
+    {
+      "args" : {
+        "tokens" : 1050
+      },
+      "expected" : {
+        "en" : "1.1k",
+        "zh" : "1.1k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-1050"
+    },
+    {
+      "args" : {
+        "tokens" : 1250
+      },
+      "expected" : {
+        "en" : "1.2k",
+        "zh" : "1.2k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-1250"
+    },
+    {
+      "args" : {
+        "tokens" : 1260
+      },
+      "expected" : {
+        "en" : "1.3k",
+        "zh" : "1.3k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-1260"
+    },
+    {
+      "args" : {
+        "tokens" : 9949
+      },
+      "expected" : {
+        "en" : "9.9k",
+        "zh" : "9.9k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-9949"
+    },
+    {
+      "args" : {
+        "tokens" : 9950
+      },
+      "expected" : {
+        "en" : "9.9k",
+        "zh" : "9.9k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-9950"
+    },
+    {
+      "args" : {
+        "tokens" : 9999
+      },
+      "expected" : {
+        "en" : "10.0k",
+        "zh" : "10.0k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-9999"
+    },
+    {
+      "args" : {
+        "tokens" : 10000
+      },
+      "expected" : {
+        "en" : "10k",
+        "zh" : "10k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-10000"
+    },
+    {
+      "args" : {
+        "tokens" : 12500
+      },
+      "expected" : {
+        "en" : "12k",
+        "zh" : "12k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-12500"
+    },
+    {
+      "args" : {
+        "tokens" : 13500
+      },
+      "expected" : {
+        "en" : "14k",
+        "zh" : "14k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-13500"
+    },
+    {
+      "args" : {
+        "tokens" : 48000
+      },
+      "expected" : {
+        "en" : "48k",
+        "zh" : "48k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-48000"
+    },
+    {
+      "args" : {
+        "tokens" : 84000
+      },
+      "expected" : {
+        "en" : "84k",
+        "zh" : "84k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-84000"
+    },
+    {
+      "args" : {
+        "tokens" : 99500
+      },
+      "expected" : {
+        "en" : "100k",
+        "zh" : "100k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-99500"
+    },
+    {
+      "args" : {
+        "tokens" : 999499
+      },
+      "expected" : {
+        "en" : "999k",
+        "zh" : "999k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-999499"
+    },
+    {
+      "args" : {
+        "tokens" : 999500
+      },
+      "expected" : {
+        "en" : "1000k",
+        "zh" : "1000k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-999500"
+    },
+    {
+      "args" : {
+        "tokens" : 999999
+      },
+      "expected" : {
+        "en" : "1000k",
+        "zh" : "1000k"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-999999"
+    },
+    {
+      "args" : {
+        "tokens" : 1000000
+      },
+      "expected" : {
+        "en" : "1.0M",
+        "zh" : "1.0M"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-1000000"
+    },
+    {
+      "args" : {
+        "tokens" : 1250000
+      },
+      "expected" : {
+        "en" : "1.2M",
+        "zh" : "1.2M"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-1250000"
+    },
+    {
+      "args" : {
+        "tokens" : 2400000
+      },
+      "expected" : {
+        "en" : "2.4M",
+        "zh" : "2.4M"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-2400000"
+    },
+    {
+      "args" : {
+        "tokens" : 12500000
+      },
+      "expected" : {
+        "en" : "12M",
+        "zh" : "12M"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-12500000"
+    },
+    {
+      "args" : {
+        "tokens" : 999999999
+      },
+      "expected" : {
+        "en" : "1000M",
+        "zh" : "1000M"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-999999999"
+    },
+    {
+      "args" : {
+        "tokens" : 1000000000
+      },
+      "expected" : {
+        "en" : "1.0B",
+        "zh" : "1.0B"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-1000000000"
+    },
+    {
+      "args" : {
+        "tokens" : 5036000000
+      },
+      "expected" : {
+        "en" : "5.0B",
+        "zh" : "5.0B"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-5036000000"
+    },
+    {
+      "args" : {
+        "tokens" : 15500000000
+      },
+      "expected" : {
+        "en" : "16B",
+        "zh" : "16B"
+      },
+      "fn" : "TokenFormat.short",
+      "name" : "short-15500000000"
+    },
+    {
+      "args" : {
+        "input" : 48000,
+        "output" : 12000
+      },
+      "expected" : {
+        "en" : "48k ↓ 12k ↑",
+        "zh" : "48k ↓ 12k ↑"
+      },
+      "fn" : "TokenFormat.inOut",
+      "name" : "in-out"
+    },
+    {
+      "args" : {
+        "value" : 72
+      },
+      "expected" : {
+        "en" : "72%",
+        "zh" : "72%"
+      },
+      "fn" : "TokenFormat.percent",
+      "name" : "percent-72"
+    },
+    {
+      "args" : {
+        "value" : 6.5999999999999996
+      },
+      "expected" : {
+        "en" : "7%",
+        "zh" : "7%"
+      },
+      "fn" : "TokenFormat.percent",
+      "name" : "percent-6.6"
+    },
+    {
+      "args" : {
+        "value" : 0.5
+      },
+      "expected" : {
+        "en" : "1%",
+        "zh" : "1%"
+      },
+      "fn" : "TokenFormat.percent",
+      "name" : "percent-0.5"
+    },
+    {
+      "args" : {
+        "value" : 1.5
+      },
+      "expected" : {
+        "en" : "2%",
+        "zh" : "2%"
+      },
+      "fn" : "TokenFormat.percent",
+      "name" : "percent-1.5"
+    },
+    {
+      "args" : {
+        "value" : 2.5
+      },
+      "expected" : {
+        "en" : "3%",
+        "zh" : "3%"
+      },
+      "fn" : "TokenFormat.percent",
+      "name" : "percent-2.5"
+    },
+    {
+      "args" : {
+        "value" : 99.5
+      },
+      "expected" : {
+        "en" : "100%",
+        "zh" : "100%"
+      },
+      "fn" : "TokenFormat.percent",
+      "name" : "percent-99.5"
+    },
+    {
+      "args" : {
+        "value" : 6.2000000000000002
+      },
+      "expected" : {
+        "en" : "6.2%",
+        "zh" : "6.2%"
+      },
+      "fn" : "TokenFormat.percent1",
+      "name" : "percent1-6.2"
+    },
+    {
+      "args" : {
+        "value" : 6.25
+      },
+      "expected" : {
+        "en" : "6.2%",
+        "zh" : "6.2%"
+      },
+      "fn" : "TokenFormat.percent1",
+      "name" : "percent1-6.25"
+    },
+    {
+      "args" : {
+        "value" : 0.050000000000000003
+      },
+      "expected" : {
+        "en" : "0.1%",
+        "zh" : "0.1%"
+      },
+      "fn" : "TokenFormat.percent1",
+      "name" : "percent1-0.05"
+    },
+    {
+      "args" : {
+        "value" : 99.950000000000003
+      },
+      "expected" : {
+        "en" : "100.0%",
+        "zh" : "100.0%"
+      },
+      "fn" : "TokenFormat.percent1",
+      "name" : "percent1-99.95"
+    },
+    {
+      "args" : {
+        "part" : 0,
+        "whole" : 1000
+      },
+      "expected" : {
+        "en" : "0%",
+        "zh" : "0%"
+      },
+      "fn" : "TokenFormat.share",
+      "name" : "share-0-of-1000"
+    },
+    {
+      "args" : {
+        "part" : 3,
+        "whole" : 1000
+      },
+      "expected" : {
+        "en" : "<1%",
+        "zh" : "<1%"
+      },
+      "fn" : "TokenFormat.share",
+      "name" : "share-3-of-1000"
+    },
+    {
+      "args" : {
+        "part" : 5,
+        "whole" : 1000
+      },
+      "expected" : {
+        "en" : "1%",
+        "zh" : "1%"
+      },
+      "fn" : "TokenFormat.share",
+      "name" : "share-5-of-1000"
+    },
+    {
+      "args" : {
+        "part" : 7,
+        "whole" : 1000
+      },
+      "expected" : {
+        "en" : "1%",
+        "zh" : "1%"
+      },
+      "fn" : "TokenFormat.share",
+      "name" : "share-7-of-1000"
+    },
+    {
+      "args" : {
+        "part" : 12,
+        "whole" : 1000
+      },
+      "expected" : {
+        "en" : "1%",
+        "zh" : "1%"
+      },
+      "fn" : "TokenFormat.share",
+      "name" : "share-12-of-1000"
+    },
+    {
+      "args" : {
+        "part" : 1000,
+        "whole" : 1000
+      },
+      "expected" : {
+        "en" : "100%",
+        "zh" : "100%"
+      },
+      "fn" : "TokenFormat.share",
+      "name" : "share-1000-of-1000"
+    },
+    {
+      "args" : {
+        "part" : 0,
+        "whole" : 0
+      },
+      "expected" : {
+        "en" : "0%",
+        "zh" : "0%"
+      },
+      "fn" : "TokenFormat.share",
+      "name" : "share-0-of-0"
+    }
+  ],
+  "contract" : "token-format",
+  "owner" : "ts",
+  "reference" : "Sources/AgentHUDCore/Formatting/TokenFormat.swift"
+}

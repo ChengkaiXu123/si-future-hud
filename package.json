@@ -1,0 +1,37 @@
+{
+  "name": "agent-hud-next",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "dev": "pnpm --filter @agent-hud/desktop run dev",
+    "build": "pnpm --filter @agent-hud/desktop run build && pnpm --filter @agent-hud/mcp run build",
+    "desktop:build": "node src/tooling/build.mjs --component desktop",
+    "engine:build": "node src/tooling/build.mjs --component engine --debug",
+    "build:platform": "node src/tooling/build.mjs",
+    "build:macos": "node src/tooling/build.mjs --platform macos",
+    "build:windows": "node src/tooling/build.mjs --platform windows",
+    "build:linux": "node src/tooling/build.mjs --platform linux",
+    "mcp:build": "pnpm --filter @agent-hud/mcp run build",
+    "check": "pnpm run format:check && pnpm run typecheck && pnpm run build && pnpm run check:platform && pnpm run check:packages && pnpm run check:clients && node src/tooling/parity-ledger.mjs --check && cargo check --workspace",
+    "check:platform": "node src/tooling/check-platform-boundary.mjs",
+    "check:packages": "node src/tooling/check-package-boundary.mjs",
+    "check:clients": "node src/tooling/check-clients.mjs",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "format": "cargo fmt --all && prettier --write \"src/**/*.{ts,tsx,mjs,css}\"",
+    "format:check": "cargo fmt --all --check && prettier --check \"src/**/*.{ts,tsx,mjs,css}\"",
+    "lint": "cargo clippy --workspace --tests --locked -- -D warnings",
+    "test": "cargo test --workspace && pnpm run test:ts && pnpm run test:mcp",
+    "test:ts": "node --test \"src/packages/*/test/*.test.ts\"",
+    "test:mcp": "node --test src/apps/mcp/test/*.test.mjs",
+    "parity:ledger": "node src/tooling/parity-ledger.mjs",
+    "parity:oracle": "swift run -Xswiftc -enable-testing --package-path src/tooling/parity-oracle parity-oracle src/fixtures/parity/contracts",
+    "test:core": "cargo test --workspace",
+    "mcp": "pnpm --filter @agent-hud/mcp run start"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "prettier": "3.9.10"
+  }
+}

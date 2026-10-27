@@ -1,0 +1,544 @@
+{
+  "cases" : [
+    {
+      "args" : {
+        "seconds" : null
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-None"
+    },
+    {
+      "args" : {
+        "seconds" : 30
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-30"
+    },
+    {
+      "args" : {
+        "seconds" : 59
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-59"
+    },
+    {
+      "args" : {
+        "seconds" : 60
+      },
+      "expected" : {
+        "en" : "1m",
+        "zh" : "1m"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-60"
+    },
+    {
+      "args" : {
+        "seconds" : 1800
+      },
+      "expected" : {
+        "en" : "30m",
+        "zh" : "30m"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-1800"
+    },
+    {
+      "args" : {
+        "seconds" : 2700
+      },
+      "expected" : {
+        "en" : "45m",
+        "zh" : "45m"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-2700"
+    },
+    {
+      "args" : {
+        "seconds" : 7200
+      },
+      "expected" : {
+        "en" : "2h",
+        "zh" : "2h"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-7200"
+    },
+    {
+      "args" : {
+        "seconds" : 17000
+      },
+      "expected" : {
+        "en" : "283m",
+        "zh" : "283m"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-17000"
+    },
+    {
+      "args" : {
+        "seconds" : 17200
+      },
+      "expected" : {
+        "en" : "5h",
+        "zh" : "5h"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-17200"
+    },
+    {
+      "args" : {
+        "seconds" : 18000
+      },
+      "expected" : {
+        "en" : "5h",
+        "zh" : "5h"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-18000"
+    },
+    {
+      "args" : {
+        "seconds" : 18900
+      },
+      "expected" : {
+        "en" : "5h",
+        "zh" : "5h"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-18900"
+    },
+    {
+      "args" : {
+        "seconds" : 19000
+      },
+      "expected" : {
+        "en" : "317m",
+        "zh" : "317m"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-19000"
+    },
+    {
+      "args" : {
+        "seconds" : 86400
+      },
+      "expected" : {
+        "en" : "Daily",
+        "zh" : "Daily"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-86400"
+    },
+    {
+      "args" : {
+        "seconds" : 90000
+      },
+      "expected" : {
+        "en" : "Daily",
+        "zh" : "Daily"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-90000"
+    },
+    {
+      "args" : {
+        "seconds" : 259200
+      },
+      "expected" : {
+        "en" : "3d",
+        "zh" : "3d"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-259200"
+    },
+    {
+      "args" : {
+        "seconds" : 604800
+      },
+      "expected" : {
+        "en" : "Weekly",
+        "zh" : "Weekly"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-604800"
+    },
+    {
+      "args" : {
+        "seconds" : 640000
+      },
+      "expected" : {
+        "en" : "10667m",
+        "zh" : "10667m"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-640000"
+    },
+    {
+      "args" : {
+        "seconds" : 2592000
+      },
+      "expected" : {
+        "en" : "Monthly",
+        "zh" : "Monthly"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-2592000"
+    },
+    {
+      "args" : {
+        "seconds" : 2700000
+      },
+      "expected" : {
+        "en" : "Monthly",
+        "zh" : "Monthly"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-2700000"
+    },
+    {
+      "args" : {
+        "seconds" : 31536000
+      },
+      "expected" : {
+        "en" : "Annual",
+        "zh" : "Annual"
+      },
+      "fn" : "WindowNames.Period.shortName",
+      "name" : "period-31536000"
+    },
+    {
+      "args" : {
+        "seconds" : 18000
+      },
+      "expected" : {
+        "en" : "5h",
+        "zh" : "5h"
+      },
+      "fn" : "WindowNames.Period.afterWord",
+      "name" : "after-word-18000"
+    },
+    {
+      "args" : {
+        "seconds" : 86400
+      },
+      "expected" : {
+        "en" : "Daily",
+        "zh" : "Daily"
+      },
+      "fn" : "WindowNames.Period.afterWord",
+      "name" : "after-word-86400"
+    },
+    {
+      "args" : {
+        "seconds" : 604800
+      },
+      "expected" : {
+        "en" : "7d",
+        "zh" : "7d"
+      },
+      "fn" : "WindowNames.Period.afterWord",
+      "name" : "after-word-604800"
+    },
+    {
+      "args" : {
+        "seconds" : 2592000
+      },
+      "expected" : {
+        "en" : "Monthly",
+        "zh" : "Monthly"
+      },
+      "fn" : "WindowNames.Period.afterWord",
+      "name" : "after-word-2592000"
+    },
+    {
+      "args" : {
+        "seconds" : 7200
+      },
+      "expected" : {
+        "en" : "2h",
+        "zh" : "2h"
+      },
+      "fn" : "WindowNames.Period.afterWord",
+      "name" : "after-word-7200"
+    },
+    {
+      "args" : {
+        "name" : "GPT-5.3-Codex-Spark"
+      },
+      "expected" : {
+        "en" : "Spark",
+        "zh" : "Spark"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-GPT-5.3-Codex-Spark"
+    },
+    {
+      "args" : {
+        "name" : "Luna Reserve"
+      },
+      "expected" : {
+        "en" : "Reserve",
+        "zh" : "Reserve"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-Luna Reserve"
+    },
+    {
+      "args" : {
+        "name" : "Claude"
+      },
+      "expected" : {
+        "en" : "Claude",
+        "zh" : "Claude"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-Claude"
+    },
+    {
+      "args" : {
+        "name" : "v2"
+      },
+      "expected" : {
+        "en" : "v2",
+        "zh" : "v2"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-v2"
+    },
+    {
+      "args" : {
+        "name" : "Kimi K3"
+      },
+      "expected" : {
+        "en" : "K3",
+        "zh" : "K3"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-Kimi K3"
+    },
+    {
+      "args" : {
+        "name" : "glm-4.6"
+      },
+      "expected" : {
+        "en" : "glm",
+        "zh" : "glm"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-glm-4.6"
+    },
+    {
+      "args" : {
+        "name" : "Gemini 2.5 Pro"
+      },
+      "expected" : {
+        "en" : "Pro",
+        "zh" : "Pro"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-Gemini 2.5 Pro"
+    },
+    {
+      "args" : {
+        "name" : "Claude Opus 4.5"
+      },
+      "expected" : {
+        "en" : "Opus",
+        "zh" : "Opus"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-Claude Opus 4.5"
+    },
+    {
+      "args" : {
+        "name" : "gpt_5_codex"
+      },
+      "expected" : {
+        "en" : "gpt_5_codex",
+        "zh" : "gpt_5_codex"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-gpt_5_codex"
+    },
+    {
+      "args" : {
+        "name" : "V3.1"
+      },
+      "expected" : {
+        "en" : "V3.1",
+        "zh" : "V3.1"
+      },
+      "fn" : "WindowNames.word",
+      "name" : "word-V3.1"
+    },
+    {
+      "args" : {
+        "names" : [
+          "5h",
+          "Weekly",
+          "Weekly"
+        ]
+      },
+      "expected" : {
+        "en" : [
+          "5h",
+          null,
+          null
+        ],
+        "zh" : [
+          "5h",
+          null,
+          null
+        ]
+      },
+      "fn" : "WindowNames.distinct",
+      "name" : "distinct-0"
+    },
+    {
+      "args" : {
+        "names" : [
+          "5h",
+          null,
+          "5h"
+        ]
+      },
+      "expected" : {
+        "en" : [
+          null,
+          null,
+          null
+        ],
+        "zh" : [
+          null,
+          null,
+          null
+        ]
+      },
+      "fn" : "WindowNames.distinct",
+      "name" : "distinct-1"
+    },
+    {
+      "args" : {
+        "names" : [
+          "5h",
+          "Weekly",
+          "Opus"
+        ]
+      },
+      "expected" : {
+        "en" : [
+          "5h",
+          "Weekly",
+          "Opus"
+        ],
+        "zh" : [
+          "5h",
+          "Weekly",
+          "Opus"
+        ]
+      },
+      "fn" : "WindowNames.distinct",
+      "name" : "distinct-2"
+    },
+    {
+      "args" : {
+        "names" : [
+
+        ]
+      },
+      "expected" : {
+        "en" : [
+
+        ],
+        "zh" : [
+
+        ]
+      },
+      "fn" : "WindowNames.distinct",
+      "name" : "distinct-3"
+    },
+    {
+      "args" : {
+        "name" : "Weekly"
+      },
+      "expected" : {
+        "en" : "Weekly",
+        "zh" : "Weekly"
+      },
+      "fn" : "WindowNames.leading",
+      "name" : "leading-Weekly"
+    },
+    {
+      "args" : {
+        "name" : "Included"
+      },
+      "expected" : {
+        "en" : "Included",
+        "zh" : "Included"
+      },
+      "fn" : "WindowNames.leading",
+      "name" : "leading-Included"
+    },
+    {
+      "args" : {
+        "name" : "Gemini Models"
+      },
+      "expected" : {
+        "en" : "Gemini",
+        "zh" : "Gemini"
+      },
+      "fn" : "WindowNames.leading",
+      "name" : "leading-Gemini Models"
+    },
+    {
+      "args" : {
+        "name" : "Opus 4.5 Max"
+      },
+      "expected" : {
+        "en" : "Opus",
+        "zh" : "Opus"
+      },
+      "fn" : "WindowNames.leading",
+      "name" : "leading-Opus 4.5 Max"
+    },
+    {
+      "args" : {
+        "name" : "Exactly8"
+      },
+      "expected" : {
+        "en" : "Exactly8",
+        "zh" : "Exactly8"
+      },
+      "fn" : "WindowNames.leading",
+      "name" : "leading-Exactly8"
+    },
+    {
+      "args" : {
+        "name" : "会话限额与周限额"
+      },
+      "expected" : {
+        "en" : "会话限额与周限额",
+        "zh" : "会话限额与周限额"
+      },
+      "fn" : "WindowNames.leading",
+      "name" : "leading-会话限额与周限额"
+    }
+  ],
+  "contract" : "window-names",
+  "owner" : "rust",
+  "reference" : "Sources/AgentHUDCore/Formatting/WindowNames.swift"
+}

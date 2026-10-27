@@ -1,0 +1,45 @@
+{
+  "gaps": {},
+  "improvements": {
+    "plan-labels/copilot-free_limited_copilot": {
+      "next": "Free Limited Copilot",
+      "reason": "An underscore in a plan code reads as a space; Open capitalised the code as Swift does and showed the underscore."
+    },
+    "plan-labels/cursor-free_trial": {
+      "next": "Free Trial",
+      "reason": "An underscore in a plan code reads as a space; Open capitalised the code as Swift does and showed the underscore."
+    },
+    "plan-labels/cursor-pro_plus": {
+      "next": "Pro Plus",
+      "reason": "An underscore in a plan code reads as a space; Open capitalised the code as Swift does and showed the underscore."
+    },
+    "plan-labels/grok-cli-SuperGrok": {
+      "next": "SuperGrok",
+      "reason": "A plan written in both cases is already a name and keeps its casing; Open lower-cased all but each word's first letter."
+    },
+    "plan-labels/grok-cli-supergrok_heavy": {
+      "next": "Supergrok Heavy",
+      "reason": "An underscore in a plan code reads as a space; Open capitalised the code as Swift does and showed the underscore."
+    },
+    "session-title/prompt-crlf": {
+      "next": "fix the build",
+      "reason": "A Windows line break ends the first line. Swift reads \\r\\n as one character, so Open kept the whole prompt, line break included."
+    },
+    "token-format/short-999500": {
+      "next": "1.0M",
+      "reason": "A count that rounds up to the next unit reads in it; Open wrote 1000k."
+    },
+    "token-format/short-9999": {
+      "next": "10k",
+      "reason": "Ten thousand reads the same whether it is 9,999 or 10,000; Open wrote 10.0k for one and 10k for the other."
+    },
+    "token-format/short-999999": {
+      "next": "1.0M",
+      "reason": "A count that rounds up to the next unit reads in it; Open wrote 1000k."
+    },
+    "token-format/short-999999999": {
+      "next": "1.0B",
+      "reason": "A count that rounds up to the next unit reads in it; Open wrote 1000M."
+    }
+  }
+}

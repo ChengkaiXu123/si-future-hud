@@ -1,0 +1,39 @@
+{
+  "name": "@agent-hud/hud",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "exports": {
+    "./BotMark": "./src/BotMark.tsx",
+    "./HUDArtwork": "./src/HUDArtwork.tsx",
+    "./HUDGlow": "./src/HUDGlow.tsx",
+    "./HUDScene": "./src/HUDScene.tsx",
+    "./HoverPanel": "./src/HoverPanel.tsx",
+    "./PanelContext": "./src/PanelContext.tsx",
+    "./bots/mark-director": "./src/bots/mark-director.ts",
+    "./geometry": "./src/geometry.ts",
+    "./ground": "./src/ground.tsx",
+    "./model": "./src/model.ts"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "dependencies": {
+    "@agent-hud/protocol": "workspace:*",
+    "@agent-hud/ui": "workspace:*",
+    "lucide-react": "catalog:",
+    "motion": "catalog:",
+    "shaders": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

@@ -1,0 +1,238 @@
+{
+  "cases" : [
+    {
+      "args" : {
+        "text" : "  hello\nworld "
+      },
+      "expected" : {
+        "en" : "hello",
+        "zh" : "hello"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-first-line"
+    },
+    {
+      "args" : {
+        "text" : "<command-message>init</command-message>"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-command"
+    },
+    {
+      "args" : {
+        "text" : "   <system>x"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-command-after-space"
+    },
+    {
+      "args" : {
+        "text" : "[Request interrupted by user]"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-interrupted"
+    },
+    {
+      "args" : {
+        "text" : ""
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-empty"
+    },
+    {
+      "args" : {
+        "text" : " \n\t "
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-blank"
+    },
+    {
+      "args" : {
+        "text" : "\n\n  second line"
+      },
+      "expected" : {
+        "en" : "second line",
+        "zh" : "second line"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-blank-first-line"
+    },
+    {
+      "args" : {
+        "text" : "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expected" : {
+        "en" : "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "zh" : "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-60"
+    },
+    {
+      "args" : {
+        "text" : "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "expected" : {
+        "en" : "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb…",
+        "zh" : "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb…"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-61"
+    },
+    {
+      "args" : {
+        "text" : "会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题"
+      },
+      "expected" : {
+        "en" : "会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标…",
+        "zh" : "会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标题会话标…"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-cjk"
+    },
+    {
+      "args" : {
+        "text" : "👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦"
+      },
+      "expected" : {
+        "en" : "👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦…",
+        "zh" : "👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦…"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-emoji-graphemes"
+    },
+    {
+      "args" : {
+        "text" : "fix the build\r\nthen test"
+      },
+      "expected" : {
+        "en" : "fix the build\r\nthen test",
+        "zh" : "fix the build\r\nthen test"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-crlf"
+    },
+    {
+      "args" : {
+        "text" : "  keep  inner   spaces  "
+      },
+      "expected" : {
+        "en" : "keep  inner   spaces",
+        "zh" : "keep  inner   spaces"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-inner-spaces"
+    },
+    {
+      "args" : {
+        "text" : "　全角空格开头"
+      },
+      "expected" : {
+        "en" : "全角空格开头",
+        "zh" : "全角空格开头"
+      },
+      "fn" : "SessionTitle.from",
+      "name" : "prompt-ideographic-space"
+    },
+    {
+      "args" : {
+        "text" : null
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionTitle.named",
+      "name" : "named-null"
+    },
+    {
+      "args" : {
+        "text" : ""
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionTitle.named",
+      "name" : "named-empty"
+    },
+    {
+      "args" : {
+        "text" : "  \n  Rename me  \n second"
+      },
+      "expected" : {
+        "en" : "Rename me",
+        "zh" : "Rename me"
+      },
+      "fn" : "SessionTitle.named",
+      "name" : "named-first-nonblank-line"
+    },
+    {
+      "args" : {
+        "text" : "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "expected" : {
+        "en" : "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc…",
+        "zh" : "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc…"
+      },
+      "fn" : "SessionTitle.named",
+      "name" : "named-long"
+    },
+    {
+      "args" : {
+        "text" : "<keeps tags>"
+      },
+      "expected" : {
+        "en" : "<keeps tags>",
+        "zh" : "<keeps tags>"
+      },
+      "fn" : "SessionTitle.named",
+      "name" : "named-angle"
+    },
+    {
+      "args" : {
+        "text" : "[Request interrupted by user]"
+      },
+      "expected" : {
+        "en" : "[Request interrupted by user]",
+        "zh" : "[Request interrupted by user]"
+      },
+      "fn" : "SessionTitle.named",
+      "name" : "named-interrupted"
+    },
+    {
+      "args" : {
+        "text" : "\ttabbed title\t"
+      },
+      "expected" : {
+        "en" : "tabbed title",
+        "zh" : "tabbed title"
+      },
+      "fn" : "SessionTitle.named",
+      "name" : "named-tab"
+    }
+  ],
+  "contract" : "session-title",
+  "owner" : "rust",
+  "reference" : "Sources/AgentHUDCore/Providers/Kit/SessionTitle.swift"
+}

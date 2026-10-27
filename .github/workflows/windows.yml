@@ -1,0 +1,75 @@
+name: Windows desktop
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'codex/windows-*']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm run check:platform
+      - run: pnpm run check:packages
+      - run: pnpm run check:clients
+      - run: pnpm run typecheck
+      - run: pnpm run test:ts
+      - run: pnpm run test:mcp
+      - name: Prepare resources for Rust checks
+        run: New-Item -ItemType Directory -Force src/apps/desktop/src-tauri/resources | Out-Null
+      - name: Check and test native Windows adapters
+        run: |
+          cargo clippy --workspace --tests --locked -- -D warnings
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --workspace --locked --no-fail-fast
+      - name: Build Windows NSIS installer
+        run: pnpm run build:windows -- --bundle
+      - name: Record installer provenance and checksum
+        run: |
+          $bundle = 'target/release/bundle/nsis'
+          $installers = @(Get-ChildItem "$bundle/*-setup.exe")
+          if ($installers.Count -ne 1) { throw 'Expected one NSIS installer' }
+          $revision = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          @{
+            revision = $revision
+            run = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+            signed = $false
+          } | ConvertTo-Json | Set-Content "$bundle/provenance.json"
+          $installers | ForEach-Object {
+            "$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
+          } | Set-Content "$bundle/SHA256SUMS"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agent-hud-open-windows-x86_64-unsigned
+          path: |
+            target/release/bundle/nsis/*-setup.exe
+            target/release/bundle/nsis/provenance.json
+            target/release/bundle/nsis/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14

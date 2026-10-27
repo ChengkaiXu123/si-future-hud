@@ -1,0 +1,62 @@
+[
+  {
+    "id": "core",
+    "title": "Shared Rust core",
+    "status": "migrated",
+    "detail": "One portable owner for ingestion, token classification, deduplication, sessions and preferences. No Swift, Tauri or platform frameworks in the core."
+  },
+  {
+    "id": "ui",
+    "title": "Shared React interface",
+    "status": "migrated",
+    "detail": "Overview, sessions, usage, providers, requests, settings and capability map. Shared shadcn/ui, React Bits and Shaders components."
+  },
+  {
+    "id": "mcp",
+    "title": "MCP service",
+    "status": "migrated",
+    "detail": "Original layout/style/app drafts, user Save/Discard, masked native pictures and twelve official SDK tools attach to the running app through its opt-in channel. Packaged relay/client setup and Unix/Windows IPC reuse one Runtime; actual platform/client qualification is reported separately."
+  },
+  {
+    "id": "transcripts",
+    "title": "Claude Code and Codex transcripts",
+    "status": "migrated",
+    "detail": "Source-based turn/activity states, incremental JSONL reading, token deduplication, native file-change signals, bounded active-log checks and checkpoints. Claude and Codex sessions with no source events remain unverified; sources that emit no lifecycle events read as idle."
+  },
+  {
+    "id": "providers",
+    "title": "Remaining agent provider readers",
+    "status": "planned",
+    "detail": "Original client catalog/discovery plus JSONL, zstd and native SQLite readers are implemented across the principal clients. Original JSONL, SQLite, protobuf, unified/cache formats have targeted fixture coverage; native observer and OS gaps remain in the parity audit. Detection never implies a complete reader, and cross-platform acquisition must be qualified on its host."
+  },
+  {
+    "id": "quota",
+    "title": "Account quota and balance",
+    "status": "migrated",
+    "detail": "Independent cached original account adapters, coding-plan jobs and adapter-defined credential forms. Secrets stay outside Core/UI. Missing credentials, stale accounts and unpriced usage remain explicit; live endpoint qualification is independent of parsing/fixture checks."
+  },
+  {
+    "id": "pricing",
+    "title": "Model pricing and estimated costs",
+    "status": "migrated",
+    "detail": "Original model-price snapshot, per-kind SQLite facts, quota-cycle metrics and interval Statistics use one selected contribution ledger. Full history/detail paging and usage-bucket projections serve UI and host consumers. Unknown account/model/route/price attribution is not guessed; API period cost/burn/reply/consumption/series uses exact attributable events; mixed model-row visibility remains a gap."
+  },
+  {
+    "id": "requests",
+    "title": "Approvals, questions and hooks",
+    "status": "migrated",
+    "detail": "Per-client hooks, explicit fixed-executable installation, one request owner, Unix/Windows IPC, withdrawal/timeouts, exact reviewer gating, questions/plans and native receipts. Hook transcript reminders target known logs with three bounded follow-ups. Real-client handoff and Windows runtime qualification are separate."
+  },
+  {
+    "id": "hud",
+    "title": "Native HUD and display integration",
+    "status": "native",
+    "detail": "Three HUD modes, independent screen layouts, edge-only drag, pointer regions, source actors and queued reminders. macOS uses an explicitly created NSPanel retaining Tao methods/ivars; ordinary windows remain unchanged. Live display/IME/focus and Windows/Linux runtime qualification remain required."
+  },
+  {
+    "id": "distribution",
+    "title": "Signed distribution and updates",
+    "status": "planned",
+    "detail": "Tauri shell and tray are configured. Platform signing, installers, updater feeds and release qualification are not complete."
+  }
+]

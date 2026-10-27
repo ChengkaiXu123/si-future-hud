@@ -1,0 +1,342 @@
+{
+  "cases" : [
+    {
+      "args" : {
+        "amount" : "12.99",
+        "currency" : "USD",
+        "estimated" : false
+      },
+      "expected" : {
+        "en" : "$12.99",
+        "zh" : "$12.99"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "amount-12.99-USD"
+    },
+    {
+      "args" : {
+        "amount" : "12.99",
+        "currency" : "CNY",
+        "estimated" : false
+      },
+      "expected" : {
+        "en" : "¥12.99",
+        "zh" : "¥12.99"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "amount-12.99-CNY"
+    },
+    {
+      "args" : {
+        "amount" : "12.99",
+        "currency" : "EUR",
+        "estimated" : false
+      },
+      "expected" : {
+        "en" : "€12.99",
+        "zh" : "€12.99"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "amount-12.99-EUR"
+    },
+    {
+      "args" : {
+        "amount" : "0",
+        "currency" : "USD",
+        "estimated" : false
+      },
+      "expected" : {
+        "en" : "$0.00",
+        "zh" : "$0.00"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "amount-0-USD"
+    },
+    {
+      "args" : {
+        "amount" : "1234.5",
+        "currency" : "USD",
+        "estimated" : false
+      },
+      "expected" : {
+        "en" : "$1,234.50",
+        "zh" : "$1,234.50"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "amount-1234.5-USD"
+    },
+    {
+      "args" : {
+        "amount" : "-3",
+        "currency" : "USD",
+        "estimated" : false
+      },
+      "expected" : {
+        "en" : "-$3.00",
+        "zh" : "-$3.00"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "amount--3-USD"
+    },
+    {
+      "args" : {
+        "amount" : "1234.5",
+        "currency" : "CNY",
+        "estimated" : false
+      },
+      "expected" : {
+        "en" : "¥1,234.50",
+        "zh" : "¥1,234.50"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "amount-1234.5-CNY"
+    },
+    {
+      "args" : {
+        "amount" : "0.0000005",
+        "currency" : "USD",
+        "estimated" : true
+      },
+      "expected" : {
+        "en" : "<$0.000001",
+        "zh" : "<$0.000001"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "estimate-0.0000005-USD"
+    },
+    {
+      "args" : {
+        "amount" : "1.234567",
+        "currency" : "USD",
+        "estimated" : true
+      },
+      "expected" : {
+        "en" : "$1.234567",
+        "zh" : "$1.234567"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "estimate-1.234567-USD"
+    },
+    {
+      "args" : {
+        "amount" : "1.2345678",
+        "currency" : "USD",
+        "estimated" : true
+      },
+      "expected" : {
+        "en" : "$1.234568",
+        "zh" : "$1.234568"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "estimate-1.2345678-USD"
+    },
+    {
+      "args" : {
+        "amount" : "0.5",
+        "currency" : "CNY",
+        "estimated" : true
+      },
+      "expected" : {
+        "en" : "¥0.50",
+        "zh" : "¥0.50"
+      },
+      "fn" : "MoneyFormat.amount",
+      "name" : "estimate-0.5-CNY"
+    },
+    {
+      "args" : {
+        "amount" : "412.2",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "$412",
+        "zh" : "$412"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-412.2-USD"
+    },
+    {
+      "args" : {
+        "amount" : "99.995",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "$100",
+        "zh" : "$100"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-99.995-USD"
+    },
+    {
+      "args" : {
+        "amount" : "99.994",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "$99.99",
+        "zh" : "$99.99"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-99.994-USD"
+    },
+    {
+      "args" : {
+        "amount" : "100.005",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "$100",
+        "zh" : "$100"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-100.005-USD"
+    },
+    {
+      "args" : {
+        "amount" : "0.004",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "<$0.01",
+        "zh" : "<$0.01"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-0.004-USD"
+    },
+    {
+      "args" : {
+        "amount" : "0.005",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "<$0.01",
+        "zh" : "<$0.01"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-0.005-USD"
+    },
+    {
+      "args" : {
+        "amount" : "0",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "$0.00",
+        "zh" : "$0.00"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-0-USD"
+    },
+    {
+      "args" : {
+        "amount" : "3.1",
+        "currency" : "CNY"
+      },
+      "expected" : {
+        "en" : "¥3.10",
+        "zh" : "¥3.10"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-3.1-CNY"
+    },
+    {
+      "args" : {
+        "amount" : "1234",
+        "currency" : "CNY"
+      },
+      "expected" : {
+        "en" : "¥1,234",
+        "zh" : "¥1,234"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short-1234-CNY"
+    },
+    {
+      "args" : {
+        "amount" : "-12.345",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "-$12.34",
+        "zh" : "-$12.34"
+      },
+      "fn" : "MoneyFormat.short",
+      "name" : "short--12.345-USD"
+    },
+    {
+      "args" : {
+        "amount" : "2.99",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "USD 2.99",
+        "zh" : "USD 2.99"
+      },
+      "fn" : "MoneyFormat.price",
+      "name" : "price-2.99"
+    },
+    {
+      "args" : {
+        "amount" : "29.99",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "USD 29.99",
+        "zh" : "USD 29.99"
+      },
+      "fn" : "MoneyFormat.price",
+      "name" : "price-29.99"
+    },
+    {
+      "args" : {
+        "amount" : "1299",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "USD 1,299.00",
+        "zh" : "USD 1,299.00"
+      },
+      "fn" : "MoneyFormat.price",
+      "name" : "price-1299"
+    },
+    {
+      "args" : {
+        "amount" : "2.985",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "USD 2.99",
+        "zh" : "USD 2.99"
+      },
+      "fn" : "MoneyFormat.price",
+      "name" : "price-2.985"
+    },
+    {
+      "args" : {
+        "amount" : "-2.985",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "-USD 2.99",
+        "zh" : "-USD 2.99"
+      },
+      "fn" : "MoneyFormat.price",
+      "name" : "price--2.985"
+    },
+    {
+      "args" : {
+        "amount" : "1234567.891",
+        "currency" : "USD"
+      },
+      "expected" : {
+        "en" : "USD 1,234,567.89",
+        "zh" : "USD 1,234,567.89"
+      },
+      "fn" : "MoneyFormat.price",
+      "name" : "price-1234567.891"
+    }
+  ],
+  "contract" : "money-format",
+  "owner" : "ts",
+  "reference" : "Sources/AgentHUDCore/Formatting/MoneyFormat.swift"
+}

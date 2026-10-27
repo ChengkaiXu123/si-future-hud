@@ -1,0 +1,29 @@
+{
+  "name": "@agent-hud/desktop",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "typecheck": "tsc -p .",
+    "preview": "vite preview --host 127.0.0.1",
+    "tauri": "tauri",
+    "desktop:build": "tauri build --no-bundle"
+  },
+  "dependencies": {
+    "@agent-hud/app": "workspace:*",
+    "@agent-hud/ui": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@agent-hud/vite-config": "workspace:*",
+    "@tauri-apps/cli": "2.12.3",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

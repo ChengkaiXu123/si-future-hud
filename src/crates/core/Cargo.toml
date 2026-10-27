@@ -1,0 +1,26 @@
+[package]
+name = "agent-hud-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+agent-hud-agents.workspace = true
+agent-hud-l10n.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+chrono-tz = "=0.10.4"
+rusqlite.workspace = true
+zstd = "=0.14.3"
+sha2.workspace = true
+base64.workspace = true
+unicode-segmentation = "=1.13.3"
+
+[dev-dependencies]
+tempfile.workspace = true

@@ -1,0 +1,17 @@
+{
+  "name": "@agent-hud/protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./capabilities": "./capabilities.json",
+    "./hud-defaults.json": "./hud-defaults.json"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

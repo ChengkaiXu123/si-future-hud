@@ -1,0 +1,48 @@
+[package]
+name = "agent-hud-host"
+version.workspace = true
+description = "Agent HUD's Tauri host: windows, tray, HUD and the extension interface"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+tauri = { version = "=2.12.4", features = ["tray-icon"] }
+serde_json.workspace = true
+chrono.workspace = true
+base64.workspace = true
+toml = "=1.1.8"
+serde.workspace = true
+agent-hud-runtime.workspace = true
+agent-hud-hud.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+tao = { version = "=0.37.1", default-features = false, features = ["rwh_06"] }
+objc2.workspace = true
+block2 = "0.6"
+dispatch2 = { version = "0.3", default-features = false, features = ["std", "objc2"] }
+objc2-app-kit = { workspace = true, features = ["std", "NSApplication", "NSRunningApplication", "NSWorkspace", "NSWindow", "NSScreen", "NSGraphics", "NSCursor", "NSView", "NSImage", "NSBitmapImageRep", "NSImageRep", "NSAlert", "NSButton", "NSControl", "NSResponder", "objc2-core-foundation"] }
+objc2-foundation = { workspace = true, features = ["std", "NSDictionary", "NSString", "NSBundle", "NSError", "NSValue", "NSNotification", "NSOperation", "NSLocale", "NSArray", "block2"] }
+objc2-core-foundation = { version = "0.3", default-features = false, features = ["std", "CFString", "CFUUID"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-registry = "=0.6.1"
+webview2-com = "=0.39.1"
+windows = { version = "=0.62.2", features = ["Win32_Devices_Display", "Win32_Foundation", "Win32_Globalization", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_UI_WindowsAndMessaging"] }
+
+[target.'cfg(target_os = "macos")'.dependencies.objc2-web-kit]
+version = "=0.3.2"
+default-features = false
+features = ["std", "block2", "WKWebView", "WKSnapshotConfiguration"]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+webkit2gtk = "=2.0.2"
+gio = "=0.18.4"
+cairo-rs = { version = "=0.18.5", features = ["png"] }
+
+[dev-dependencies]
+tempfile.workspace = true

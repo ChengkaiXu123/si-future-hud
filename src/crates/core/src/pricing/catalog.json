@@ -1,0 +1,2864 @@
+{
+  "checkedOn": "2026-10-26",
+  "rateUnit": "pico-currency-per-token",
+  "source": "AgentHUDCore/Models/Catalog/ModelPriceList.swift",
+  "models": {
+    "claude-fable-5-1": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 10000000,
+            "cacheWrite": 20000000,
+            "cacheRead": 250000,
+            "output": 50000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-mythos-5-1": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 10000000,
+            "cacheWrite": 20000000,
+            "cacheRead": 250000,
+            "output": 50000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-fable-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 10000000,
+            "cacheWrite": 20000000,
+            "cacheRead": 1000000,
+            "output": 50000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-mythos-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 10000000,
+            "cacheWrite": 20000000,
+            "cacheRead": 1000000,
+            "output": 50000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-opus-5-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 4000000,
+            "cacheWrite": 8000000,
+            "cacheRead": 200000,
+            "output": 20000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-opus-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 5000000,
+            "cacheWrite": 10000000,
+            "cacheRead": 500000,
+            "output": 25000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-opus-4-8": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 5000000,
+            "cacheWrite": 10000000,
+            "cacheRead": 500000,
+            "output": 25000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-opus-4-7": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 5000000,
+            "cacheWrite": 10000000,
+            "cacheRead": 500000,
+            "output": 25000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-opus-4-6": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 5000000,
+            "cacheWrite": 10000000,
+            "cacheRead": 500000,
+            "output": 25000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-opus-4-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 5000000,
+            "cacheWrite": 10000000,
+            "cacheRead": 500000,
+            "output": 25000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "claude-opus-4-1": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 15000000,
+            "cacheWrite": 30000000,
+            "cacheRead": 1500000,
+            "output": 75000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "claude-opus-4": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 15000000,
+            "cacheWrite": 30000000,
+            "cacheRead": 1500000,
+            "output": 75000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "claude-opus-4-0": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 15000000,
+            "cacheWrite": 30000000,
+            "cacheRead": 1500000,
+            "output": 75000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "claude-sonnet-5-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 4000000,
+            "cacheRead": 100000,
+            "output": 10000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-sonnet-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 4000000,
+            "cacheRead": 200000,
+            "output": 10000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-sonnet-4-6": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 3000000,
+            "cacheWrite": 6000000,
+            "cacheRead": 300000,
+            "output": 15000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-sonnet-4-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 3000000,
+            "cacheWrite": 6000000,
+            "cacheRead": 300000,
+            "output": 15000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "claude-sonnet-4": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 3000000,
+            "cacheWrite": 6000000,
+            "cacheRead": 300000,
+            "output": 15000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "claude-sonnet-4-0": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 3000000,
+            "cacheWrite": 6000000,
+            "cacheRead": 300000,
+            "output": 15000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "claude-haiku-5-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 100000,
+            "cacheWrite": 200000,
+            "cacheRead": 10000,
+            "output": 500000
+          },
+          "tiers": [
+            {
+              "from": 100001,
+              "rates": {
+                "input": 500000,
+                "cacheWrite": 1000000,
+                "cacheRead": 50000,
+                "output": 2500000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "claude-haiku-4-5": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1000000,
+            "cacheWrite": 2000000,
+            "cacheRead": 100000,
+            "output": 5000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "claude-3-5-haiku": {
+      "vendor": "Anthropic",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 800000,
+            "cacheWrite": 1600000,
+            "cacheRead": 80000,
+            "output": 4000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "gpt-6-astra": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 10000000,
+            "cacheWrite": 12500000,
+            "cacheRead": 1000000,
+            "output": 50000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 20000000,
+                "cacheWrite": 25000000,
+                "cacheRead": 2000000,
+                "output": 75000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-6.1-sol": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2500000,
+            "cacheRead": 100000,
+            "output": 10000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 5000000,
+                "cacheRead": 200000,
+                "output": 15000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-6-sol": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2500000,
+            "cacheRead": 200000,
+            "output": 10000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 5000000,
+                "cacheRead": 400000,
+                "output": 15000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-6-luna": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 100000,
+            "cacheWrite": 125000,
+            "cacheRead": 10000,
+            "output": 500000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 200000,
+                "cacheWrite": 250000,
+                "cacheRead": 20000,
+                "output": 750000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.6-sol": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 5000000,
+            "cacheWrite": 6250000,
+            "cacheRead": 500000,
+            "output": 30000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 10000000,
+                "cacheWrite": 12500000,
+                "cacheRead": 1000000,
+                "output": 45000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.6-terra": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2500000,
+            "cacheRead": 200000,
+            "output": 12000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 5000000,
+                "cacheRead": 400000,
+                "output": 18000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.6-luna": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 200000,
+            "cacheWrite": 250000,
+            "cacheRead": 20000,
+            "output": 1200000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 400000,
+                "cacheWrite": 500000,
+                "cacheRead": 40000,
+                "output": 1800000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.5": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 5000000,
+            "cacheWrite": 5000000,
+            "cacheRead": 500000,
+            "output": 30000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 10000000,
+                "cacheWrite": 10000000,
+                "cacheRead": 1000000,
+                "output": 45000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.5-pro": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 30000000,
+            "cacheWrite": 30000000,
+            "cacheRead": 30000000,
+            "output": 180000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 60000000,
+                "cacheWrite": 60000000,
+                "cacheRead": 60000000,
+                "output": 270000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.4": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2500000,
+            "cacheWrite": 2500000,
+            "cacheRead": 250000,
+            "output": 15000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 5000000,
+                "cacheWrite": 5000000,
+                "cacheRead": 500000,
+                "output": 22500000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.4-pro": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 30000000,
+            "cacheWrite": 30000000,
+            "cacheRead": 30000000,
+            "output": 180000000
+          },
+          "tiers": [
+            {
+              "from": 272001,
+              "rates": {
+                "input": 60000000,
+                "cacheWrite": 60000000,
+                "cacheRead": 60000000,
+                "output": 270000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.4-mini": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 750000,
+            "cacheWrite": 750000,
+            "cacheRead": 75000,
+            "output": 4500000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.4-nano": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 200000,
+            "cacheWrite": 200000,
+            "cacheRead": 20000,
+            "output": 1250000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.3-codex": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1750000,
+            "cacheWrite": 1750000,
+            "cacheRead": 175000,
+            "output": 14000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.2": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1750000,
+            "cacheWrite": 1750000,
+            "cacheRead": 175000,
+            "output": 14000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.2-codex": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1750000,
+            "cacheWrite": 1750000,
+            "cacheRead": 175000,
+            "output": 14000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.2-pro": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 21000000,
+            "cacheWrite": 21000000,
+            "cacheRead": 21000000,
+            "output": 168000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.1": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 125000,
+            "output": 10000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.1-codex": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 125000,
+            "output": 10000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.1-codex-max": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 125000,
+            "output": 10000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5.1-codex-mini": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 250000,
+            "cacheWrite": 250000,
+            "cacheRead": 25000,
+            "output": 2000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 125000,
+            "output": 10000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5-codex": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 125000,
+            "output": 10000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5-mini": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 250000,
+            "cacheWrite": 250000,
+            "cacheRead": 25000,
+            "output": 2000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5-nano": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 50000,
+            "cacheWrite": 50000,
+            "cacheRead": 5000,
+            "output": 400000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "gpt-5-pro": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 15000000,
+            "cacheWrite": 15000000,
+            "cacheRead": 15000000,
+            "output": 120000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "codex-mini-latest": {
+      "vendor": "OpenAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1500000,
+            "cacheWrite": 1500000,
+            "cacheRead": 375000,
+            "output": 6000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": null,
+      "peakHours": false
+    },
+    "deepseek-flash": {
+      "vendor": "DeepSeek",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 150000,
+            "cacheWrite": 150000,
+            "cacheRead": 3000,
+            "output": 600000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 1000000,
+            "cacheWrite": 1000000,
+            "cacheRead": 20000,
+            "output": 4000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": true
+    },
+    "deepseek-v4-pro": {
+      "vendor": "DeepSeek",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 660000,
+            "cacheWrite": 660000,
+            "cacheRead": 22000,
+            "output": 1980000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 4500000,
+            "cacheWrite": 4500000,
+            "cacheRead": 150000,
+            "output": 13500000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": true
+    },
+    "grok-4.7": {
+      "vendor": "xAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2000000,
+            "cacheRead": 500000,
+            "output": 6000000
+          },
+          "tiers": [
+            {
+              "from": 200000,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 4000000,
+                "cacheRead": 1000000,
+                "output": 12000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 500000,
+      "peakHours": false
+    },
+    "grok-4.6": {
+      "vendor": "xAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2000000,
+            "cacheRead": 500000,
+            "output": 6000000
+          },
+          "tiers": [
+            {
+              "from": 200000,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 4000000,
+                "cacheRead": 1000000,
+                "output": 12000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 500000,
+      "peakHours": false
+    },
+    "grok-4.5": {
+      "vendor": "xAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2000000,
+            "cacheRead": 300000,
+            "output": 6000000
+          },
+          "tiers": [
+            {
+              "from": 200000,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 4000000,
+                "cacheRead": 600000,
+                "output": 12000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 500000,
+      "peakHours": false
+    },
+    "grok-4.3": {
+      "vendor": "xAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 200000,
+            "output": 2500000
+          },
+          "tiers": [
+            {
+              "from": 200000,
+              "rates": {
+                "input": 2500000,
+                "cacheWrite": 2500000,
+                "cacheRead": 400000,
+                "output": 5000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "grok-4.20-0309-reasoning": {
+      "vendor": "xAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 200000,
+            "output": 2500000
+          },
+          "tiers": [
+            {
+              "from": 200000,
+              "rates": {
+                "input": 2500000,
+                "cacheWrite": 2500000,
+                "cacheRead": 400000,
+                "output": 5000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "grok-4.20-0309-non-reasoning": {
+      "vendor": "xAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 200000,
+            "output": 2500000
+          },
+          "tiers": [
+            {
+              "from": 200000,
+              "rates": {
+                "input": 2500000,
+                "cacheWrite": 2500000,
+                "cacheRead": 400000,
+                "output": 5000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "grok-4.20-multi-agent-0309": {
+      "vendor": "xAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1250000,
+            "cacheWrite": 1250000,
+            "cacheRead": 200000,
+            "output": 2500000
+          },
+          "tiers": [
+            {
+              "from": 200000,
+              "rates": {
+                "input": 2500000,
+                "cacheWrite": 2500000,
+                "cacheRead": 400000,
+                "output": 5000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "grok-build-0.1": {
+      "vendor": "xAI",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1000000,
+            "cacheWrite": 1000000,
+            "cacheRead": 200000,
+            "output": 2000000
+          },
+          "tiers": [
+            {
+              "from": 200000,
+              "rates": {
+                "input": 2000000,
+                "cacheWrite": 2000000,
+                "cacheRead": 400000,
+                "output": 4000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 256000,
+      "peakHours": false
+    },
+    "gemini-4-argon": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2000000,
+            "cacheRead": 100000,
+            "output": 10000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "gemini-3.8-flash": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 750000,
+            "cacheWrite": 750000,
+            "cacheRead": 75000,
+            "output": 3750000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "gemini-3.7-flash": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 750000,
+            "cacheWrite": 750000,
+            "cacheRead": 75000,
+            "output": 3750000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "gemini-3.6-flash": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 750000,
+            "cacheWrite": 750000,
+            "cacheRead": 75000,
+            "output": 3750000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "gemini-3.5-flash": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1500000,
+            "cacheWrite": 1500000,
+            "cacheRead": 150000,
+            "output": 9000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "gemini-3.5-flash-lite": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 300000,
+            "cacheWrite": 300000,
+            "cacheRead": 30000,
+            "output": 2500000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "gemini-3.1-flash-lite": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 250000,
+            "cacheWrite": 250000,
+            "cacheRead": 25000,
+            "output": 1500000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "gemini-3-flash-preview": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 500000,
+            "cacheWrite": 500000,
+            "cacheRead": 50000,
+            "output": 3000000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "gemini-3.1-pro-preview": {
+      "vendor": "Google",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2000000,
+            "cacheRead": 200000,
+            "output": 12000000
+          },
+          "tiers": [
+            {
+              "from": 200001,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 4000000,
+                "cacheRead": 400000,
+                "output": 18000000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "glm-5.3": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1400000,
+            "cacheWrite": 1400000,
+            "cacheRead": 260000,
+            "output": 4400000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 8000000,
+            "cacheWrite": 8000000,
+            "cacheRead": 2000000,
+            "output": 28000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "glm-5.3-flash": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 150000,
+            "cacheWrite": 150000,
+            "cacheRead": 30000,
+            "output": 500000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 800000,
+            "cacheWrite": 800000,
+            "cacheRead": 230000,
+            "output": 2800000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "glm-5.3-flashx": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 370000,
+            "cacheWrite": 370000,
+            "cacheRead": 75000,
+            "output": 1250000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2000000,
+            "cacheRead": 570000,
+            "output": 7000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "glm-5.2": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1400000,
+            "cacheWrite": 1400000,
+            "cacheRead": 260000,
+            "output": 4400000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 8000000,
+            "cacheWrite": 8000000,
+            "cacheRead": 2000000,
+            "output": 28000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "glm-5.1": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1400000,
+            "cacheWrite": 1400000,
+            "cacheRead": 260000,
+            "output": 4400000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 6000000,
+            "cacheWrite": 6000000,
+            "cacheRead": 1300000,
+            "output": 24000000
+          },
+          "tiers": [
+            {
+              "from": 32000,
+              "rates": {
+                "input": 8000000,
+                "cacheWrite": 8000000,
+                "cacheRead": 2000000,
+                "output": 28000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "glm-5-turbo": {
+      "vendor": "GLM",
+      "prices": {
+        "china": {
+          "rates": {
+            "input": 5000000,
+            "cacheWrite": 5000000,
+            "cacheRead": 1200000,
+            "output": 22000000
+          },
+          "tiers": [
+            {
+              "from": 32000,
+              "rates": {
+                "input": 7000000,
+                "cacheWrite": 7000000,
+                "cacheRead": 1800000,
+                "output": 26000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "glm-5": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1000000,
+            "cacheWrite": 1000000,
+            "cacheRead": 200000,
+            "output": 3200000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 4000000,
+            "cacheWrite": 4000000,
+            "cacheRead": 1000000,
+            "output": 18000000
+          },
+          "tiers": [
+            {
+              "from": 32000,
+              "rates": {
+                "input": 6000000,
+                "cacheWrite": 6000000,
+                "cacheRead": 1500000,
+                "output": 22000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "glm-4.7": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 600000,
+            "cacheWrite": 600000,
+            "cacheRead": 110000,
+            "output": 2200000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 3000000,
+            "cacheWrite": 3000000,
+            "cacheRead": 600000,
+            "output": 14000000
+          },
+          "tiers": [
+            {
+              "from": 32000,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 4000000,
+                "cacheRead": 800000,
+                "output": 16000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "glm-4.6": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 600000,
+            "cacheWrite": 600000,
+            "cacheRead": 110000,
+            "output": 2200000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "glm-4.7-flashx": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 70000,
+            "cacheWrite": 70000,
+            "cacheRead": 10000,
+            "output": 400000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 500000,
+            "cacheWrite": 500000,
+            "cacheRead": 100000,
+            "output": 3000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "glm-4.7-flash": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 0,
+            "cacheWrite": 0,
+            "cacheRead": 0,
+            "output": 0
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 200000,
+      "peakHours": false
+    },
+    "glm-4.5": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 600000,
+            "cacheWrite": 600000,
+            "cacheRead": 110000,
+            "output": 2200000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 128000,
+      "peakHours": false
+    },
+    "glm-4.5-x": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2200000,
+            "cacheWrite": 2200000,
+            "cacheRead": 450000,
+            "output": 8900000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 128000,
+      "peakHours": false
+    },
+    "glm-4.5-air": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 200000,
+            "cacheWrite": 200000,
+            "cacheRead": 30000,
+            "output": 1100000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 800000,
+            "cacheWrite": 800000,
+            "cacheRead": 160000,
+            "output": 6000000
+          },
+          "tiers": [
+            {
+              "from": 32000,
+              "rates": {
+                "input": 1200000,
+                "cacheWrite": 1200000,
+                "cacheRead": 240000,
+                "output": 8000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 128000,
+      "peakHours": false
+    },
+    "glm-4.5-airx": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1100000,
+            "cacheWrite": 1100000,
+            "cacheRead": 220000,
+            "output": 4500000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 128000,
+      "peakHours": false
+    },
+    "glm-4.5-flash": {
+      "vendor": "GLM",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 0,
+            "cacheWrite": 0,
+            "cacheRead": 0,
+            "output": 0
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 128000,
+      "peakHours": false
+    },
+    "kimi-k3": {
+      "vendor": "Moonshot",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 3000000,
+            "cacheWrite": 3000000,
+            "cacheRead": 300000,
+            "output": 15000000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 20000000,
+            "cacheWrite": 20000000,
+            "cacheRead": 2000000,
+            "output": 100000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1048576,
+      "peakHours": false
+    },
+    "kimi-k2.7-code": {
+      "vendor": "Moonshot",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 950000,
+            "cacheWrite": 950000,
+            "cacheRead": 190000,
+            "output": 4000000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 6500000,
+            "cacheWrite": 6500000,
+            "cacheRead": 1300000,
+            "output": 27000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 262144,
+      "peakHours": false
+    },
+    "kimi-k2.7-code-highspeed": {
+      "vendor": "Moonshot",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1900000,
+            "cacheWrite": 1900000,
+            "cacheRead": 380000,
+            "output": 8000000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 13000000,
+            "cacheWrite": 13000000,
+            "cacheRead": 2600000,
+            "output": 54000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 262144,
+      "peakHours": false
+    },
+    "kimi-k2.6": {
+      "vendor": "Moonshot",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 950000,
+            "cacheWrite": 950000,
+            "cacheRead": 160000,
+            "output": 4000000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 6500000,
+            "cacheWrite": 6500000,
+            "cacheRead": 1100000,
+            "output": 27000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 262144,
+      "peakHours": false
+    },
+    "qwen3-coder-plus": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1000000,
+            "cacheWrite": 1250000,
+            "cacheRead": 200000,
+            "output": 5000000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 1800000,
+                "cacheWrite": 2250000,
+                "cacheRead": 360000,
+                "output": 9000000
+              }
+            },
+            {
+              "from": 128001,
+              "rates": {
+                "input": 3000000,
+                "cacheWrite": 3750000,
+                "cacheRead": 600000,
+                "output": 15000000
+              }
+            },
+            {
+              "from": 256001,
+              "rates": {
+                "input": 6000000,
+                "cacheWrite": 7500000,
+                "cacheRead": 1200000,
+                "output": 60000000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 4000000,
+            "cacheWrite": 5000000,
+            "cacheRead": 800000,
+            "output": 16000000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 6000000,
+                "cacheWrite": 7500000,
+                "cacheRead": 1200000,
+                "output": 24000000
+              }
+            },
+            {
+              "from": 128001,
+              "rates": {
+                "input": 10000000,
+                "cacheWrite": 12500000,
+                "cacheRead": 2000000,
+                "output": 40000000
+              }
+            },
+            {
+              "from": 256001,
+              "rates": {
+                "input": 20000000,
+                "cacheWrite": 25000000,
+                "cacheRead": 4000000,
+                "output": 200000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "qwen3-coder-flash": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 300000,
+            "cacheWrite": 375000,
+            "cacheRead": 60000,
+            "output": 1500000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 500000,
+                "cacheWrite": 625000,
+                "cacheRead": 100000,
+                "output": 2500000
+              }
+            },
+            {
+              "from": 128001,
+              "rates": {
+                "input": 800000,
+                "cacheWrite": 1000000,
+                "cacheRead": 160000,
+                "output": 4000000
+              }
+            },
+            {
+              "from": 256001,
+              "rates": {
+                "input": 1600000,
+                "cacheWrite": 2000000,
+                "cacheRead": 320000,
+                "output": 9600000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 1000000,
+            "cacheWrite": 1250000,
+            "cacheRead": 200000,
+            "output": 4000000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 1500000,
+                "cacheWrite": 1875000,
+                "cacheRead": 300000,
+                "output": 6000000
+              }
+            },
+            {
+              "from": 128001,
+              "rates": {
+                "input": 2500000,
+                "cacheWrite": 3125000,
+                "cacheRead": 500000,
+                "output": 10000000
+              }
+            },
+            {
+              "from": 256001,
+              "rates": {
+                "input": 5000000,
+                "cacheWrite": 6250000,
+                "cacheRead": 1000000,
+                "output": 25000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "qwen3-coder-next": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 300000,
+            "cacheWrite": 300000,
+            "cacheRead": 300000,
+            "output": 1500000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 500000,
+                "cacheWrite": 500000,
+                "cacheRead": 500000,
+                "output": 2500000
+              }
+            },
+            {
+              "from": 128001,
+              "rates": {
+                "input": 800000,
+                "cacheWrite": 800000,
+                "cacheRead": 800000,
+                "output": 4000000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 1000000,
+            "cacheWrite": 1000000,
+            "cacheRead": 1000000,
+            "output": 4000000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 1500000,
+                "cacheWrite": 1500000,
+                "cacheRead": 1500000,
+                "output": 6000000
+              }
+            },
+            {
+              "from": 128001,
+              "rates": {
+                "input": 2500000,
+                "cacheWrite": 2500000,
+                "cacheRead": 2500000,
+                "output": 10000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 262144,
+      "peakHours": false
+    },
+    "qwen3-max": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1200000,
+            "cacheWrite": 1500000,
+            "cacheRead": 240000,
+            "output": 6000000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 2400000,
+                "cacheWrite": 3000000,
+                "cacheRead": 480000,
+                "output": 12000000
+              }
+            },
+            {
+              "from": 128001,
+              "rates": {
+                "input": 3000000,
+                "cacheWrite": 3750000,
+                "cacheRead": 600000,
+                "output": 15000000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 2500000,
+            "cacheWrite": 3125000,
+            "cacheRead": 500000,
+            "output": 10000000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 4000000,
+                "cacheWrite": 5000000,
+                "cacheRead": 800000,
+                "output": 16000000
+              }
+            },
+            {
+              "from": 128001,
+              "rates": {
+                "input": 7000000,
+                "cacheWrite": 8750000,
+                "cacheRead": 1400000,
+                "output": 28000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 262144,
+      "peakHours": false
+    },
+    "qwen3.6-max-preview": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 1300000,
+            "cacheWrite": 1625000,
+            "cacheRead": 130000,
+            "output": 7800000
+          },
+          "tiers": [
+            {
+              "from": 128001,
+              "rates": {
+                "input": 2000000,
+                "cacheWrite": 2500000,
+                "cacheRead": 200000,
+                "output": 12000000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 9000000,
+            "cacheWrite": 11250000,
+            "cacheRead": 900000,
+            "output": 54000000
+          },
+          "tiers": [
+            {
+              "from": 128001,
+              "rates": {
+                "input": 15000000,
+                "cacheWrite": 18750000,
+                "cacheRead": 1500000,
+                "output": 90000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 262144,
+      "peakHours": false
+    },
+    "qwen3.6-plus": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 500000,
+            "cacheWrite": 625000,
+            "cacheRead": 50000,
+            "output": 3000000
+          },
+          "tiers": [
+            {
+              "from": 256001,
+              "rates": {
+                "input": 2000000,
+                "cacheWrite": 2500000,
+                "cacheRead": 200000,
+                "output": 6000000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2500000,
+            "cacheRead": 200000,
+            "output": 12000000
+          },
+          "tiers": [
+            {
+              "from": 256001,
+              "rates": {
+                "input": 8000000,
+                "cacheWrite": 10000000,
+                "cacheRead": 800000,
+                "output": 48000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "qwen3.6-flash": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 250000,
+            "cacheWrite": 312500,
+            "cacheRead": 25000,
+            "output": 1500000
+          },
+          "tiers": [
+            {
+              "from": 256001,
+              "rates": {
+                "input": 1000000,
+                "cacheWrite": 1250000,
+                "cacheRead": 100000,
+                "output": 4000000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 1200000,
+            "cacheWrite": 1500000,
+            "cacheRead": 120000,
+            "output": 7200000
+          },
+          "tiers": [
+            {
+              "from": 256001,
+              "rates": {
+                "input": 4800000,
+                "cacheWrite": 6000000,
+                "cacheRead": 480000,
+                "output": 28800000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "qwen3.6-35b-a3b": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 375000,
+            "cacheWrite": 375000,
+            "cacheRead": 375000,
+            "output": 2250000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 1800000,
+            "cacheWrite": 1800000,
+            "cacheRead": 1800000,
+            "output": 10800000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 262144,
+      "peakHours": false
+    },
+    "qwen3.6-27b": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 600000,
+            "cacheWrite": 600000,
+            "cacheRead": 600000,
+            "output": 3600000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 3000000,
+            "cacheWrite": 3000000,
+            "cacheRead": 3000000,
+            "output": 18000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 262144,
+      "peakHours": false
+    },
+    "qwen3.8-max": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2500000,
+            "cacheRead": 250000,
+            "output": 6000000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 12000000,
+            "cacheWrite": 15000000,
+            "cacheRead": 1500000,
+            "output": 36000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "qwen3.7-max": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 2500000,
+            "cacheWrite": 3125000,
+            "cacheRead": 500000,
+            "output": 7500000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 12000000,
+            "cacheWrite": 15000000,
+            "cacheRead": 2400000,
+            "output": 36000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "qwen3.7-plus": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 400000,
+            "cacheWrite": 500000,
+            "cacheRead": 80000,
+            "output": 1600000
+          },
+          "tiers": [
+            {
+              "from": 256001,
+              "rates": {
+                "input": 1200000,
+                "cacheWrite": 1500000,
+                "cacheRead": 240000,
+                "output": 4800000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 2000000,
+            "cacheWrite": 2500000,
+            "cacheRead": 400000,
+            "output": 8000000
+          },
+          "tiers": [
+            {
+              "from": 256001,
+              "rates": {
+                "input": 6000000,
+                "cacheWrite": 7500000,
+                "cacheRead": 1200000,
+                "output": 24000000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "qwen3.8-flash": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 150000,
+            "cacheWrite": 200000,
+            "cacheRead": 16000,
+            "output": 470000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 800000,
+            "cacheWrite": 1250000,
+            "cacheRead": 100000,
+            "output": 2700000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "qwen3.7-flash": {
+      "vendor": "Qwen",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 30000,
+            "cacheWrite": 38000,
+            "cacheRead": 6000,
+            "output": 130000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 100000,
+                "cacheWrite": 125000,
+                "cacheRead": 20000,
+                "output": 400000
+              }
+            },
+            {
+              "from": 256001,
+              "rates": {
+                "input": 200000,
+                "cacheWrite": 250000,
+                "cacheRead": 40000,
+                "output": 800000
+              }
+            }
+          ]
+        },
+        "china": {
+          "rates": {
+            "input": 200000,
+            "cacheWrite": 250000,
+            "cacheRead": 40000,
+            "output": 800000
+          },
+          "tiers": [
+            {
+              "from": 32001,
+              "rates": {
+                "input": 600000,
+                "cacheWrite": 750000,
+                "cacheRead": 120000,
+                "output": 2400000
+              }
+            },
+            {
+              "from": 256001,
+              "rates": {
+                "input": 1200000,
+                "cacheWrite": 1500000,
+                "cacheRead": 240000,
+                "output": 4800000
+              }
+            }
+          ]
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "minimax-m3": {
+      "vendor": "MiniMax",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 300000,
+            "cacheWrite": 300000,
+            "cacheRead": 60000,
+            "output": 1200000
+          },
+          "tiers": [
+            {
+              "from": 512001,
+              "rates": {
+                "input": 600000,
+                "cacheWrite": 600000,
+                "cacheRead": 120000,
+                "output": 2400000
+              }
+            }
+          ]
+        }
+      },
+      "global": true,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "minimax-m2.7": {
+      "vendor": "MiniMax",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 300000,
+            "cacheWrite": 375000,
+            "cacheRead": 60000,
+            "output": 1200000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 204800,
+      "peakHours": false
+    },
+    "minimax-m2.7-highspeed": {
+      "vendor": "MiniMax",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 600000,
+            "cacheWrite": 375000,
+            "cacheRead": 60000,
+            "output": 2400000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 204800,
+      "peakHours": false
+    },
+    "minimax-m2.5": {
+      "vendor": "MiniMax",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 300000,
+            "cacheWrite": 375000,
+            "cacheRead": 30000,
+            "output": 1200000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 204800,
+      "peakHours": false
+    },
+    "minimax-m2.5-highspeed": {
+      "vendor": "MiniMax",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 600000,
+            "cacheWrite": 375000,
+            "cacheRead": 30000,
+            "output": 2400000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 204800,
+      "peakHours": false
+    },
+    "minimax-m2.1": {
+      "vendor": "MiniMax",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 300000,
+            "cacheWrite": 375000,
+            "cacheRead": 30000,
+            "output": 1200000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 204800,
+      "peakHours": false
+    },
+    "minimax-m2.1-highspeed": {
+      "vendor": "MiniMax",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 600000,
+            "cacheWrite": 375000,
+            "cacheRead": 30000,
+            "output": 2400000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 204800,
+      "peakHours": false
+    },
+    "minimax-m2": {
+      "vendor": "MiniMax",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 300000,
+            "cacheWrite": 375000,
+            "cacheRead": 30000,
+            "output": 1200000
+          },
+          "tiers": []
+        }
+      },
+      "global": true,
+      "contextWindow": 204800,
+      "peakHours": false
+    },
+    "mimo-v2.6-pro": {
+      "vendor": "MiMo",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 435000,
+            "cacheWrite": 0,
+            "cacheRead": 3600,
+            "output": 870000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 3000000,
+            "cacheWrite": 0,
+            "cacheRead": 25000,
+            "output": 6000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "mimo-v2.6-flash": {
+      "vendor": "MiMo",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 140000,
+            "cacheWrite": 0,
+            "cacheRead": 2800,
+            "output": 280000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 1000000,
+            "cacheWrite": 0,
+            "cacheRead": 20000,
+            "output": 2000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    },
+    "mimo-v2.6-pro-ultraspeed": {
+      "vendor": "MiMo",
+      "prices": {
+        "international": {
+          "rates": {
+            "input": 4350000,
+            "cacheWrite": 0,
+            "cacheRead": 36000,
+            "output": 8700000
+          },
+          "tiers": []
+        },
+        "china": {
+          "rates": {
+            "input": 30000000,
+            "cacheWrite": 0,
+            "cacheRead": 250000,
+            "output": 60000000
+          },
+          "tiers": []
+        }
+      },
+      "global": false,
+      "contextWindow": 1000000,
+      "peakHours": false
+    }
+  },
+  "aliases": {
+    "deepseek-v4-flash": "deepseek-flash",
+    "deepseek-v4-flash-vision-exp": "deepseek-flash",
+    "grok-4.5-latest": "grok-4.5",
+    "grok-build-latest": "grok-4.5",
+    "grok-4.3-latest": "grok-4.3",
+    "grok-4.20": "grok-4.20-0309-reasoning",
+    "grok-4.20-reasoning": "grok-4.20-0309-reasoning",
+    "grok-4.20-reasoning-latest": "grok-4.20-0309-reasoning",
+    "grok-4.20-non-reasoning": "grok-4.20-0309-non-reasoning",
+    "grok-4.20-non-reasoning-latest": "grok-4.20-0309-non-reasoning",
+    "grok-4.20-multi-agent": "grok-4.20-multi-agent-0309",
+    "grok-4.20-multi-agent-latest": "grok-4.20-multi-agent-0309",
+    "grok-code-fast-1": "grok-build-0.1",
+    "grok-code-fast": "grok-build-0.1",
+    "grok-code-fast-1-0825": "grok-build-0.1",
+    "gemini-3.1-pro-preview-customtools": "gemini-3.1-pro-preview",
+    "qwen3.8-max-0902": "qwen3.8-max",
+    "mimo-v2.5-pro": "mimo-v2.6-pro",
+    "mimo-v2.5": "mimo-v2.6-flash",
+    "claude-opus-5-5-low": "claude-opus-5-5",
+    "claude-opus-5-5-medium": "claude-opus-5-5",
+    "claude-opus-5-5-high": "claude-opus-5-5",
+    "claude-opus-5-5-max": "claude-opus-5-5",
+    "claude-sonnet-5-5-low": "claude-sonnet-5-5",
+    "claude-sonnet-5-5-medium": "claude-sonnet-5-5",
+    "claude-sonnet-5-5-high": "claude-sonnet-5-5",
+    "claude-sonnet-5-5-max": "claude-sonnet-5-5",
+    "gemini-4-argon-low": "gemini-4-argon",
+    "gemini-4-argon-medium": "gemini-4-argon",
+    "gemini-4-argon-high": "gemini-4-argon",
+    "gemini-3.8-flash-low": "gemini-3.8-flash",
+    "gemini-3.8-flash-medium": "gemini-3.8-flash",
+    "gemini-3.8-flash-high": "gemini-3.8-flash"
+  },
+  "vendorServices": {
+    "anthropic": "Anthropic",
+    "openai": "OpenAI",
+    "openai-codex": "OpenAI",
+    "deepseek": "DeepSeek",
+    "google": "Google",
+    "xai": "xAI",
+    "zai": "GLM",
+    "zai-coding-plan": "GLM",
+    "zai-coding-cn": "GLM",
+    "zhipuai": "GLM",
+    "zhipuai-coding-plan": "GLM",
+    "moonshotai": "Moonshot",
+    "moonshotai-cn": "Moonshot",
+    "kimi-code": "Moonshot",
+    "kimi-coding": "Moonshot",
+    "kimi-for-coding": "Moonshot",
+    "kimi-code-plan-cn": "Moonshot",
+    "kimi-code-plan-global": "Moonshot",
+    "alibaba": "Qwen",
+    "alibaba-cn": "Qwen",
+    "alibaba-coding-plan": "Qwen",
+    "alibaba-coding-plan-cn": "Qwen",
+    "alibaba-token-plan": "Qwen",
+    "alibaba-token-plan-cn": "Qwen",
+    "qwen-token-plan": "Qwen",
+    "qwen-token-plan-cn": "Qwen",
+    "qwen-token-plan-individual": "Qwen",
+    "minimax": "MiniMax",
+    "minimax-cn": "MiniMax",
+    "minimax-coding-plan": "MiniMax",
+    "minimax-cn-coding-plan": "MiniMax",
+    "xiaomi": "MiMo",
+    "xiaomi-token-plan-ams": "MiMo",
+    "xiaomi-token-plan-cn": "MiMo",
+    "xiaomi-token-plan-sgp": "MiMo"
+  }
+}

@@ -1,0 +1,24 @@
+node_modules
+dist/
+target/
+build/
+src-tauri/gen/
+.DS_Store
+**/*.tsbuildinfo
+/src/apps/desktop/src-tauri/gen/
+/src/apps/desktop/dist
+/src/apps/desktop/src-tauri/resources
+*.local
+test-results/
+playwright-report/
+.build/
+# Local agent worktrees and settings
+.claude/
+# Local environments, logs and editors
+.env*
+*.log
+.vscode/
+.idea/
+coverage/
+blob-report/
+.swiftpm/

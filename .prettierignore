@@ -1,0 +1,11 @@
+# Scripts embedded into Rust with include_str! are installed into clients'
+# folders as they are written; reformatting them would change installed files.
+src/crates/
+# Fixtures and catalogs are written by tools.
+src/fixtures/
+**/dist/
+**/target/
+**/node_modules/
+**/src-tauri/gen/
+**/src-tauri/resources/
+pnpm-lock.yaml

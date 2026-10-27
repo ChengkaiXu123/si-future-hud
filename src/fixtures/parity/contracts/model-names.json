@@ -1,0 +1,513 @@
+{
+  "cases" : [
+    {
+      "args" : {
+        "model" : "claude-opus-4-5-20251101"
+      },
+      "expected" : {
+        "en" : "Opus 4.5",
+        "zh" : "Opus 4.5"
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-claude-opus-4-5-20251101"
+    },
+    {
+      "args" : {
+        "model" : "claude-fable-5-1"
+      },
+      "expected" : {
+        "en" : "Fable 5.1",
+        "zh" : "Fable 5.1"
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-claude-fable-5-1"
+    },
+    {
+      "args" : {
+        "model" : "claude-opus-5"
+      },
+      "expected" : {
+        "en" : "Opus 5",
+        "zh" : "Opus 5"
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-claude-opus-5"
+    },
+    {
+      "args" : {
+        "model" : "claude-3-5-haiku-20241022"
+      },
+      "expected" : {
+        "en" : "Haiku 3.5",
+        "zh" : "Haiku 3.5"
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-claude-3-5-haiku-20241022"
+    },
+    {
+      "args" : {
+        "model" : "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+      },
+      "expected" : {
+        "en" : "Sonnet 3.5",
+        "zh" : "Sonnet 3.5"
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-us.anthropic.claude-3-5-sonnet-20241022-v2_0"
+    },
+    {
+      "args" : {
+        "model" : "claude-sonnet-4-20250514"
+      },
+      "expected" : {
+        "en" : "Sonnet 4",
+        "zh" : "Sonnet 4"
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-claude-sonnet-4-20250514"
+    },
+    {
+      "args" : {
+        "model" : "<synthetic>"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-synthetic"
+    },
+    {
+      "args" : {
+        "model" : "gpt-6-sol"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-gpt-6-sol"
+    },
+    {
+      "args" : {
+        "model" : "claude-mythos"
+      },
+      "expected" : {
+        "en" : "Mythos",
+        "zh" : "Mythos"
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-claude-mythos"
+    },
+    {
+      "args" : {
+        "model" : "CLAUDE-HAIKU-4-5"
+      },
+      "expected" : {
+        "en" : "Haiku 4.5",
+        "zh" : "Haiku 4.5"
+      },
+      "fn" : "ClaudeModelInfo.displayName",
+      "name" : "claude-CLAUDE-HAIKU-4-5"
+    },
+    {
+      "args" : {
+        "agentId" : "claude-model:claude-opus-4-5-20251101"
+      },
+      "expected" : {
+        "en" : "Opus 4.5",
+        "zh" : "Opus 4.5"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-claude-model_claude-opus-4-5-20251101"
+    },
+    {
+      "args" : {
+        "agentId" : "claude-model:<synthetic>"
+      },
+      "expected" : {
+        "en" : "<synthetic>",
+        "zh" : "<synthetic>"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-claude-model_synthetic"
+    },
+    {
+      "args" : {
+        "agentId" : "codex-model:gpt-6-sol"
+      },
+      "expected" : {
+        "en" : "gpt-6-sol",
+        "zh" : "gpt-6-sol"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-codex-model_gpt-6-sol"
+    },
+    {
+      "args" : {
+        "agentId" : "opencode-model:kimi-for-coding#kimi-code"
+      },
+      "expected" : {
+        "en" : "Kimi For Coding",
+        "zh" : "Kimi For Coding"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-opencode-model_kimi-for-coding_kimi-code"
+    },
+    {
+      "args" : {
+        "agentId" : "opencode-model:kimi-for-coding#openrouter"
+      },
+      "expected" : {
+        "en" : "Kimi For Coding · openrouter",
+        "zh" : "Kimi For Coding · openrouter"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-opencode-model_kimi-for-coding_openrouter"
+    },
+    {
+      "args" : {
+        "agentId" : "opencode-model:kimi-code/kimi-for-coding#kimi-code"
+      },
+      "expected" : {
+        "en" : "Kimi For Coding",
+        "zh" : "Kimi For Coding"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-opencode-model_kimi-code_kimi-for-coding_kimi-code"
+    },
+    {
+      "args" : {
+        "agentId" : "opencode-model:glm-5#zhipuai"
+      },
+      "expected" : {
+        "en" : "glm-5 · zhipuai",
+        "zh" : "glm-5 · zhipuai"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-opencode-model_glm-5_zhipuai"
+    },
+    {
+      "args" : {
+        "agentId" : "pi-model:#openrouter"
+      },
+      "expected" : {
+        "en" : "Unknown · openrouter",
+        "zh" : "Unknown · openrouter"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-pi-model__openrouter"
+    },
+    {
+      "args" : {
+        "agentId" : "claude-model:"
+      },
+      "expected" : {
+        "en" : "Unknown",
+        "zh" : "Unknown"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-claude-model_"
+    },
+    {
+      "args" : {
+        "agentId" : "codex"
+      },
+      "expected" : {
+        "en" : "codex",
+        "zh" : "codex"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-codex"
+    },
+    {
+      "args" : {
+        "agentId" : "opencode-model:anthropic/claude-sonnet-4-5#anthropic"
+      },
+      "expected" : {
+        "en" : "claude-sonnet-4-5",
+        "zh" : "claude-sonnet-4-5"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-opencode-model_anthropic_claude-sonnet-4-5_anthropic"
+    },
+    {
+      "args" : {
+        "agentId" : "copilot-model:claude-sonnet-4.5"
+      },
+      "expected" : {
+        "en" : "claude-sonnet-4.5",
+        "zh" : "claude-sonnet-4.5"
+      },
+      "fn" : "ModelCatalog.consumerName",
+      "name" : "consumer-copilot-model_claude-sonnet-4.5"
+    },
+    {
+      "args" : {
+        "agentId" : "claude-model:claude-opus-5-5"
+      },
+      "expected" : {
+        "en" : "Claude",
+        "zh" : "Claude"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-claude-model_claude-opus-5-5"
+    },
+    {
+      "args" : {
+        "agentId" : "claude-model:Unknown"
+      },
+      "expected" : {
+        "en" : "Claude",
+        "zh" : "Claude"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-claude-model_Unknown"
+    },
+    {
+      "args" : {
+        "agentId" : "Claude-model:opus"
+      },
+      "expected" : {
+        "en" : "Claude",
+        "zh" : "Claude"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-Claude-model_opus"
+    },
+    {
+      "args" : {
+        "agentId" : "codex-model:gpt-5.5"
+      },
+      "expected" : {
+        "en" : "Codex",
+        "zh" : "Codex"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-codex-model_gpt-5.5"
+    },
+    {
+      "args" : {
+        "agentId" : "deepseek-model:deepseek-chat"
+      },
+      "expected" : {
+        "en" : "DeepSeek",
+        "zh" : "DeepSeek"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-deepseek-model_deepseek-chat"
+    },
+    {
+      "args" : {
+        "agentId" : "antigravity-model:gemini-3-pro"
+      },
+      "expected" : {
+        "en" : "Antigravity",
+        "zh" : "Antigravity"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-antigravity-model_gemini-3-pro"
+    },
+    {
+      "args" : {
+        "agentId" : "cursor-model:auto"
+      },
+      "expected" : {
+        "en" : "Cursor",
+        "zh" : "Cursor"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-cursor-model_auto"
+    },
+    {
+      "args" : {
+        "agentId" : "grok-cli-model:grok-4"
+      },
+      "expected" : {
+        "en" : "Grok",
+        "zh" : "Grok"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-grok-cli-model_grok-4"
+    },
+    {
+      "args" : {
+        "agentId" : "grok-bot-model:grok-code-fast-1"
+      },
+      "expected" : {
+        "en" : "Grok",
+        "zh" : "Grok"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-grok-bot-model_grok-code-fast-1"
+    },
+    {
+      "args" : {
+        "agentId" : "copilot-model:claude-sonnet-4.5"
+      },
+      "expected" : {
+        "en" : "GitHub Copilot",
+        "zh" : "GitHub Copilot"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-copilot-model_claude-sonnet-4.5"
+    },
+    {
+      "args" : {
+        "agentId" : "openclaw-model:kimi-k2"
+      },
+      "expected" : {
+        "en" : "OpenClaw",
+        "zh" : "OpenClaw"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-openclaw-model_kimi-k2"
+    },
+    {
+      "args" : {
+        "agentId" : "hermes-model:glm-4.6"
+      },
+      "expected" : {
+        "en" : "Hermes",
+        "zh" : "Hermes"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-hermes-model_glm-4.6"
+    },
+    {
+      "args" : {
+        "agentId" : "zcode-model:glm-4.6"
+      },
+      "expected" : {
+        "en" : "ZCode",
+        "zh" : "ZCode"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-zcode-model_glm-4.6"
+    },
+    {
+      "args" : {
+        "agentId" : "codebuddy-model:hunyuan"
+      },
+      "expected" : {
+        "en" : "CodeBuddy",
+        "zh" : "CodeBuddy"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-codebuddy-model_hunyuan"
+    },
+    {
+      "args" : {
+        "agentId" : "workbuddy-model:deepseek-v3"
+      },
+      "expected" : {
+        "en" : "WorkBuddy",
+        "zh" : "WorkBuddy"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-workbuddy-model_deepseek-v3"
+    },
+    {
+      "args" : {
+        "agentId" : "qwen-model:qwen3-coder-plus"
+      },
+      "expected" : {
+        "en" : "Qwen",
+        "zh" : "Qwen"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-qwen-model_qwen3-coder-plus"
+    },
+    {
+      "args" : {
+        "agentId" : "devin-model:swe-1.5"
+      },
+      "expected" : {
+        "en" : "Devin",
+        "zh" : "Devin"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-devin-model_swe-1.5"
+    },
+    {
+      "args" : {
+        "agentId" : "opencode-model:gpt-5.5#openrouter"
+      },
+      "expected" : {
+        "en" : "OpenCode",
+        "zh" : "OpenCode"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-opencode-model_gpt-5.5_openrouter"
+    },
+    {
+      "args" : {
+        "agentId" : "kimi-model:kimi-for-coding"
+      },
+      "expected" : {
+        "en" : "Kimi",
+        "zh" : "Kimi"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-kimi-model_kimi-for-coding"
+    },
+    {
+      "args" : {
+        "agentId" : "glm-model:glm-4.6"
+      },
+      "expected" : {
+        "en" : "GLM",
+        "zh" : "GLM"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-glm-model_glm-4.6"
+    },
+    {
+      "args" : {
+        "agentId" : "pi-model:claude-sonnet-4-5"
+      },
+      "expected" : {
+        "en" : "Pi",
+        "zh" : "Pi"
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-pi-model_claude-sonnet-4-5"
+    },
+    {
+      "args" : {
+        "agentId" : "qoder-model:auto"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-qoder-model_auto"
+    },
+    {
+      "args" : {
+        "agentId" : "pilot-model:x"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-pilot-model_x"
+    },
+    {
+      "args" : {
+        "agentId" : "copilot"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "SessionSource.vendor",
+      "name" : "vendor-copilot"
+    }
+  ],
+  "contract" : "model-names",
+  "owner" : "rust",
+  "reference" : "Sources/AgentHUDCore/Providers/Claude/ClaudeModels.swift; Models/Catalog/ModelCatalog.swift; Models/Sessions/SessionSource.swift"
+}

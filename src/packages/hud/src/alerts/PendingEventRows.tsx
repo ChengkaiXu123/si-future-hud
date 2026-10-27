@@ -1,0 +1,439 @@
+import { useEffect, useState } from "react";
+import {
+  FileText,
+  Globe,
+  HelpCircle,
+  ListTodo,
+  MessageSquareText,
+  Monitor,
+  Pencil,
+  Puzzle,
+  Search,
+  Sparkles,
+  Terminal,
+  Wrench,
+} from "lucide-react";
+import type { Approval, IslandEvent } from "@agent-hud/protocol";
+import { HUDArtwork } from "../HUDArtwork";
+import {
+  clientDisplayName,
+  compactDuration,
+  newsTitle,
+  projectName,
+  type IslandCard,
+} from "../IslandNews";
+import { alertText } from "../tokens";
+import { useGround } from "../ground";
+import { cardColumn } from "../card-column";
+import { dateFormat } from "@agent-hud/ui/format";
+
+export function permissionToolBadge(request: Approval): {
+  badge: string;
+  Icon: typeof Terminal;
+} {
+  if (request.kind === "question" || request.toolName === "AskUserQuestion")
+    return { badge: "ASK", Icon: HelpCircle };
+  if (request.kind === "plan" || request.toolName === "ExitPlanMode")
+    return { badge: "PLAN", Icon: ListTodo };
+  // A native approval's kind comes from Core (Open's PermissionRequest.badge).
+  if (request.badge === "APP") return { badge: "APP", Icon: Monitor };
+  if (request.badge === "WEB") return { badge: "WEB", Icon: Globe };
+  const name = request.toolName;
+  if (
+    [
+      "Bash",
+      "BashOutput",
+      "KillShell",
+      "exec",
+      "shell",
+      "shell_command",
+      "exec_command",
+      "run_command",
+      "run_shell_command",
+    ].includes(name)
+  )
+    return { badge: "BASH", Icon: Terminal };
+  if (
+    [
+      "Edit",
+      "MultiEdit",
+      "Write",
+      "NotebookEdit",
+      "apply_patch",
+      "edit",
+      "replace",
+      "write_file",
+    ].includes(name)
+  )
+    return { badge: "EDIT", Icon: Pencil };
+  if (["Read", "view_image", "read_file", "read"].includes(name))
+    return { badge: "READ", Icon: FileText };
+  if (["Glob", "Grep", "glob", "grep", "grep_search"].includes(name))
+    return { badge: "FIND", Icon: Search };
+  if (["WebFetch", "WebSearch", "web_fetch", "web_search"].includes(name))
+    return { badge: "WEB", Icon: Globe };
+  if (["Task", "Agent", "spawn_agent"].includes(name))
+    return { badge: "AGENT", Icon: Sparkles };
+  if (name.startsWith("mcp__")) return { badge: "MCP", Icon: Puzzle };
+  return {
+    badge: (name.slice(0, 8) || "TOOL").toUpperCase(),
+    Icon: Wrench,
+  };
+}
+
+export function WaitedLabel({ createdAt }: { createdAt: string }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  const start = Date.parse(createdAt);
+  const seconds = Number.isFinite(start)
+    ? Math.max(0, Math.floor((Date.now() - start) / 1000))
+    : 0;
+  const label = seconds < 60 ? `${seconds}s` : compactDuration(seconds);
+  return <span>{label}</span>;
+}
+
+export function PermissionRowHead({
+  request,
+  open,
+  light = false,
+}: {
+  request: Approval;
+  open: boolean;
+  light?: boolean;
+}) {
+  const { badge, Icon } = permissionToolBadge(request);
+  const who =
+    projectName(request.cwd) ??
+    request.vendor ??
+    clientDisplayName(request.source);
+  const summary = request.summary ?? request.title;
+  const detail = request.detail ?? request.input;
+  const isQuestion =
+    request.kind === "question" || Boolean(request.questions?.length);
+  const isPlan = request.kind === "plan";
+  const showsDetail = Boolean(
+    request.removed || request.added || detail || isPlan,
+  );
+  const hideSummary =
+    open && (isQuestion || (showsDetail && detail === summary));
+  const signalText = alertText("warning", useGround(light));
+  const secondary = light ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.55)";
+  const tertiary = light ? "rgba(0,0,0,0.38)" : "rgba(255,255,255,0.38)";
+  const openSummaryColor = light
+    ? "rgba(0,0,0,0.85)"
+    : "rgba(255,255,255,0.85)";
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        minWidth: 0,
+        width: "100%",
+      }}
+    >
+      <span
+        style={{
+          opacity: open ? 1 : 0.8,
+          display: "inline-flex",
+          flexShrink: 0,
+        }}
+      >
+        <HUDArtwork source={request.source} size={13} light={light} />
+      </span>
+      <span
+        style={{
+          fontSize: 12,
+          fontWeight: 500,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          flexShrink: 0,
+          maxWidth: 150,
+        }}
+      >
+        {who}
+      </span>
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 3,
+          padding: "1px 4px",
+          borderRadius: 3,
+          background: "rgba(233, 161, 109, 0.14)",
+          color: signalText,
+          flexShrink: 0,
+        }}
+      >
+        <Icon size={8} strokeWidth={2.5} />
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {badge}
+        </span>
+      </span>
+      {!hideSummary && (
+        <span
+          style={{
+            fontSize: 11,
+            color: open ? openSummaryColor : secondary,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            flex: 1,
+            minWidth: 0,
+          }}
+        >
+          {summary}
+        </span>
+      )}
+      {hideSummary && <span style={{ flex: 1 }} />}
+      <span
+        style={{
+          fontSize: 11,
+          fontVariantNumeric: "tabular-nums",
+          color: tertiary,
+          flexShrink: 0,
+        }}
+      >
+        <WaitedLabel createdAt={request.createdAt} />
+      </span>
+    </div>
+  );
+}
+
+export function PermissionClosedRow({
+  request,
+  onSelect,
+  light = false,
+}: {
+  request: Approval;
+  onSelect: () => void;
+  light?: boolean;
+}) {
+  const [hover, setHover] = useState(false);
+  const segmentBg = light ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.06)";
+  return (
+    <button
+      type="button"
+      className="hud-closed-request"
+      onClick={onSelect}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        padding: "9px 10px",
+        borderRadius: 8,
+        border: 0,
+        background: hover ? segmentBg : "transparent",
+        color: "inherit",
+        textAlign: "left",
+        cursor: "pointer",
+      }}
+    >
+      <PermissionRowHead request={request} open={false} light={light} />
+    </button>
+  );
+}
+
+export function CompletionClosedRow({
+  event,
+  onSelect,
+  light = false,
+  zh = false,
+}: {
+  event: IslandEvent;
+  onSelect: () => void;
+  light?: boolean;
+  zh?: boolean;
+}) {
+  const [hover, setHover] = useState(false);
+  const segmentBg = light ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.06)";
+  const turnText = alertText("turn", useGround(light));
+  const secondary = light ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.55)";
+  const tertiary = light ? "rgba(0,0,0,0.38)" : "rgba(255,255,255,0.38)";
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "9px 10px",
+        borderRadius: 8,
+        border: 0,
+        background: hover ? segmentBg : "transparent",
+        color: "inherit",
+        textAlign: "left",
+        cursor: "pointer",
+      }}
+    >
+      <span style={{ opacity: 0.8, display: "inline-flex", flexShrink: 0 }}>
+        <HUDArtwork source={event.source} size={13} light={light} />
+      </span>
+      <span
+        style={{
+          fontSize: 12,
+          fontWeight: 500,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          flexShrink: 0,
+        }}
+      >
+        {clientDisplayName(event.source)}
+      </span>
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 3,
+          padding: "1px 4px",
+          borderRadius: 3,
+          background: "rgba(130, 170, 255, 0.14)",
+          color: turnText,
+          flexShrink: 0,
+        }}
+      >
+        <MessageSquareText size={8} strokeWidth={2.5} />
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {zh ? "有新回复" : "New reply"}
+        </span>
+      </span>
+      <span
+        style={{
+          fontSize: 11,
+          color: secondary,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
+        {event.title ?? newsTitle(event, zh)}
+      </span>
+      <time
+        style={{
+          fontSize: 11,
+          fontVariantNumeric: "tabular-nums",
+          color: tertiary,
+          flexShrink: 0,
+        }}
+      >
+        {dateFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(
+          new Date(event.at),
+        )}
+      </time>
+    </button>
+  );
+}
+
+export function PendingEventRows({
+  queue,
+  currentID,
+  requests,
+  select,
+  includeRequests = false,
+  light = false,
+  zh = false,
+}: {
+  queue: IslandCard[];
+  currentID: string;
+  requests: Approval[];
+  select: (id: string) => void;
+  includeRequests?: boolean;
+  light?: boolean;
+  zh?: boolean;
+}) {
+  const ground = useGround(light);
+  const waitingRequests = includeRequests
+    ? requests.filter((req) => req.id !== currentID)
+    : [];
+  const otherCompletions = queue.filter(
+    (card): card is Extract<IslandCard, { type: "news" }> =>
+      card.type === "news" &&
+      card.id !== currentID &&
+      card.event.kind === "completion",
+  );
+  if (waitingRequests.length === 0 && otherCompletions.length === 0)
+    return null;
+  const signalText = alertText("warning", ground);
+  const secondary = light ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.55)";
+
+  return (
+    <div style={{ ...cardColumn(6), marginTop: 10 }}>
+      {waitingRequests.length > 0 && (
+        <div style={cardColumn(2)}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "4px 4px 6px",
+            }}
+          >
+            <span style={{ fontSize: 11, fontWeight: 600, color: secondary }}>
+              {zh ? "待审批" : "Waiting"}
+            </span>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                fontVariantNumeric: "tabular-nums",
+                color: signalText,
+                padding: "2px 6px",
+                borderRadius: 999,
+                background: "rgba(233, 161, 109, 0.16)",
+              }}
+            >
+              {waitingRequests.length}
+            </span>
+          </div>
+          {waitingRequests.map((req) => (
+            <PermissionClosedRow
+              key={req.id}
+              request={req}
+              onSelect={() => select(req.id)}
+              light={light}
+            />
+          ))}
+        </div>
+      )}
+      {otherCompletions.length > 0 && (
+        <div style={cardColumn(2)}>
+          {otherCompletions.map((card) => (
+            <CompletionClosedRow
+              key={card.id}
+              event={card.event}
+              onSelect={() => select(card.id)}
+              light={light}
+              zh={zh}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

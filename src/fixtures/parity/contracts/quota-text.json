@@ -1,0 +1,307 @@
+{
+  "cases" : [
+    {
+      "args" : {
+        "outlook" : "untimed"
+      },
+      "expected" : {
+        "en" : null,
+        "zh" : null
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-untimed"
+    },
+    {
+      "args" : {
+        "outlook" : "exhausted"
+      },
+      "expected" : {
+        "en" : "Exhausted",
+        "zh" : "已耗尽"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-exhausted"
+    },
+    {
+      "args" : {
+        "outlook" : "noEstimate"
+      },
+      "expected" : {
+        "en" : "No estimate",
+        "zh" : "暂无预测"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-noEstimate"
+    },
+    {
+      "args" : {
+        "outlook" : "noUsage"
+      },
+      "expected" : {
+        "en" : "No usage",
+        "zh" : "暂无消耗"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-noUsage"
+    },
+    {
+      "args" : {
+        "outlook" : "insufficientData"
+      },
+      "expected" : {
+        "en" : "Insufficient data",
+        "zh" : "记录不足"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-insufficientData"
+    },
+    {
+      "args" : {
+        "beforeReset" : true,
+        "outlook" : "exhausts",
+        "seconds" : 30
+      },
+      "expected" : {
+        "en" : "Exhausts ~1m",
+        "zh" : "耗尽 ~1分"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-exhausts-in-30"
+    },
+    {
+      "args" : {
+        "beforeReset" : true,
+        "outlook" : "exhausts",
+        "seconds" : 59
+      },
+      "expected" : {
+        "en" : "Exhausts ~1m",
+        "zh" : "耗尽 ~1分"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-exhausts-in-59"
+    },
+    {
+      "args" : {
+        "beforeReset" : true,
+        "outlook" : "exhausts",
+        "seconds" : 600
+      },
+      "expected" : {
+        "en" : "Exhausts ~10m",
+        "zh" : "耗尽 ~10分"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-exhausts-in-600"
+    },
+    {
+      "args" : {
+        "beforeReset" : true,
+        "outlook" : "exhausts",
+        "seconds" : 7800
+      },
+      "expected" : {
+        "en" : "Exhausts ~2h 10m",
+        "zh" : "耗尽 ~2小时10分"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-exhausts-in-7800"
+    },
+    {
+      "args" : {
+        "beforeReset" : true,
+        "outlook" : "exhausts",
+        "seconds" : 8040.5
+      },
+      "expected" : {
+        "en" : "Exhausts ~2h 15m",
+        "zh" : "耗尽 ~2小时15分"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-exhausts-in-8040.5"
+    },
+    {
+      "args" : {
+        "beforeReset" : true,
+        "outlook" : "exhausts",
+        "seconds" : 90000
+      },
+      "expected" : {
+        "en" : "Exhausts ~25h",
+        "zh" : "耗尽 ~25小时"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-exhausts-in-90000"
+    },
+    {
+      "args" : {
+        "beforeReset" : false,
+        "outlook" : "exhausts",
+        "projectedUsedAtReset" : 85.400000000000006,
+        "seconds" : 90000
+      },
+      "expected" : {
+        "en" : "85% by reset",
+        "zh" : "重置时 85%"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-after-reset-85.4"
+    },
+    {
+      "args" : {
+        "beforeReset" : false,
+        "outlook" : "exhausts",
+        "projectedUsedAtReset" : 85.5,
+        "seconds" : 90000
+      },
+      "expected" : {
+        "en" : "86% by reset",
+        "zh" : "重置时 86%"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-after-reset-85.5"
+    },
+    {
+      "args" : {
+        "beforeReset" : false,
+        "outlook" : "exhausts",
+        "projectedUsedAtReset" : 100,
+        "seconds" : 90000
+      },
+      "expected" : {
+        "en" : "100% by reset",
+        "zh" : "重置时 100%"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-after-reset-100"
+    },
+    {
+      "args" : {
+        "beforeReset" : false,
+        "outlook" : "exhausts",
+        "projectedUsedAtReset" : null,
+        "seconds" : 90000
+      },
+      "expected" : {
+        "en" : "Insufficient data",
+        "zh" : "记录不足"
+      },
+      "fn" : "QuotaForecast.text",
+      "name" : "outlook-after-reset-None"
+    },
+    {
+      "args" : {
+        "projectedUsedPercent" : 12.5
+      },
+      "expected" : {
+        "en" : "13% by reset",
+        "zh" : "重置时 13%"
+      },
+      "fn" : "QuotaForecast.byReset",
+      "name" : "by-reset-12.5"
+    },
+    {
+      "args" : {
+        "projectedUsedPercent" : 13.5
+      },
+      "expected" : {
+        "en" : "14% by reset",
+        "zh" : "重置时 14%"
+      },
+      "fn" : "QuotaForecast.byReset",
+      "name" : "by-reset-13.5"
+    },
+    {
+      "args" : {
+        "projectedUsedPercent" : 99.599999999999994
+      },
+      "expected" : {
+        "en" : "100% by reset",
+        "zh" : "重置时 100%"
+      },
+      "fn" : "QuotaForecast.byReset",
+      "name" : "by-reset-99.6"
+    },
+    {
+      "args" : {
+        "afterReset" : false,
+        "elapsed" : 600,
+        "required" : 3600
+      },
+      "expected" : {
+        "en" : "Sampling",
+        "zh" : "采样中"
+      },
+      "fn" : "QuotaSampling.label",
+      "name" : "sampling-label-first"
+    },
+    {
+      "args" : {
+        "afterReset" : true,
+        "elapsed" : 600,
+        "required" : 3600
+      },
+      "expected" : {
+        "en" : "Resampling",
+        "zh" : "重新采样"
+      },
+      "fn" : "QuotaSampling.label",
+      "name" : "sampling-label-after-reset"
+    },
+    {
+      "args" : {
+        "afterReset" : false,
+        "elapsed" : 30,
+        "required" : 3600
+      },
+      "expected" : {
+        "en" : "Collecting initial readings for a forecast\nSampled less than 1m; at least 1h of readings needed",
+        "zh" : "首次采样，正在积累预测数据\n已采样 不足1分，预测至少需要1小时的有效记录"
+      },
+      "fn" : "QuotaSampling.hint",
+      "name" : "sampling-hint-30-of-3600"
+    },
+    {
+      "args" : {
+        "afterReset" : false,
+        "elapsed" : 125,
+        "required" : 3600
+      },
+      "expected" : {
+        "en" : "Collecting initial readings for a forecast\nSampled 2m; at least 1h of readings needed",
+        "zh" : "首次采样，正在积累预测数据\n已采样 2分，预测至少需要1小时的有效记录"
+      },
+      "fn" : "QuotaSampling.hint",
+      "name" : "sampling-hint-125-of-3600"
+    },
+    {
+      "args" : {
+        "afterReset" : true,
+        "elapsed" : 3700,
+        "required" : 7200
+      },
+      "expected" : {
+        "en" : "Quota reset; collecting new readings\nSampled 1h 1m; at least 2h of readings needed",
+        "zh" : "额度已重置，正在重新采样\n已采样 1小时1分，预测至少需要2小时的有效记录"
+      },
+      "fn" : "QuotaSampling.hint",
+      "name" : "sampling-hint-3700-of-7200-after-reset"
+    },
+    {
+      "args" : {
+        "afterReset" : true,
+        "elapsed" : 59.899999999999999,
+        "required" : 1800
+      },
+      "expected" : {
+        "en" : "Quota reset; collecting new readings\nSampled less than 1m; at least 30m of readings needed",
+        "zh" : "额度已重置，正在重新采样\n已采样 不足1分，预测至少需要30分的有效记录"
+      },
+      "fn" : "QuotaSampling.hint",
+      "name" : "sampling-hint-59.9-of-1800-after-reset"
+    }
+  ],
+  "contract" : "quota-text",
+  "owner" : "ts",
+  "reference" : "Sources/AgentHUDCore/Logic/Quota/QuotaForecast.swift, QuotaSampling.swift"
+}

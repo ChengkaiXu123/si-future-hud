@@ -1,0 +1,717 @@
+{
+  "cases" : [
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : null
+      },
+      "expected" : {
+        "en" : "Usage limit",
+        "zh" : "Usage limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-None-primary"
+    },
+    {
+      "args" : {
+        "secondary" : true,
+        "seconds" : null
+      },
+      "expected" : {
+        "en" : "Secondary usage limit",
+        "zh" : "Secondary usage limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-None-secondary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 18000
+      },
+      "expected" : {
+        "en" : "5h limit",
+        "zh" : "5h limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-18000-primary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 18500
+      },
+      "expected" : {
+        "en" : "5h limit",
+        "zh" : "5h limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-18500-primary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 86400
+      },
+      "expected" : {
+        "en" : "Daily limit",
+        "zh" : "Daily limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-86400-primary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 604800
+      },
+      "expected" : {
+        "en" : "Weekly limit",
+        "zh" : "Weekly limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-604800-primary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 2592000
+      },
+      "expected" : {
+        "en" : "Monthly limit",
+        "zh" : "Monthly limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-2592000-primary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 31536000
+      },
+      "expected" : {
+        "en" : "Annual limit",
+        "zh" : "Annual limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-31536000-primary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 259200
+      },
+      "expected" : {
+        "en" : "3d limit",
+        "zh" : "3d limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-259200-primary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 7200
+      },
+      "expected" : {
+        "en" : "2h limit",
+        "zh" : "2h limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-7200-primary"
+    },
+    {
+      "args" : {
+        "secondary" : false,
+        "seconds" : 2700
+      },
+      "expected" : {
+        "en" : "45m limit",
+        "zh" : "45m limit"
+      },
+      "fn" : "CodexRateLimits.limitName",
+      "name" : "codex-limit-2700-primary"
+    },
+    {
+      "args" : {
+        "credits" : false,
+        "key" : "premium_interactions"
+      },
+      "expected" : {
+        "en" : [
+          "Premium requests",
+          "Premium"
+        ],
+        "zh" : [
+          "Premium requests",
+          "Premium"
+        ]
+      },
+      "fn" : "CopilotClient.names",
+      "name" : "copilot-premium_interactions"
+    },
+    {
+      "args" : {
+        "credits" : false,
+        "key" : "chat"
+      },
+      "expected" : {
+        "en" : [
+          "Chat messages",
+          "Chat"
+        ],
+        "zh" : [
+          "Chat messages",
+          "Chat"
+        ]
+      },
+      "fn" : "CopilotClient.names",
+      "name" : "copilot-chat"
+    },
+    {
+      "args" : {
+        "credits" : false,
+        "key" : "completions"
+      },
+      "expected" : {
+        "en" : [
+          "Code completions",
+          "Completions"
+        ],
+        "zh" : [
+          "Code completions",
+          "Completions"
+        ]
+      },
+      "fn" : "CopilotClient.names",
+      "name" : "copilot-completions"
+    },
+    {
+      "args" : {
+        "credits" : true,
+        "key" : "chat"
+      },
+      "expected" : {
+        "en" : [
+          "AI credits",
+          "Credits"
+        ],
+        "zh" : [
+          "AI credits",
+          "Credits"
+        ]
+      },
+      "fn" : "CopilotClient.names",
+      "name" : "copilot-chat-credits"
+    },
+    {
+      "args" : {
+        "credits" : false,
+        "key" : "code_review"
+      },
+      "expected" : {
+        "en" : [
+          "Code Review",
+          "Code"
+        ],
+        "zh" : [
+          "Code Review",
+          "Code"
+        ]
+      },
+      "fn" : "CopilotClient.names",
+      "name" : "copilot-code_review"
+    },
+    {
+      "args" : {
+        "credits" : false,
+        "key" : "agent_mode_requests_extra"
+      },
+      "expected" : {
+        "en" : [
+          "Agent Mode Requests Extra",
+          "Agent"
+        ],
+        "zh" : [
+          "Agent Mode Requests Extra",
+          "Agent"
+        ]
+      },
+      "fn" : "CopilotClient.names",
+      "name" : "copilot-agent_mode_requests_extra"
+    },
+    {
+      "args" : {
+        "seconds" : null
+      },
+      "expected" : {
+        "en" : [
+          "Quota",
+          "Quota"
+        ],
+        "zh" : [
+          "Quota",
+          "Quota"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-None"
+    },
+    {
+      "args" : {
+        "seconds" : 18000
+      },
+      "expected" : {
+        "en" : [
+          "5-hour quota",
+          "5h"
+        ],
+        "zh" : [
+          "5-hour quota",
+          "5h"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-18000"
+    },
+    {
+      "args" : {
+        "seconds" : 604800
+      },
+      "expected" : {
+        "en" : [
+          "Weekly quota",
+          "Weekly"
+        ],
+        "zh" : [
+          "Weekly quota",
+          "Weekly"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-604800"
+    },
+    {
+      "args" : {
+        "seconds" : 86400
+      },
+      "expected" : {
+        "en" : [
+          "Daily quota",
+          "Daily"
+        ],
+        "zh" : [
+          "Daily quota",
+          "Daily"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-86400"
+    },
+    {
+      "args" : {
+        "seconds" : 2592000
+      },
+      "expected" : {
+        "en" : [
+          "Monthly quota",
+          "Monthly"
+        ],
+        "zh" : [
+          "Monthly quota",
+          "Monthly"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-2592000"
+    },
+    {
+      "args" : {
+        "seconds" : 31536000
+      },
+      "expected" : {
+        "en" : [
+          "Annual quota",
+          "Annual"
+        ],
+        "zh" : [
+          "Annual quota",
+          "Annual"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-31536000"
+    },
+    {
+      "args" : {
+        "seconds" : 259200
+      },
+      "expected" : {
+        "en" : [
+          "3-day quota",
+          "3d"
+        ],
+        "zh" : [
+          "3-day quota",
+          "3d"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-259200"
+    },
+    {
+      "args" : {
+        "seconds" : 10800
+      },
+      "expected" : {
+        "en" : [
+          "3-hour quota",
+          "3h"
+        ],
+        "zh" : [
+          "3-hour quota",
+          "3h"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-10800"
+    },
+    {
+      "args" : {
+        "seconds" : 1800
+      },
+      "expected" : {
+        "en" : [
+          "30-minute quota",
+          "30m"
+        ],
+        "zh" : [
+          "30-minute quota",
+          "30m"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.kimiName",
+      "name" : "kimi-1800"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : 18000,
+        "type" : "TOKENS_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "5-hour limit",
+          "5h"
+        ],
+        "zh" : [
+          "5-hour limit",
+          "5h"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-TOKENS_LIMIT-18000"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : 604800,
+        "type" : "TOKENS_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "Weekly limit",
+          "Weekly"
+        ],
+        "zh" : [
+          "Weekly limit",
+          "Weekly"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-TOKENS_LIMIT-604800"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : 172800,
+        "type" : "TOKENS_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "2-day limit",
+          "2d"
+        ],
+        "zh" : [
+          "2-day limit",
+          "2d"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-TOKENS_LIMIT-172800"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : null,
+        "type" : "TOKENS_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "TOKENS_LIMIT",
+          "Tokens"
+        ],
+        "zh" : [
+          "TOKENS_LIMIT",
+          "Tokens"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-TOKENS_LIMIT-None"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : 18000,
+        "type" : "CREDIT_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "5-hour credits",
+          "5h"
+        ],
+        "zh" : [
+          "5-hour credits",
+          "5h"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-CREDIT_LIMIT-18000"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : 604800,
+        "type" : "CREDIT_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "Weekly credits",
+          "Weekly"
+        ],
+        "zh" : [
+          "Weekly credits",
+          "Weekly"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-CREDIT_LIMIT-604800"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : 172800,
+        "type" : "CREDIT_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "2-day credits",
+          "2d"
+        ],
+        "zh" : [
+          "2-day credits",
+          "2d"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-CREDIT_LIMIT-172800"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : null,
+        "type" : "CREDIT_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "CREDIT_LIMIT",
+          "Credits"
+        ],
+        "zh" : [
+          "CREDIT_LIMIT",
+          "Credits"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-CREDIT_LIMIT-None"
+    },
+    {
+      "args" : {
+        "monthly" : false,
+        "seconds" : null,
+        "type" : "TIME_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "MCP usage",
+          "MCP"
+        ],
+        "zh" : [
+          "MCP usage",
+          "MCP"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-TIME_LIMIT-plain"
+    },
+    {
+      "args" : {
+        "monthly" : true,
+        "seconds" : 60,
+        "type" : "TIME_LIMIT"
+      },
+      "expected" : {
+        "en" : [
+          "MCP usage (1 month)",
+          "MCP"
+        ],
+        "zh" : [
+          "MCP usage (1 month)",
+          "MCP"
+        ]
+      },
+      "fn" : "OpenAgentQuotaClient.glmName",
+      "name" : "glm-TIME_LIMIT-monthly"
+    },
+    {
+      "args" : {
+        "name" : "Gemini Models"
+      },
+      "expected" : {
+        "en" : "Gemini",
+        "zh" : "Gemini"
+      },
+      "fn" : "AntigravityClient.groupWord",
+      "name" : "antigravity-group-Gemini-Models"
+    },
+    {
+      "args" : {
+        "name" : "Claude and GPT models"
+      },
+      "expected" : {
+        "en" : "3rd-party",
+        "zh" : "3rd-party"
+      },
+      "fn" : "AntigravityClient.groupWord",
+      "name" : "antigravity-group-Claude-and-GPT-models"
+    },
+    {
+      "args" : {
+        "name" : "GPT-OSS 120B"
+      },
+      "expected" : {
+        "en" : "3rd-party",
+        "zh" : "3rd-party"
+      },
+      "fn" : "AntigravityClient.groupWord",
+      "name" : "antigravity-group-GPT-OSS-120B"
+    },
+    {
+      "args" : {
+        "name" : "  Spaced name"
+      },
+      "expected" : {
+        "en" : "Spaced",
+        "zh" : "Spaced"
+      },
+      "fn" : "AntigravityClient.groupWord",
+      "name" : "antigravity-group-Spaced-name"
+    },
+    {
+      "args" : {
+        "name" : "Single"
+      },
+      "expected" : {
+        "en" : "Single",
+        "zh" : "Single"
+      },
+      "fn" : "AntigravityClient.groupWord",
+      "name" : "antigravity-group-Single"
+    },
+    {
+      "args" : {
+        "value" : "gpt-reserve",
+        "vendor" : "Codex"
+      },
+      "expected" : {
+        "en" : "Luna Reserve",
+        "zh" : "Luna Reserve"
+      },
+      "fn" : "VendorCatalog.window",
+      "name" : "catalog-window-gpt-reserve"
+    },
+    {
+      "args" : {
+        "value" : "gpt-reserve",
+        "vendor" : "Codex"
+      },
+      "expected" : {
+        "en" : "Reserve",
+        "zh" : "Reserve"
+      },
+      "fn" : "VendorCatalog.windowWord",
+      "name" : "catalog-word-gpt-reserve"
+    },
+    {
+      "args" : {
+        "value" : "gpt-5.3-codex-spark",
+        "vendor" : "Codex"
+      },
+      "expected" : {
+        "en" : "gpt-5.3-codex-spark",
+        "zh" : "gpt-5.3-codex-spark"
+      },
+      "fn" : "VendorCatalog.window",
+      "name" : "catalog-window-gpt-5.3-codex-spark"
+    },
+    {
+      "args" : {
+        "value" : "gpt-5.3-codex-spark",
+        "vendor" : "Codex"
+      },
+      "expected" : {
+        "en" : "spark",
+        "zh" : "spark"
+      },
+      "fn" : "VendorCatalog.windowWord",
+      "name" : "catalog-word-gpt-5.3-codex-spark"
+    },
+    {
+      "args" : {
+        "value" : "codex",
+        "vendor" : "Codex"
+      },
+      "expected" : {
+        "en" : "codex",
+        "zh" : "codex"
+      },
+      "fn" : "VendorCatalog.window",
+      "name" : "catalog-window-codex"
+    },
+    {
+      "args" : {
+        "value" : "codex",
+        "vendor" : "Codex"
+      },
+      "expected" : {
+        "en" : "codex",
+        "zh" : "codex"
+      },
+      "fn" : "VendorCatalog.windowWord",
+      "name" : "catalog-word-codex"
+    }
+  ],
+  "contract" : "vendor-windows",
+  "owner" : "rust",
+  "reference" : "Sources/AgentHUDCore/Providers (CodexRateLimits, CopilotClient, OpenAgentQuota, AntigravityClient); Models/Catalog/VendorCatalog.swift"
+}

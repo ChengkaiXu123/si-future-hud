@@ -1,0 +1,19 @@
+# Every text file is checked out with LF on every OS, as .editorconfig and
+# Prettier expect, so formatting and generated-file checks give the same
+# answer on Windows. Git still decides which files are text.
+* text=auto eol=lf
+
+# Binary files, stated so no checkout ever converts them.
+*.gif binary
+*.icns binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.mp4 binary
+*.mov binary
+*.woff binary
+*.woff2 binary
+*.sqlite binary
+*.db binary

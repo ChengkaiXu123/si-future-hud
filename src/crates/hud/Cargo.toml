@@ -1,0 +1,20 @@
+[package]
+name = "agent-hud-hud"
+description = "What the HUD shows: panel layout rules and MCP drafts, Bot directions and vendor rows; no window system"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+agent-hud-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

@@ -1,0 +1,45 @@
+{
+  "name": "@agent-hud/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "exports": {
+    "./global.css": "./src/global.css",
+    "./styles.css": "./src/styles.css",
+    "./format": "./src/format.ts",
+    "./components/*": "./src/ui/*.tsx",
+    "./react-bits/*": "./src/react-bits/*.tsx",
+    "./lib/*": "./src/lib/*.ts",
+    "./text/*": "./src/text/*.ts",
+    "./assets/*": "./src/assets/*",
+    "./*": "./src/*.tsx"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "dependencies": {
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "cn": "^0.2.6",
+    "gsap": "3.15.0",
+    "lucide-react": "catalog:",
+    "motion": "catalog:",
+    "radix-ui": "catalog:",
+    "shaders": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "shadcn": "4.22.1",
+    "vite": "catalog:"
+  }
+}
