@@ -227,4 +227,4 @@ Adjust **Hover delay** and **Collapse delay** in **Settings → Display → Hove
 
 ---
 
-Still stuck? Open an [issue](https://github.com/ChengkaiXu123/si-future-hud/issues) with a screenshot of the HUD and the output of `claude auth status` / `codex mcp list`. Leave out tokens, emails and paths you'd rather keep private.
+Still stuck? Open an [issue](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/issues) with a screenshot of the HUD and the output of `claude auth status` / `codex mcp list`. Leave out tokens, emails and paths you'd rather keep private.

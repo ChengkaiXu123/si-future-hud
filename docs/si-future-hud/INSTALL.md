@@ -25,7 +25,7 @@ You can install them later. The HUD tries again every time it starts.
 
 ## 1 · Download
 
-From the [latest release](https://github.com/ChengkaiXu123/si-future-hud/releases/latest), download:
+From the [latest release](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest), download:
 
 - `SI-Future-HUD_0.1.4_aarch64.dmg`: the app
 - `SHA256SUMS.txt`: checksums, if you want to verify the download
@@ -43,8 +43,7 @@ You should see `SI-Future-HUD_0.1.4_aarch64.dmg: OK`.
 1. Double‑click the DMG.
 2. In the window that opens, drag **SI Future HUD** onto **Applications**.
 
-> [!WARNING]
-> **Don't open the app straight from the DMG window.**
+> ⚠️ **Don't open the app straight from the DMG window.**
 >
 > macOS would run it from a temporary, read‑only location, and the automatic set‑up (plugins, tools, the login item) can't work from there. Always open it from **Applications**.
 

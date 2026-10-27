@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.4/SI-Future-HUD-film-1080p60.mp4">
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">
     <img src="docs/si-future-hud/media/hero.jpg" alt="SI Future HUD：你的 AI 助手们，就住在屏幕边上。MacBook 的刘海弹开成一块面板，列出 Claude、OpenAI、程小帮、Cursor 和 Grok Bot 的额度" width="100%">
   </a>
 </p>
@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest"><img src="https://img.shields.io/badge/release-v0.1.4-7c8cff?style=for-the-badge" alt="版本 v0.1.4"></a>
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.4-7c8cff?style=for-the-badge" alt="版本 v0.1.4"></a>
   <img src="https://img.shields.io/badge/macOS-12%2B%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12 以上，Apple 芯片">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-2ea44f?style=for-the-badge" alt="Apache-2.0"></a>
   <a href="https://github.com/jazzenchen/agent-hud-open"><img src="https://img.shields.io/badge/based%20on-Agent%20HUD-ff8a5c?style=for-the-badge" alt="基于 Agent HUD"></a>
@@ -21,8 +21,8 @@
 <p align="center">
   <a href="README.md">English</a> · <strong>简体中文</strong>
   &nbsp;|&nbsp;
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.4/SI-Future-HUD-film-1080p60.mp4">看宣传片</a> ·
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest">下载</a> ·
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">看宣传片</a> ·
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">下载</a> ·
   <a href="docs/si-future-hud/INSTALL.zh-CN.md">安装</a> ·
   <a href="docs/si-future-hud/GUIDE.zh-CN.md">使用指南</a> ·
   <a href="docs/si-future-hud/MESSAGING.zh-CN.md">互相传话</a> ·
@@ -41,10 +41,10 @@
 SI Future HUD 基于开源项目 [Agent HUD](https://github.com/jazzenchen/agent-hud-open) 定制。在它之上加了：助手之间互相传话、接入程小帮、Cursor 和 Grok Bot 的实时状态，以及装好就自动配置。
 
 <p align="center">
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.4/SI-Future-HUD-film-1080p60.mp4">
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">
     <img src="docs/si-future-hud/media/poster.jpg" alt="宣传片截图：刘海弹开后的面板" width="72%">
   </a><br>
-  <sub>▶ <b>看 2 分半的宣传片</b>（1080p60，MP4，61 MB）· 片中均为演示数据</sub>
+  <sub>▶ <b>看 2 分半的宣传片</b>（1080p60，MP4，34 MB）· 片中均为演示数据</sub>
 </p>
 
 ## 鼠标移上刘海，一切尽收眼底
@@ -187,7 +187,7 @@ Agent HUD 支持的其他助手也都保留，比如 DeepSeek、GitHub Copilot C
 
 ## 开始使用
 
-1. **下载**：从[最新版本](https://github.com/ChengkaiXu123/si-future-hud/releases/latest)下载 `SI-Future-HUD_0.1.4_aarch64.dmg`。需要 Apple 芯片的 Mac，macOS 12 或更新。
+1. **下载**：从[最新版本](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)下载 `SI-Future-HUD_0.1.4_aarch64.dmg`。需要 Apple 芯片的 Mac，macOS 12 或更新。
 2. **拖进「应用程序」**，再从「应用程序」里打开。
 3. **放行一次**：在「系统设置 → 隐私与安全性」里点「仍要打开」。这是临时签名的内部版本，没有经过苹果公证。
 
@@ -199,8 +199,7 @@ Agent HUD 支持的其他助手也都保留，比如 DeepSeek、GitHub Copilot C
 
 → 每一步、每个系统弹窗是什么意思：**[安装指南](docs/si-future-hud/INSTALL.zh-CN.md)**
 
-> [!IMPORTANT]
-> **用之前请先看这几条。**
+> ⚠️ **用之前请先看这几条。**
 > - **要装命令行版。** HUD 是通过 `claude` 和 `codex` 两个命令接入 Claude Code 和 Codex 的。只用桌面版的话也要把它们装上，再重开一次 HUD。没有命令行，Claude 收发不了传话，Codex 也发不出去。
 > - **Claude 的额度要终端里的 `claude` 登录着。** 桌面 App 的登录和终端的不共用。面板里显示「Claude Code 已退出登录」时，在终端运行 `claude` 登录一次就好。
 > - **Codex 只有桌面版的对话能收传话**，而且对方正在干活时收不了。
@@ -249,4 +248,4 @@ SI Future HUD 基于 Jazzen Chen 和贡献者们开发的 **[Agent HUD](https://
 
 Claude、Codex、Cursor、Grok、程小帮是各自所有者的商标，本项目与它们没有隶属关系。宣传片和截图里都是演示数据。
 
-<p align="center"><sub>作者 <a href="https://github.com/ChengkaiXu123">许成凯 Chengkai Xu</a> · SI Future</sub></p>
+<p align="center"><sub>作者 <a href="http://git.dev.sh.ctripcorp.com/ckxu">许成凯 Chengkai Xu</a> · SI Future</sub></p>

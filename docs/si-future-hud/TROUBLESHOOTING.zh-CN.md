@@ -227,4 +227,4 @@ HUD 从 Grok Bot 自己的缓存里读额度，在 Grok Bot 里刷新一下，HU
 
 ---
 
-还是解决不了？请提一个 [issue](https://github.com/ChengkaiXu123/si-future-hud/issues)，附上 HUD 的截图，以及 `claude auth status`、`codex mcp list` 的输出。记得去掉令牌、邮箱和你不想公开的路径。
+还是解决不了？请提一个 [issue](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/issues)，附上 HUD 的截图，以及 `claude auth status`、`codex mcp list` 的输出。记得去掉令牌、邮箱和你不想公开的路径。

@@ -25,7 +25,7 @@ HUD 会在这些位置找它们：`~/.local/bin`、`~/.bun/bin`、`~/.npm-global
 
 ## 1 · 下载
 
-从[最新版本](https://github.com/ChengkaiXu123/si-future-hud/releases/latest)下载：
+从[最新版本](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)下载：
 
 - `SI-Future-HUD_0.1.4_aarch64.dmg`：安装包
 - `SHA256SUMS.txt`：校验值（想确认下载完整时用）
@@ -43,8 +43,7 @@ shasum -a 256 -c SHA256SUMS.txt --ignore-missing
 1. 双击 DMG。
 2. 在弹出的窗口里，把 **SI Future HUD** 拖到 **「应用程序」**。
 
-> [!WARNING]
-> **不要直接在 DMG 窗口里双击打开。**
+> ⚠️ **不要直接在 DMG 窗口里双击打开。**
 >
 > 那样 macOS 会把它放在一个临时的只读位置运行，自动配置（插件、工具、开机自启）都没法生效。一定要从「应用程序」里打开。
 

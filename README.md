@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.4/SI-Future-HUD-film-1080p60.mp4">
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">
     <img src="docs/si-future-hud/media/hero.jpg" alt="SI Future HUD: your AI agents, living at the edge of your screen. The MacBook's notch dropped open into a panel listing every agent's quota: Claude, OpenAI, Chengxiaobang, Cursor and Grok Bot" width="100%">
   </a>
 </p>
@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest"><img src="https://img.shields.io/badge/release-v0.1.4-7c8cff?style=for-the-badge" alt="Release v0.1.4"></a>
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.4-7c8cff?style=for-the-badge" alt="Release v0.1.4"></a>
   <img src="https://img.shields.io/badge/macOS-12%2B%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12+ on Apple silicon">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-2ea44f?style=for-the-badge" alt="Apache-2.0"></a>
   <a href="https://github.com/jazzenchen/agent-hud-open"><img src="https://img.shields.io/badge/based%20on-Agent%20HUD-ff8a5c?style=for-the-badge" alt="Based on Agent HUD"></a>
@@ -21,8 +21,8 @@
 <p align="center">
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
   &nbsp;|&nbsp;
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.4/SI-Future-HUD-film-1080p60.mp4">Watch the film</a> ·
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest">Download</a> ·
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">Watch the film</a> ·
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">Download</a> ·
   <a href="docs/si-future-hud/INSTALL.md">Install</a> ·
   <a href="docs/si-future-hud/GUIDE.md">Guide</a> ·
   <a href="docs/si-future-hud/MESSAGING.md">Messaging</a> ·
@@ -41,10 +41,10 @@ When two of your agents need to compare notes, they can now send each other a me
 SI Future HUD is a customized build of the open‑source [Agent HUD](https://github.com/jazzenchen/agent-hud-open). It adds agent‑to‑agent messaging, the Chengxiaobang (程小帮) integration, live states for Cursor and Grok Bot, and an install that sets itself up.
 
 <p align="center">
-  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.4/SI-Future-HUD-film-1080p60.mp4">
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/v0.1.4/downloads/SI-Future-HUD-film-1080p60.mp4">
     <img src="docs/si-future-hud/media/poster.jpg" alt="Still from the product film: the opened notch panel" width="72%">
   </a><br>
-  <sub>▶ <b>Watch the 2½‑minute film</b> (1080p60, MP4, 61 MB) · sample data throughout</sub>
+  <sub>▶ <b>Watch the 2½‑minute film</b> (1080p60, MP4, 34 MB) · sample data throughout</sub>
 </p>
 
 ## Hover the notch. See everything.
@@ -187,7 +187,7 @@ Everything else Agent HUD supports comes along too, for example DeepSeek, GitHub
 
 ## Get started
 
-1. **Download** `SI-Future-HUD_0.1.4_aarch64.dmg` from the [latest release](https://github.com/ChengkaiXu123/si-future-hud/releases/latest). You need an Apple silicon Mac with macOS 12 or newer.
+1. **Download** `SI-Future-HUD_0.1.4_aarch64.dmg` from the [latest release](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest). You need an Apple silicon Mac with macOS 12 or newer.
 2. **Drag** SI Future HUD into **Applications**, then open it from there.
 3. **Allow it once.** In **System Settings → Privacy & Security**, click **Open Anyway**. The build is ad‑hoc signed, not notarized.
 
@@ -199,8 +199,7 @@ On first launch it sets itself up:
 
 → Every step, and what each macOS prompt means: **[Install guide](docs/si-future-hud/INSTALL.md)**
 
-> [!IMPORTANT]
-> **Read this before your first day with it.**
+> ⚠️ **Read this before your first day with it.**
 > - **Install the command‑line tools.** The HUD connects to Claude Code and Codex through the `claude` and `codex` commands. If you only use the desktop apps, install them too, then reopen the HUD. Without them, Claude can't send or receive messages and Codex can't send.
 > - **Claude's quota needs the terminal `claude` signed in.** The desktop app's sign‑in is separate. If the panel says *Claude Code is signed out*, run `claude` in a terminal and sign in.
 > - **Codex receives messages only in Codex desktop conversations**, and only when that conversation isn't busy with a turn.
@@ -249,4 +248,4 @@ Licensed under the [Apache License 2.0](LICENSE), like the project it is built o
 
 Claude, Codex, Cursor, Grok and Chengxiaobang are trademarks of their owners. This project is not affiliated with them. The film and screenshots use sample data.
 
-<p align="center"><sub>Made by <a href="https://github.com/ChengkaiXu123">Chengkai Xu (许成凯)</a> · SI Future</sub></p>
+<p align="center"><sub>Made by <a href="http://git.dev.sh.ctripcorp.com/ckxu">Chengkai Xu (许成凯)</a> · SI Future</sub></p>
