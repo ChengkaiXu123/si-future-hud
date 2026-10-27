@@ -60,7 +60,7 @@ sequenceDiagram
 | 助手 | 要能发 | 要能收 |
 | --- | --- | --- |
 | **Claude Code** | 「HUD 工具」（MCP 服务 `agent-hud`）。装了 `claude` 命令就会自动添加。 | HUD 的 Claude Code 插件，同样自动安装。装 HUD 之前就开着的对话要 `/reload-plugins`，或者新开一个。 |
-| **Codex** | Codex 里的「HUD 工具」。装了 `codex` 命令就会自动添加。 | 对话必须在 **Codex 桌面版**里，而且**不在一轮工作中途**。 |
+| **Codex** | Codex 里的「HUD 工具」。自动添加，用 Codex 桌面版自带的 `codex` 命令或者装好的 Codex 命令行版。 | 对话必须在 **Codex 桌面版**里，而且**不在一轮工作中途**。 |
 | **程小帮** | 不用做什么：HUD 启动时会把工具写进 `~/.chengxiaobang/mcp.json`。 | 启用一次 **SI Future HUD** 插件。程小帮每次重启后，要点开那个对话一次。HUD 升级后，重启一次程小帮。 |
 
 ## 怎么让它们传话

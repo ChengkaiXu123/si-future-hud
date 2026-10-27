@@ -201,7 +201,8 @@ Agent HUD 支持的其他助手也都保留，比如 DeepSeek、GitHub Copilot C
 → 每一步、每个系统弹窗是什么意思：**[安装指南](docs/si-future-hud/INSTALL.zh-CN.md)**
 
 > ⚠️ **用之前请先看这几条。**
-> - **要装命令行版。** HUD 是通过 `claude` 和 `codex` 两个命令接入 Claude Code 和 Codex 的。只用桌面版的话也要把它们装上，再重开一次 HUD。没有命令行，Claude 收发不了传话，Codex 也发不出去。
+> - **Claude Code 要装 `claude` 命令。** HUD 通过这个命令接入 Claude Code，只用桌面版的话也要装上，再重开一次 HUD。没有它，Claude 收发不了传话。
+> - **Codex 不用另装。** 装了 Codex 桌面版（Codex.app，或带 Codex 的 ChatGPT App）的，HUD 会直接用它自带的 `codex` 命令，不用再装 Codex 命令行版。只在终端里用 Codex、没装桌面版的，才需要装 `codex`。
 > - **Claude 的额度要终端里的 `claude` 登录着。** 桌面 App 的登录和终端的不共用。面板里显示「Claude Code 已退出登录」时，在终端运行 `claude` 登录一次就好。
 > - **Codex 只有桌面版的对话能收传话**，而且对方正在干活时收不了。
 > - **程小帮**：在它的「插件」页启用一次 SI Future HUD 插件。程小帮每次重启后，要点开某个对话一次，那个对话才能收传话。

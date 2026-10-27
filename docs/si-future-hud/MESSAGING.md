@@ -60,7 +60,7 @@ sequenceDiagram
 | Agent | To send | To receive |
 | --- | --- | --- |
 | **Claude Code** | The HUD tools (`agent-hud` MCP). Added automatically if the `claude` command is installed. | The HUD's Claude Code plugin, also automatic. Conversations opened before the HUD was installed need `/reload-plugins`, or a new conversation. |
-| **Codex** | The HUD tools in Codex. Added automatically if the `codex` command is installed. | The conversation must be in the **Codex desktop app** and **not in the middle of a turn**. |
+| **Codex** | The HUD tools in Codex. Added automatically, through the Codex desktop app's built‑in `codex` command or a `codex` CLI. | The conversation must be in the **Codex desktop app** and **not in the middle of a turn**. |
 | **Chengxiaobang** | Nothing: its HUD tools are written into `~/.chengxiaobang/mcp.json` on launch. | Enable the **SI Future HUD** plugin once. After each restart of Chengxiaobang, open the conversation once. After a HUD update, restart Chengxiaobang once. |
 
 ## Asking for it

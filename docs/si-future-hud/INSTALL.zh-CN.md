@@ -12,12 +12,12 @@
 | --- | --- |
 | **Apple 芯片的 Mac**（M1、M2、M3、M4…），**macOS 12 或更新** | 安装包只有 arm64 版本。查看方法：苹果菜单 →「关于本机」，「芯片」一栏是 Apple M 开头就行。Intel 芯片的 Mac 请[从源码构建](../../README.zh-CN.md#从源码构建)。 |
 | **`claude` 命令**（Claude Code 命令行版），如果你用 Claude Code | HUD 通过这个命令给 Claude Code 装插件和工具。**只装桌面版不够。** |
-| **`codex` 命令**（Codex 命令行版），如果你用 Codex | 同理，用来给 Codex 装工具。发**给** Codex 的消息送到 **Codex 桌面版**，所以桌面版也要留着。 |
+| **Codex 桌面版**，如果你用 Codex | 不用另装别的。HUD 用桌面版自带的 `codex` 命令（Codex.app，或带 Codex 的 ChatGPT App）给 Codex 装工具，发**给** Codex 的消息也送到桌面版。**不用装 Codex 命令行版。** 只在终端里用 Codex 的，HUD 才需要在下面这些位置找到 `codex` 命令。 |
 | **程小帮**，如果你用它 | 不用准备，HUD 会自己放好插件。 |
 
 **怎么装命令行版**：按各家官方说明安装：
 - Claude Code：[docs.claude.com → Claude Code → Set up](https://docs.claude.com/en/docs/claude-code/setup)
-- Codex：[github.com/openai/codex](https://github.com/openai/codex)
+- Codex（只在没有 Codex 桌面版时需要）：[github.com/openai/codex](https://github.com/openai/codex)
 
 HUD 会在这些位置找它们：`~/.local/bin`、`~/.bun/bin`、`~/.npm-global/bin`、`/opt/homebrew/bin`、`/usr/local/bin`、`/usr/bin`、`/bin`，以及你的 `PATH`。
 
@@ -78,7 +78,7 @@ xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"
 | 给程小帮写好插件，并加上 HUD 工具 | 程小帮出现在 HUD 上，能收发传话 |
 | 你打开过开机自启的话，App 挪了位置也会跟着更新 | 开机自启默认关闭，要自己在设置里打开 |
 
-每一步只做一次。**你以后手动删掉的，不会再给你加回来。** 如果当时还没装 `claude` 或 `codex`，那一步会等到以后某次启动再做。
+每一步只做一次。**你以后手动删掉的，不会再给你加回来。** 如果当时还没装 `claude`（或者既没有 Codex 桌面版、也没装 `codex`），那一步会等到以后某次启动再做。
 
 ## 5 · 每个助手的最后一步
 
@@ -99,6 +99,8 @@ xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"
   claude mcp list | grep agent-hud
   codex mcp list | grep agent-hud
   ```
+
+  只装了 Codex 桌面版的，终端里没有 `codex` 命令。看设置里那一行就够了，或者用桌面版自带的那份：`/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex mcp list`；你的 App 是 Codex.app 的话，用 `/Applications/Codex.app/Contents/Resources/codex mcp list`。
 
 - **鼠标移到刘海上**：你在用的每个助手都应该带着额度出现在面板里。
 - **试一次传话**：在 Claude Code 的对话里说：
@@ -128,6 +130,8 @@ xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"
    claude mcp remove --scope user agent-hud
    codex mcp remove agent-hud
    ```
+
+   只装了 Codex 桌面版的，最后一行换成桌面版自带的 `codex`（见上面第 6 步）。
 
    程小帮里，在「插件」页停用或删除 SI Future HUD 插件。
 

@@ -92,7 +92,7 @@ Questions show their options, and you answer by clicking one. This includes the 
 
 ## Replies
 
-When an agent finishes, a **New reply** card slides out of the HUD. Click **Return to session** and that conversation comes to the front: its Claude or Codex thread, or its terminal tab. For Chengxiaobang, the app opens.
+When an agent finishes, a **New reply** card slides out of the HUD. Click **Return to session** and that conversation comes to the front: its Claude or Codex thread, or, for a terminal session, its iTerm2 tab (outside tmux). Other terminals such as Terminal.app or Ghostty can't be jumped to yet. For Chengxiaobang, the app opens.
 
 ## Running low, running out, starting over
 

@@ -201,7 +201,8 @@ On first launch it sets itself up:
 → Every step, and what each macOS prompt means: **[Install guide](docs/si-future-hud/INSTALL.md)**
 
 > ⚠️ **Read this before your first day with it.**
-> - **Install the command‑line tools.** The HUD connects to Claude Code and Codex through the `claude` and `codex` commands. If you only use the desktop apps, install them too, then reopen the HUD. Without them, Claude can't send or receive messages and Codex can't send.
+> - **Claude Code needs the `claude` command.** The HUD connects to Claude Code through it, so install it even if you only use the desktop app, then reopen the HUD. Without it, Claude can't send or receive messages.
+> - **Codex needs nothing extra.** If you have the Codex desktop app (Codex.app, or the ChatGPT app that carries Codex), the HUD uses the `codex` command built into it. You don't need to install the Codex CLI. Only people who use Codex purely from the terminal need `codex` installed.
 > - **Claude's quota needs the terminal `claude` signed in.** The desktop app's sign‑in is separate. If the panel says *Claude Code is signed out*, run `claude` in a terminal and sign in.
 > - **Codex receives messages only in Codex desktop conversations**, and only when that conversation isn't busy with a turn.
 > - **Chengxiaobang:** enable the *SI Future HUD* plugin once on its Plugins page. After each restart, open a conversation once so that it can receive.

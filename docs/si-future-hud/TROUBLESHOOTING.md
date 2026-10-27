@@ -35,15 +35,15 @@ Then open it again.
 
 **Why:** one of three things.
 1. The app was opened straight from the DMG window. macOS then runs it from a temporary read‑only location.
-2. The `claude` or `codex` command isn't installed.
+2. The `claude` command isn't installed (or, for Codex, neither the Codex desktop app nor the `codex` command is).
 3. It is installed somewhere the HUD doesn't look.
 
 **Fix:**
 - Move the app into **Applications**, quit it and reopen it from there.
-- Install the command‑line tools. The HUD looks in `~/.local/bin`, `~/.bun/bin`, `~/.npm-global/bin`, `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `/bin` and your `PATH`.
+- Install `claude`. For Codex the desktop app is enough; install the `codex` CLI only if you don't have the app. The HUD looks for commands in `~/.local/bin`, `~/.bun/bin`, `~/.npm-global/bin`, `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `/bin` and your `PATH`.
 - Reopen the HUD. Set‑up is retried on every launch until it succeeds.
 
-Check from a terminal with `claude mcp list` and `codex mcp list`. Both should list `agent-hud`.
+Check from a terminal with `claude mcp list` and `codex mcp list`. Both should list `agent-hud`. With only the Codex desktop app, use its copy: `/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex mcp list`, or `/Applications/Codex.app/Contents/Resources/codex mcp list` for Codex.app.
 </details>
 
 <details>
@@ -113,7 +113,7 @@ Codex has to trust the HUD's hook once. When Codex asks whether to trust it, all
 <details>
 <summary><b>Codex can't send messages</b></summary>
 
-The HUD tools weren't added to Codex, because the `codex` command wasn't found. Install the Codex CLI and reopen the HUD. Check with `codex mcp list`.
+The HUD tools weren't added to Codex, because no `codex` command was found. The HUD first uses the one inside the Codex desktop app, so move the app into **Applications** (or `~/Applications`) and reopen the HUD. Without the app, install the Codex CLI. Check with `codex mcp list`, or the app's copy shown above.
 </details>
 
 ## Chengxiaobang 程小帮
@@ -220,6 +220,8 @@ Adjust **Hover delay** and **Collapse delay** in **Settings → Display → Hove
    claude mcp remove --scope user agent-hud
    codex mcp remove agent-hud
    ```
+
+   With only the Codex desktop app, run the last line with the app's copy of `codex` (see [Nothing got set up](#installing)).
 
    Then disable the plugin in Chengxiaobang.
 4. Optionally delete `~/Library/Application Support/app.agenthud.next`.

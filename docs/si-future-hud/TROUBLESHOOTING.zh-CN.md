@@ -35,15 +35,15 @@ xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"
 
 **原因：** 三种可能之一。
 1. 直接在 DMG 窗口里打开了 App，macOS 会把它放在临时的只读位置运行。
-2. 没装 `claude` 或 `codex` 命令。
+2. 没装 `claude` 命令（Codex 这边则是既没有 Codex 桌面版，也没装 `codex` 命令）。
 3. 装在了 HUD 找不到的位置。
 
 **解决：**
 - 把 App 拖进「应用程序」，退出后从那里重新打开。
-- 装好命令行版。HUD 会在 `~/.local/bin`、`~/.bun/bin`、`~/.npm-global/bin`、`/opt/homebrew/bin`、`/usr/local/bin`、`/usr/bin`、`/bin` 和你的 `PATH` 里找。
+- 装好 `claude`。Codex 有桌面版就够了，没有桌面版才需要装 `codex` 命令行版。HUD 会在 `~/.local/bin`、`~/.bun/bin`、`~/.npm-global/bin`、`/opt/homebrew/bin`、`/usr/local/bin`、`/usr/bin`、`/bin` 和你的 `PATH` 里找。
 - 重开 HUD。每次启动都会重试，直到配置成功。
 
-在终端用 `claude mcp list` 和 `codex mcp list` 检查，两个都应该列出 `agent-hud`。
+在终端用 `claude mcp list` 和 `codex mcp list` 检查，两个都应该列出 `agent-hud`。只装了 Codex 桌面版的，用它自带的那份：`/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex mcp list`；Codex.app 则是 `/Applications/Codex.app/Contents/Resources/codex mcp list`。
 </details>
 
 <details>
@@ -113,7 +113,7 @@ Codex 需要信任一次 HUD 的回调：Codex 询问时选允许。同时确认
 <details>
 <summary><b>Codex 发不出传话</b></summary>
 
-当时没找到 `codex` 命令，所以 Codex 里没加上 HUD 工具。装好 Codex 命令行版后重开 HUD，用 `codex mcp list` 检查。
+当时没找到 `codex` 命令，所以 Codex 里没加上 HUD 工具。HUD 会先用 Codex 桌面版自带的那份，所以请把桌面版放进「应用程序」（或 `~/Applications`），再重开 HUD；没有桌面版才需要装 Codex 命令行版。用 `codex mcp list` 或上面那份桌面版自带的命令检查。
 </details>
 
 ## 程小帮
@@ -220,6 +220,8 @@ HUD 从 Grok Bot 自己的缓存里读额度，在 Grok Bot 里刷新一下，HU
    claude mcp remove --scope user agent-hud
    codex mcp remove agent-hud
    ```
+
+   只装了 Codex 桌面版的，最后一行换成桌面版自带的 `codex`（见[什么都没自动配置](#安装)）。
 
    然后在程小帮里停用插件。
 4. 可选：删掉 `~/Library/Application Support/app.agenthud.next`。

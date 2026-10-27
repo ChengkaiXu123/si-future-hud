@@ -12,12 +12,12 @@ About five minutes, most of it macOS asking whether you trust the app.
 | --- | --- |
 | **A Mac with Apple silicon** (M1, M2, M3, M4…) and **macOS 12 or newer** | The release is built for arm64 only. Check: Apple menu → **About This Mac** → *Chip* says *Apple M…*. On an Intel Mac, [build it from source](../../README.md#build-from-source). |
 | **The `claude` command** (Claude Code CLI), if you use Claude Code | The HUD installs its plugin and tools into Claude Code through this command. **The desktop app alone is not enough.** |
-| **The `codex` command** (Codex CLI), if you use Codex | The same, for Codex's tools. Messages *to* Codex go to the **Codex desktop app**, so keep that too. |
+| **The Codex desktop app**, if you use Codex | Nothing to install on top. The HUD uses the `codex` command built into the app (Codex.app, or the ChatGPT app that carries Codex) to add its tools, and messages *to* Codex go to the app. **You don't need the Codex CLI.** Only if you use Codex purely from a terminal does the HUD need a `codex` command from the list below. |
 | **Chengxiaobang (程小帮)**, if you use it | Nothing to prepare. The HUD drops its plugin in by itself. |
 
 **Installing the command‑line tools.** Follow each vendor's official instructions:
 - Claude Code: [docs.claude.com → Claude Code → Set up](https://docs.claude.com/en/docs/claude-code/setup)
-- Codex: [github.com/openai/codex](https://github.com/openai/codex)
+- Codex, only if you have no Codex desktop app: [github.com/openai/codex](https://github.com/openai/codex)
 
 The HUD looks for them in `~/.local/bin`, `~/.bun/bin`, `~/.npm-global/bin`, `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `/bin` and your `PATH`.
 
@@ -78,7 +78,7 @@ You don't need to touch any setting. On first launch SI Future HUD:
 | Writes its plugin into **Chengxiaobang** and adds the HUD tools to it | Chengxiaobang shows on the HUD and can send and receive messages |
 | Keeps a **login item** you turned on pointed at the app, even after you move it | *Launch at login* stays off until you turn it on in Settings |
 
-Each step runs once. **Nothing you remove later is put back.** If `claude` or `codex` wasn't installed yet, that step waits and runs on a later launch.
+Each step runs once. **Nothing you remove later is put back.** If `claude` wasn't installed yet (or `codex`, when there is no Codex desktop app either), that step waits and runs on a later launch.
 
 ## 5 · Finish setting up each agent
 
@@ -99,6 +99,8 @@ Each step runs once. **Nothing you remove later is put back.** If `claude` or `c
   claude mcp list | grep agent-hud
   codex mcp list | grep agent-hud
   ```
+
+  With only the Codex desktop app there is no `codex` in your terminal. The Settings row is enough, or run the app's copy: `/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex mcp list` or, if your app is Codex.app, `/Applications/Codex.app/Contents/Resources/codex mcp list`.
 
 - **Hover the notch.** Every agent you use should be listed with its quota.
 - **Try a message.** In a Claude Code conversation, ask:
@@ -128,6 +130,8 @@ Do it in this order. Otherwise the hook entries in your agents' settings point a
    claude mcp remove --scope user agent-hud
    codex mcp remove agent-hud
    ```
+
+   With only the Codex desktop app, run the last line with the app's copy of `codex` (see step 6 above).
 
    In Chengxiaobang, disable or delete the SI Future HUD plugin on its Plugins page.
 
