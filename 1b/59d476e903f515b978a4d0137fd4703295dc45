@@ -1,0 +1,51 @@
+docs/si-future-hud/MESSAGING.md
+  s_d48b3b8d3c26d0::t_144ea0c0eece77 1-105
+README.zh-CN.md
+  s_d48b3b8d3c26d0::t_35867b38f2827c 2-4,7,10-11,15-18,22-29,32,34-37,39,41,44-47,50,52-55,57,60,63,65,67-75,77,80,83-92,94,96,98,100-109,111,113,115-124,126,128,130-132,134,137,140-149,151-153,155,157-160,162-165,167-169,171-218,222,227-230,232,234,236-240,242,244,246,248,250,252
+  s_d48b3b8d3c26d0::t_7c84f6f54f66ac 161,166,170
+docs/si-future-hud/TROUBLESHOOTING.md
+  s_d48b3b8d3c26d0::t_3104b0ab13bdfd 1-230
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_ef80079bdd1808 1-19
+docs/si-future-hud/CHANGES.md
+  s_d48b3b8d3c26d0::t_1cc72465664280 1-2,4,6-173
+  s_d48b3b8d3c26d0::t_7c84f6f54f66ac 3,5
+docs/si-future-hud/TROUBLESHOOTING.zh-CN.md
+  s_d48b3b8d3c26d0::t_48d72ed600d843 1-230
+docs/si-future-hud/GUIDE.md
+  s_d48b3b8d3c26d0::t_59ccc606e08cc9 34-36,38-46,95
+  s_d48b3b8d3c26d0::t_43c7b5e3edf42b 1-33,37,47-94,96-129
+docs/si-future-hud/MESSAGING.zh-CN.md
+  s_d48b3b8d3c26d0::t_895be129bbbcb7 1-105
+README.md
+  s_d48b3b8d3c26d0::t_b4a5bc27d11403 2-4,7,10-11,15-18,22-29,32,34-37,39,41,44-47,50,52-55,57,60,63,65,67-75,77,80,83-92,94,96,98,100-109,111,113,115-124,126,128,130-132,134,137,140-149,151-153,155,157-172,174,176-182,184,186,188,190-192,194-198,200,202-211,213,215-218,222,227-230,232,234,236-240,242,244,246,248,250,252
+README.upstream.zh-CN.md
+  s_d48b3b8d3c26d0::t_4a78607bad1dcf 26
+README.upstream.md
+  s_d48b3b8d3c26d0::t_4a78607bad1dcf 26
+docs/si-future-hud/INSTALL.md
+  s_d48b3b8d3c26d0::t_b4837a5e775264 80
+  s_d48b3b8d3c26d0::t_abfeac3f24c057 1-79,81-139
+docs/si-future-hud/INSTALL.zh-CN.md
+  s_d48b3b8d3c26d0::t_86a804c225d0dd 1-139
+docs/si-future-hud/GUIDE.zh-CN.md
+  s_d48b3b8d3c26d0::t_f79fcabfdd1a76 1-129
+scripts/build-release.sh
+  s_d48b3b8d3c26d0::t_ef80079bdd1808 1-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "1b59d476e903f515b978a4d0137fd4703295dc45",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
