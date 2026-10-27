@@ -155,12 +155,17 @@ fn listed_command(client: &str, home: &std::path::Path) -> Option<String> {
 /// Only an entry that names this app's own executable elsewhere is touched.
 pub(crate) fn repoint(app: &tauri::AppHandle, client: &str) -> Result<bool, String> {
     let home = home()?;
-    let Some(path) = app.state::<super::HostOptions>().canonical_executable.clone() else {
+    let Some(path) = app
+        .state::<super::HostOptions>()
+        .canonical_executable
+        .clone()
+    else {
         return Ok(false);
     };
     // A re-add that failed after its removal is finished first, so the
     // client never stays without the HUD tools.
-    let pending = agent_hud_runtime::local_tools_directory()?.join(format!("mcp-repoint-{client}.pending"));
+    let pending =
+        agent_hud_runtime::local_tools_directory()?.join(format!("mcp-repoint-{client}.pending"));
     let Some(listed) = listed_command(client, &home) else {
         if pending.exists() && executable(client, &home).is_some() {
             run(app, client, true)?;
@@ -169,7 +174,10 @@ pub(crate) fn repoint(app: &tauri::AppHandle, client: &str) -> Result<bool, Stri
         }
         return Ok(false);
     };
-    let ours = path.file_name().and_then(|name| name.to_str()).unwrap_or("agent-hud-next");
+    let ours = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("agent-hud-next");
     if std::path::Path::new(&listed) == path
         || !listed.ends_with(&format!(".app/Contents/MacOS/{ours}"))
         || executable(client, &home).is_none()

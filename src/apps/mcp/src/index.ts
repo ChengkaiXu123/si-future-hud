@@ -499,7 +499,11 @@ serveStdio(() => {
           .describe(
             "The receiving session's id (as hud_sessions lists it, or as a message you received names it). Omitted: the agent's most recently active session that can receive.",
           ),
-        text: z.string().min(1).max(4000).describe("What to tell the other agent."),
+        text: z
+          .string()
+          .min(1)
+          .max(4000)
+          .describe("What to tell the other agent."),
         from_session: z
           .string()
           .min(1)

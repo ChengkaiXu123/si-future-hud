@@ -6,7 +6,11 @@ pub mod desktop;
 #[path = "desktop_windows.rs"]
 pub mod desktop;
 pub mod desktop_io;
+// Local build: messages into Codex Desktop threads (HUD 传话).
 #[cfg(unix)]
+pub mod message;
+#[cfg(windows)]
+#[path = "message_windows.rs"]
 pub mod message;
 
 use serde_json::Value;

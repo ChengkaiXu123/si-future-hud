@@ -346,7 +346,8 @@ impl Request {
                     .transpose()?
                     .unwrap_or("")
                     .trim();
-                let reviewed = "The user reviewed this plan in SI Future HUD and did not approve it.";
+                let reviewed =
+                    "The user reviewed this plan in SI Future HUD and did not approve it.";
                 let message = if note.is_empty() {
                     format!("{reviewed} They want to keep planning.")
                 } else {

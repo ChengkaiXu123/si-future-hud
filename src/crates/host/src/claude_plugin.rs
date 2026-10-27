@@ -136,7 +136,13 @@ pub(crate) fn install_once(app: &tauri::AppHandle) -> Result<bool, String> {
     };
     let config = plugin::claude_config_directory(&home);
     if !plugin::installed_from(&config, &state.folder) {
-        install(&state.channel, &state.folder, Some(&executable), &config, &home)?;
+        install(
+            &state.channel,
+            &state.folder,
+            Some(&executable),
+            &config,
+            &home,
+        )?;
     }
     Ok(true)
 }

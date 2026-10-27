@@ -1,8 +1,8 @@
 //! The descriptor every client has, and the registry of them all.
 use crate::hooks::{Hooks, Observer};
 use crate::{
-    antigravity, buddy, chengxiaobang, claude, codex, copilot, cursor, deepseek, devin, glm, grok, hermes, kimi,
-    openclaw, opencode, pi, qoder, qwen, zcode,
+    antigravity, buddy, chengxiaobang, claude, codex, copilot, cursor, deepseek, devin, glm, grok,
+    hermes, kimi, openclaw, opencode, pi, qoder, qwen, zcode,
 };
 use crate::{Channel, Discovery, PerOs, Replies, Source};
 

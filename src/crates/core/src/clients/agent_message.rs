@@ -159,7 +159,10 @@ impl crate::AgentHudCore {
             if chinese() {
                 format!("{}的会话正在等用户回答问题，等它答完再发。", name(source))
             } else {
-                format!("{}'s session waits for the user's answer; send after it is answered.", name(source))
+                format!(
+                    "{}'s session waits for the user's answer; send after it is answered.",
+                    name(source)
+                )
             }
         } else {
             match (first, asked) {
@@ -175,7 +178,10 @@ impl crate::AgentHudCore {
                     if chinese() {
                         format!("{}现在没有能接收消息的会话。", name(source))
                     } else {
-                        format!("{} has no session that can take a message now.", name(source))
+                        format!(
+                            "{} has no session that can take a message now.",
+                            name(source)
+                        )
                     }
                 }
             }
@@ -194,11 +200,18 @@ impl crate::AgentHudCore {
 
     /// The MCP tool's request: {to, session?, text, caller:{client, sessionId}}.
     /// Puts a Send / Deny card before the user and returns at once.
-    pub(crate) fn propose_agent_message(&mut self, params: &Value, now: i64) -> Result<Value, String> {
+    pub(crate) fn propose_agent_message(
+        &mut self,
+        params: &Value,
+        now: i64,
+    ) -> Result<Value, String> {
         self.forget_unanswered_messages();
         let text = params["text"].as_str().map(str::trim).unwrap_or_default();
         if text.is_empty() {
-            return Err(crate::l10n::text("没有要发送的话。", "There is nothing to send."));
+            return Err(crate::l10n::text(
+                "没有要发送的话。",
+                "There is nothing to send.",
+            ));
         }
         if text.starts_with('/') {
             return Err(crate::l10n::text(
@@ -244,12 +257,15 @@ impl crate::AgentHudCore {
         }
         // The sender's session counts only when it is one Agent HUD lists. A
         // 程小帮 caller's comes from its plugin (the relay can't tell it).
-        let named = caller["sessionId"].as_str().filter(|id| !id.is_empty()).or_else(|| {
-            (from == "chengxiaobang")
-                .then(|| params["from_session"].as_str())
-                .flatten()
-                .filter(|id| !id.is_empty())
-        });
+        let named = caller["sessionId"]
+            .as_str()
+            .filter(|id| !id.is_empty())
+            .or_else(|| {
+                (from == "chengxiaobang")
+                    .then(|| params["from_session"].as_str())
+                    .flatten()
+                    .filter(|id| !id.is_empty())
+            });
         let (from_session, from_title) = named
             .map(|id| {
                 if from == "chengxiaobang" && !id.starts_with("chengxiaobang:") {
@@ -262,7 +278,12 @@ impl crate::AgentHudCore {
                 self.logs
                     .values()
                     .find(|log| log.source == from && log.id == id && !log.gone)
-                    .map(|log| (id.clone(), Some(log.title.clone()).filter(|t| !t.trim().is_empty())))
+                    .map(|log| {
+                        (
+                            id.clone(),
+                            Some(log.title.clone()).filter(|t| !t.trim().is_empty()),
+                        )
+                    })
             })
             .map_or((None, None), |(id, title)| (Some(id), title));
         let Some((to, to_name)) = params["to"].as_str().and_then(receiver) else {
@@ -275,7 +296,11 @@ impl crate::AgentHudCore {
         // A 程小帮 sender whose session is unknown (its plugin not loaded):
         // to another 程小帮 session the receiver must be named, or it could
         // be the sender itself.
-        if from == "chengxiaobang" && to == "chengxiaobang" && asked.is_none() && from_session.is_none() {
+        if from == "chengxiaobang"
+            && to == "chengxiaobang"
+            && asked.is_none()
+            && from_session.is_none()
+        {
             return Err(crate::l10n::text(
                 "程小帮发给程小帮时要写明 session（对方会话的 ID）。",
                 "From 程小帮 to 程小帮, name the receiving session.",
@@ -298,7 +323,13 @@ impl crate::AgentHudCore {
         let verified = named.is_none() || from_session.is_some();
         let title = format!(
             "{from_name}{} → {to_name}",
-            if verified { "" } else if chinese() { "（发件会话未核实）" } else { " (unverified session)" }
+            if verified {
+                ""
+            } else if chinese() {
+                "（发件会话未核实）"
+            } else {
+                " (unverified session)"
+            }
         );
         let detail = if chinese() {
             format!(
@@ -349,13 +380,21 @@ impl crate::AgentHudCore {
         });
         let replyable = from != "codex"
             || from_session.as_deref().is_some_and(|id| {
-                self.logs
-                    .values()
-                    .any(|log| log.source == "codex" && log.id == id && log.client.as_deref() == Some("Desktop"))
+                self.logs.values().any(|log| {
+                    log.source == "codex"
+                        && log.id == id
+                        && log.client.as_deref() == Some("Desktop")
+                })
             });
-        let ticket = self.requests.register_native(id.clone(), view, now).ok_or_else(|| {
-            crate::l10n::text("这条消息已经在等你确认了。", "This message already waits for confirmation.")
-        })?;
+        let ticket = self
+            .requests
+            .register_native(id.clone(), view, now)
+            .ok_or_else(|| {
+                crate::l10n::text(
+                    "这条消息已经在等你确认了。",
+                    "This message already waits for confirmation.",
+                )
+            })?;
         self.agent_messages.pending.insert(
             id.clone(),
             Pending {

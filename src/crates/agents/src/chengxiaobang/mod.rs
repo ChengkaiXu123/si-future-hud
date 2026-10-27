@@ -11,9 +11,17 @@ static SOURCES: [Source; 1] = [Source {
     location: Location::home(&[], &[".chengxiaobang"], "data"),
 }];
 static DISCOVERY: Discovery = Discovery {
-    storage: &[Location::home(&[], &[".chengxiaobang"], "data/chengxiaobang.sqlite")],
+    storage: &[Location::home(
+        &[],
+        &[".chengxiaobang"],
+        "data/chengxiaobang.sqlite",
+    )],
     settings: &[Location::home(&[], &[".chengxiaobang"], "config.yaml")],
-    sessions: &[Location::home(&[], &[".chengxiaobang"], "data/chengxiaobang.sqlite")],
+    sessions: &[Location::home(
+        &[],
+        &[".chengxiaobang"],
+        "data/chengxiaobang.sqlite",
+    )],
     apps: &["程小帮"],
     bundles: &["com.chengxiaobang.desktop"],
     ..Discovery::NONE

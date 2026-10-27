@@ -97,7 +97,10 @@ fn card_ask(entry: &Value, id: &str, at: i64) -> Option<DesktopAsk> {
             if entry["secretProvided"] == true || message["secretProvided"] == true {
                 return None;
             }
-            crate::l10n::text("Grok Bot 在等你填写一项密钥。", "Grok Bot waits for a secret from you.")
+            crate::l10n::text(
+                "Grok Bot 在等你填写一项密钥。",
+                "Grok Bot waits for a secret from you.",
+            )
         }
         "connector" => {
             let name = message["connector"]["name"]
@@ -151,7 +154,10 @@ pub fn stand(agent: &str, replica: &Value, _now: i64) -> Option<BotRun> {
                 run.replied = true;
                 run.answer = text(message);
             }
-            (Some("send-message"), Some("local-tool-permission" | "secret-request" | "connector")) => {
+            (
+                Some("send-message"),
+                Some("local-tool-permission" | "secret-request" | "connector"),
+            ) => {
                 // A card the Bot waits on, or one dealt with (it works on).
                 run.ask = card_ask(entry, id, at);
                 run.running = true;
@@ -181,7 +187,13 @@ pub fn command_in_flight(home: &Path, now: i64) -> bool {
 
 /// Each listed Bot's standing, from the replicas in `directory`; a command in
 /// flight is laid on the Bot that owes a reply and was active last.
-pub fn runs(directory: &Path, account: &str, agents: &[String], now: i64, command: bool) -> Vec<BotRun> {
+pub fn runs(
+    directory: &Path,
+    account: &str,
+    agents: &[String],
+    now: i64,
+    command: bool,
+) -> Vec<BotRun> {
     let mut runs: Vec<BotRun> = agents
         .iter()
         .filter_map(|agent| {
@@ -219,7 +231,8 @@ pub fn listed(directory: &Path, account: &str) -> Vec<String> {
 
 /// Whether `path` is a Bot's transcript replica.
 pub fn is_replica(path: &Path) -> bool {
-    cache::key(path).is_some_and(|key| key.starts_with(cache::PREFIX) && key.contains(".transcript.replicas."))
+    cache::key(path)
+        .is_some_and(|key| key.starts_with(cache::PREFIX) && key.contains(".transcript.replicas."))
 }
 
 /// What a roster's stamp also follows: its replicas' newest write, and the
@@ -303,7 +316,14 @@ pub fn apply(live: &mut LiveLog, run: &BotRun, now: i64) {
         activity.work = Some(Work::Command);
         activity.tool_at = Some(now);
     }
-    activity.line = Some(if activity.calls.is_empty() { "prompt" } else { "call" }.into());
+    activity.line = Some(
+        if activity.calls.is_empty() {
+            "prompt"
+        } else {
+            "call"
+        }
+        .into(),
+    );
 }
 
 #[cfg(test)]
@@ -336,11 +356,13 @@ mod tests {
 
     #[test]
     fn cards_the_bot_waits_on_wait_and_unknown_kinds_are_skipped() {
-        let permission = |status: &str| replica(json!([
-            {"id":"t1s0","kind":"send-message","seq":1,"timestampMs":NOW-9_000,"message":{"type":"text","content":"checking"}},
-            {"id":"t1s1","kind":"send-message","seq":2,"timestampMs":NOW-5_000,"message":{"type":"local-tool-permission","ask":{"action":"run-command","target":"git pull","status":status}}},
-            {"id":"n1","kind":"notice","seq":3,"timestampMs":NOW-1_000},
-        ]));
+        let permission = |status: &str| {
+            replica(json!([
+                {"id":"t1s0","kind":"send-message","seq":1,"timestampMs":NOW-9_000,"message":{"type":"text","content":"checking"}},
+                {"id":"t1s1","kind":"send-message","seq":2,"timestampMs":NOW-5_000,"message":{"type":"local-tool-permission","ask":{"action":"run-command","target":"git pull","status":status}}},
+                {"id":"n1","kind":"notice","seq":3,"timestampMs":NOW-1_000},
+            ]))
+        };
         let waiting = stand("a", &permission("pending"), NOW).unwrap();
         assert_eq!(waiting.id, "t1s1");
         assert!(waiting.running && !waiting.replied);
@@ -365,11 +387,24 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let write = |agent: &str, entries: Value| {
             let file = cache::path(&dir, &cache::transcript_key("slot", agent));
-            std::fs::write(file, json!({"schemaVersion":1,"value":{"entries":entries}}).to_string()).unwrap();
+            std::fs::write(
+                file,
+                json!({"schemaVersion":1,"value":{"entries":entries}}).to_string(),
+            )
+            .unwrap();
         };
-        write("aaaaaaaa-0000-0000-0000-000000000001", json!([{"id":"t1s0","kind":"send-message","seq":1,"timestampMs":NOW-1_000,"message":{"type":"text","content":"done"}}]));
-        write("aaaaaaaa-0000-0000-0000-000000000002", json!([{"id":"t2u","kind":"message","seq":1,"timestampMs":NOW-60_000,"content":"go"}]));
-        let agents = vec!["aaaaaaaa-0000-0000-0000-000000000001".to_owned(), "aaaaaaaa-0000-0000-0000-000000000002".to_owned()];
+        write(
+            "aaaaaaaa-0000-0000-0000-000000000001",
+            json!([{"id":"t1s0","kind":"send-message","seq":1,"timestampMs":NOW-1_000,"message":{"type":"text","content":"done"}}]),
+        );
+        write(
+            "aaaaaaaa-0000-0000-0000-000000000002",
+            json!([{"id":"t2u","kind":"message","seq":1,"timestampMs":NOW-60_000,"content":"go"}]),
+        );
+        let agents = vec![
+            "aaaaaaaa-0000-0000-0000-000000000001".to_owned(),
+            "aaaaaaaa-0000-0000-0000-000000000002".to_owned(),
+        ];
         let runs = runs(&dir, "slot", &agents, NOW, true);
         assert!(!runs[0].command, "a finished Bot is not reopened");
         assert!(runs[1].command && runs[1].running);
@@ -408,16 +443,20 @@ mod tests {
     #[test]
     fn standing_lays_turns_questions_and_commands() {
         let mut live = LiveLog::default();
-        let card = replica(json!([{"id":"t3s1","kind":"send-message","seq":5,"timestampMs":NOW-3_000,
-            "message":{"type":"widget","widget":{"prompt":"Which?","options":[]}}}]));
+        let card = replica(
+            json!([{"id":"t3s1","kind":"send-message","seq":5,"timestampMs":NOW-3_000,
+            "message":{"type":"widget","widget":{"prompt":"Which?","options":[]}}}]),
+        );
         apply(&mut live, &stand("a", &card, NOW).unwrap(), NOW);
         let activity = live.activity.as_ref().unwrap();
         assert!(activity.standing_question.is_some());
         assert!(activity.desktop_ask.is_some());
         assert!(live.turns.back().unwrap().running);
 
-        let reply = replica(json!([{"id":"t3s2","kind":"send-message","seq":6,"timestampMs":NOW-1_000,
-            "message":{"type":"text","content":"ok"}}]));
+        let reply = replica(
+            json!([{"id":"t3s2","kind":"send-message","seq":6,"timestampMs":NOW-1_000,
+            "message":{"type":"text","content":"ok"}}]),
+        );
         let mut run = stand("a", &reply, NOW).unwrap();
         apply(&mut live, &run, NOW);
         let turn = live.turns.back().unwrap();
@@ -429,7 +468,10 @@ mod tests {
         run.running = true;
         apply(&mut live, &run, NOW);
         let activity = live.activity.as_ref().unwrap();
-        assert!(activity.calls.iter().any(|call| call.work == Some(Work::Command)));
+        assert!(activity
+            .calls
+            .iter()
+            .any(|call| call.work == Some(Work::Command)));
         assert!(live.turns.back().unwrap().running);
     }
 
@@ -438,12 +480,27 @@ mod tests {
         let home = std::env::temp_dir().join(format!("grok-live-{}", std::process::id()));
         std::fs::create_dir_all(home.join(".grokbot")).unwrap();
         let file = home.join(".grokbot/local-exec-daemon.json");
-        std::fs::write(&file, json!({"inflightCount":1,"servingAt":NOW-2_000}).to_string()).unwrap();
+        std::fs::write(
+            &file,
+            json!({"inflightCount":1,"servingAt":NOW-2_000}).to_string(),
+        )
+        .unwrap();
         assert!(command_in_flight(&home, NOW));
-        std::fs::write(&file, json!({"inflightCount":0,"servingAt":NOW}).to_string()).unwrap();
+        std::fs::write(
+            &file,
+            json!({"inflightCount":0,"servingAt":NOW}).to_string(),
+        )
+        .unwrap();
         assert!(!command_in_flight(&home, NOW));
-        std::fs::write(&file, json!({"inflightCount":2,"servingAt":NOW-60_000}).to_string()).unwrap();
-        assert!(!command_in_flight(&home, NOW), "a stale daemon serves nothing");
+        std::fs::write(
+            &file,
+            json!({"inflightCount":2,"servingAt":NOW-60_000}).to_string(),
+        )
+        .unwrap();
+        assert!(
+            !command_in_flight(&home, NOW),
+            "a stale daemon serves nothing"
+        );
         std::fs::remove_dir_all(&home).ok();
     }
 }

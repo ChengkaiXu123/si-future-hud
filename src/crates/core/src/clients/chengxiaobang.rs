@@ -98,7 +98,10 @@ impl crate::AgentHudCore {
                     if way.is_ok() { "reply:" } else { "" }
                 );
                 let view = cxb::ask_view(&req_id, &session, cwd.as_deref(), &ask, way.err());
-                match self.requests.register_native(req_id.clone(), view.clone(), now) {
+                match self
+                    .requests
+                    .register_native(req_id.clone(), view.clone(), now)
+                {
                     Some(ticket) => {
                         active.insert(req_id, (key, ticket));
                     }

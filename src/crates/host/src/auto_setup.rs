@@ -39,7 +39,9 @@ pub(crate) fn on_launch(app: &tauri::AppHandle) {
         };
         step("hudTools", &|| turn_on(&app, "hudTools"));
         step("claudePlugin", &|| super::claude_plugin::install_once(&app));
-        step("claudeMcp", &|| super::mcp_clients::add_once(&app, "claudeCode"));
+        step("claudeMcp", &|| {
+            super::mcp_clients::add_once(&app, "claudeCode")
+        });
         step("codexMcp", &|| super::mcp_clients::add_once(&app, "codex"));
         step("clientHooks", &|| turn_on(&app, "clientHooks"));
         // Every launch: a login item left at a moved or renamed app is bound to
@@ -53,16 +55,23 @@ pub(crate) fn on_launch(app: &tauri::AppHandle) {
         {
             let login = app
                 .try_state::<super::Service>()
-                .and_then(|service| service.backend.lock().ok().map(|backend| backend.runtime.launch_at_login_enabled()))
+                .and_then(|service| {
+                    service
+                        .backend
+                        .lock()
+                        .ok()
+                        .map(|backend| backend.runtime.launch_at_login_enabled())
+                })
                 .unwrap_or(false);
-            if login && done.get("loginItemBundle").and_then(Value::as_str) != Some(bundle.as_str()) {
+            if login && done.get("loginItemBundle").and_then(Value::as_str) != Some(bundle.as_str())
+            {
                 let system = app.state::<super::system::System>();
                 // An item left by another bundle may not unregister from here;
                 // registering this bundle is what counts, and is tried again on
                 // the next launch until it holds.
                 let _ = system.set_setting("launchAtLogin", &json!(false));
                 match system.set_setting("launchAtLogin", &json!(true)) {
-                    Ok(Some(enabled)) if enabled == json!(true) => {
+                    Ok(Some(Value::Bool(true))) => {
                         done.insert("loginItemBundle".into(), json!(bundle));
                     }
                     Ok(_) => eprintln!("SI Future HUD login item: not enabled yet"),
@@ -89,7 +98,11 @@ pub(crate) fn on_launch(app: &tauri::AppHandle) {
 fn turn_on(app: &tauri::AppHandle, key: &str) -> Result<bool, String> {
     // Hooks point at the installed app only: from a disk image there is none.
     if key == "clientHooks" {
-        if app.state::<super::HostOptions>().canonical_executable.is_none() {
+        if app
+            .state::<super::HostOptions>()
+            .canonical_executable
+            .is_none()
+        {
             return Ok(false);
         }
         let Some(service) = app.try_state::<super::Service>() else {
@@ -98,7 +111,7 @@ fn turn_on(app: &tauri::AppHandle, key: &str) -> Result<bool, String> {
         let params = app
             .state::<super::system::System>()
             .set_setting("clientHooks", &json!(true))?
-            .map_or(json!(true), |value| value);
+            .unwrap_or(json!(true));
         // As Settings turns it on: the hooks installed first, the switch saved
         // after; a client that refuses them leaves it off, tried again next launch.
         super::set_client_hooks(

@@ -1,8 +1,12 @@
 //! 程小帮 SQLite session reader (`data/chengxiaobang.sqlite`).
 //! Each row of `usage_cost_entries` is one model call; its prompt tokens
 //! include the cached ones, and total = prompt + completion.
-use crate::transcript::live::{newer, Activity, Call, DesktopAsk, DesktopAskOption, LiveLog, Turn, Work};
-use crate::transcript::{metering, sql_column, sql_columns, sql_count, sql_model, sql_tables, sql_text};
+use crate::transcript::live::{
+    newer, Activity, Call, DesktopAsk, DesktopAskOption, LiveLog, Turn, Work,
+};
+use crate::transcript::{
+    metering, sql_column, sql_columns, sql_count, sql_model, sql_tables, sql_text,
+};
 use crate::{
     transcript::records::{Page, Record},
     Usage,
@@ -45,7 +49,10 @@ pub fn read(db: &Connection, cursor: &Value) -> rusqlite::Result<Page> {
         .iter()
         .filter(|key| s.contains(**key))
         .map(|key| format!("s.{key} IS NOT NULL"))
-        .chain(s.contains("hidden").then(|| "COALESCE(s.hidden,0)<>0".to_owned()))
+        .chain(
+            s.contains("hidden")
+                .then(|| "COALESCE(s.hidden,0)<>0".to_owned()),
+        )
         .collect::<Vec<_>>();
     let gone = if join && !gone.is_empty() {
         gone.join(" OR ")
@@ -222,7 +229,11 @@ pub fn runs(db: &Connection, now: i64) -> rusqlite::Result<Vec<Run>> {
         .contains("tool_calls")
         .then(|| sql_columns(db, "tool_calls"))
         .transpose()?
-        .filter(|c| ["id", "run_id", "name", "status"].iter().all(|key| c.contains(*key)));
+        .filter(|c| {
+            ["id", "run_id", "name", "status"]
+                .iter()
+                .all(|key| c.contains(*key))
+        });
     let messages = tables
         .contains("messages")
         .then(|| sql_columns(db, "messages"))
@@ -269,7 +280,8 @@ pub fn runs(db: &Connection, now: i64) -> rusqlite::Result<Vec<Run>> {
                             held: name == "AskUserQuestion" && status == "running",
                             waits: status == "pending_approval"
                                 || (name == "AskUserQuestion" && status == "running"),
-                            args: sql_text(row, 5).and_then(|text| serde_json::from_str(&text).ok()),
+                            args: sql_text(row, 5)
+                                .and_then(|text| serde_json::from_str(&text).ok()),
                             id,
                             name,
                             at,
@@ -286,7 +298,10 @@ pub fn runs(db: &Connection, now: i64) -> rusqlite::Result<Vec<Run>> {
         }
         if run.status == "running" && tables.contains("usage_cost_entries") {
             let u = sql_columns(db, "usage_cost_entries")?;
-            if ["run_id", "purpose", "entry_created_at"].iter().all(|key| u.contains(*key)) {
+            if ["run_id", "purpose", "entry_created_at"]
+                .iter()
+                .all(|key| u.contains(*key))
+            {
                 run.compacting = db
                     .query_row(
                         "SELECT purpose,entry_created_at FROM usage_cost_entries WHERE run_id=?1 ORDER BY entry_created_at DESC LIMIT 1",
@@ -298,21 +313,19 @@ pub fn runs(db: &Connection, now: i64) -> rusqlite::Result<Vec<Run>> {
                     .and_then(|(_, at)| at.as_deref().and_then(metering::date_ms));
             }
         }
-        if run.status != "running" {
-            if messages.is_some() {
-                let mut statement = db.prepare(
-                    "SELECT content FROM messages WHERE session_id=?1 AND role='assistant' AND COALESCE(kind,'')='' AND COALESCE(content,'')<>'' AND created_at>=?2 AND created_at<=?3 ORDER BY created_at DESC LIMIT 1",
-                )?;
-                let session = run.session.trim_start_matches("chengxiaobang:").to_owned();
-                let from = iso_text(run.started);
-                let to = iso_text(run.updated + 1_000);
-                run.answer = statement
-                    .query_row([session, from, to], |row| row.get::<_, Option<String>>(0))
-                    .ok()
-                    .flatten()
-                    .map(|text| text.trim().to_owned())
-                    .filter(|text| !text.is_empty());
-            }
+        if run.status != "running" && messages.is_some() {
+            let mut statement = db.prepare(
+                "SELECT content FROM messages WHERE session_id=?1 AND role='assistant' AND COALESCE(kind,'')='' AND COALESCE(content,'')<>'' AND created_at>=?2 AND created_at<=?3 ORDER BY created_at DESC LIMIT 1",
+            )?;
+            let session = run.session.trim_start_matches("chengxiaobang:").to_owned();
+            let from = iso_text(run.started);
+            let to = iso_text(run.updated + 1_000);
+            run.answer = statement
+                .query_row([session, from, to], |row| row.get::<_, Option<String>>(0))
+                .ok()
+                .flatten()
+                .map(|text| text.trim().to_owned())
+                .filter(|text| !text.is_empty());
         }
     }
     Ok(found)
@@ -513,7 +526,14 @@ pub fn apply(live: &mut LiveLog, run: &Run) {
         }
         activity.open(opened);
     }
-    activity.line = Some(if run.open.is_empty() { "prompt" } else { "call" }.into());
+    activity.line = Some(
+        if run.open.is_empty() {
+            "prompt"
+        } else {
+            "call"
+        }
+        .into(),
+    );
 }
 
 #[cfg(test)]
@@ -563,8 +583,10 @@ mod tests {
     #[test]
     fn refuses_a_table_without_its_usage_columns() {
         let db = Connection::open_in_memory().unwrap();
-        db.execute_batch("CREATE TABLE usage_cost_entries(id TEXT); CREATE TABLE sessions(id TEXT);")
-            .unwrap();
+        db.execute_batch(
+            "CREATE TABLE usage_cost_entries(id TEXT); CREATE TABLE sessions(id TEXT);",
+        )
+        .unwrap();
         assert!(read(&db, &Value::Null).is_err());
     }
 
@@ -595,10 +617,18 @@ mod tests {
         let mut live = LiveLog::default();
         apply(&mut live, r1);
         assert_eq!(live.session_state(now, "chengxiaobang", None), "waiting");
-        let facts = live.facts("chengxiaobang:s1", "chengxiaobang", now, None).unwrap();
+        let facts = live
+            .facts("chengxiaobang:s1", "chengxiaobang", now, None)
+            .unwrap();
         assert_eq!(facts["requests"][0]["kind"], "question");
         assert_eq!(facts["activity"]["openCall"]["work"], "question");
-        let ask = live.activity.as_ref().unwrap().desktop_ask.as_ref().unwrap();
+        let ask = live
+            .activity
+            .as_ref()
+            .unwrap()
+            .desktop_ask
+            .as_ref()
+            .unwrap();
         assert_eq!(ask.question, "Which day?");
         assert_eq!(ask.options.len(), 2);
 
@@ -606,7 +636,9 @@ mod tests {
         assert_eq!(r2.answer.as_deref(), Some("Booked it."));
         let mut done = LiveLog::default();
         apply(&mut done, r2);
-        let facts = done.facts("chengxiaobang:s2", "chengxiaobang", now, None).unwrap();
+        let facts = done
+            .facts("chengxiaobang:s2", "chengxiaobang", now, None)
+            .unwrap();
         assert_eq!(facts["outcome"], "completed");
         assert_eq!(facts["message"], "Booked it.");
         assert!(facts["endedAt"].is_string());
@@ -621,7 +653,9 @@ mod tests {
         let runs_after = super::runs(&db, now).unwrap();
         apply(&mut live, runs_after.iter().find(|r| r.id == "r1").unwrap());
         assert_eq!(live.session_state(now, "chengxiaobang", None), "running");
-        let facts = live.facts("chengxiaobang:s1", "chengxiaobang", now, None).unwrap();
+        let facts = live
+            .facts("chengxiaobang:s1", "chengxiaobang", now, None)
+            .unwrap();
         assert_eq!(facts["activity"]["openCall"]["work"], "shell");
         assert!(facts["requests"].as_array().unwrap().is_empty());
         assert_eq!(live.turns.len(), 1);
@@ -642,7 +676,9 @@ mod tests {
         let runs = runs(&db, now).unwrap();
         let mut live = LiveLog::default();
         apply(&mut live, &runs[0]);
-        let facts = live.facts("chengxiaobang:s1", "chengxiaobang", now, None).unwrap();
+        let facts = live
+            .facts("chengxiaobang:s1", "chengxiaobang", now, None)
+            .unwrap();
         assert!(facts["activity"]["compactingSince"]
             .as_str()
             .is_some_and(|at| at.starts_with("2026-10-26T05:15:20")));
@@ -652,7 +688,9 @@ mod tests {
         )
         .unwrap();
         apply(&mut live, &super::runs(&db, now).unwrap()[0]);
-        let facts = live.facts("chengxiaobang:s1", "chengxiaobang", now, None).unwrap();
+        let facts = live
+            .facts("chengxiaobang:s1", "chengxiaobang", now, None)
+            .unwrap();
         assert!(facts["activity"]["compactingSince"].is_null());
     }
 }

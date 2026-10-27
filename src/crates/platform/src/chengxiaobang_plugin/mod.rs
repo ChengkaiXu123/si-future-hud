@@ -192,7 +192,11 @@ impl ChengxiaobangReplies {
 
 impl SessionReplies for ChengxiaobangReplies {
     fn reaches(&self, _source: &str, session: &str) -> Result<(), Unreachable> {
-        if self.channel.loaded(SystemTime::now()).contains(own(session)) {
+        if self
+            .channel
+            .loaded(SystemTime::now())
+            .contains(own(session))
+        {
             Ok(())
         } else {
             Err(self.unreachable_for(session))
@@ -290,15 +294,21 @@ mod tests {
         assert!(script.contains(&*root.path().join("channel").to_string_lossy()));
         assert!(!script.contains("__AGENT_HUD_CHANNEL_JSON__"));
         let replies = plugin.replies();
-        let refused = replies.reaches("chengxiaobang", "chengxiaobang:s_1").unwrap_err();
+        let refused = replies
+            .reaches("chengxiaobang", "chengxiaobang:s_1")
+            .unwrap_err();
         assert!(refused.fix.is_none());
         fs::write(
             root.path().join("channel/sessions/s_1.json"),
             json!({"at":1,"channelVersion":2}).to_string(),
         )
         .unwrap();
-        replies.reaches("chengxiaobang", "chengxiaobang:s_1").unwrap();
-        replies.reply("chengxiaobang", "chengxiaobang:s_1", "Monday").unwrap();
+        replies
+            .reaches("chengxiaobang", "chengxiaobang:s_1")
+            .unwrap();
+        replies
+            .reply("chengxiaobang", "chengxiaobang:s_1", "Monday")
+            .unwrap();
         let left = fs::read_dir(root.path().join("channel/prompts/s_1"))
             .unwrap()
             .filter_map(|entry| fs::read_to_string(entry.ok()?.path()).ok())
@@ -312,7 +322,11 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let home = root.path().join("cxb");
         fs::create_dir_all(home.join("plugins")).unwrap();
-        fs::write(home.join("mcp.json"), r#"{"mcpServers":{"other":{"command":"x"}}}"#).unwrap();
+        fs::write(
+            home.join("mcp.json"),
+            r#"{"mcpServers":{"other":{"command":"x"}}}"#,
+        )
+        .unwrap();
         let exe = root.path().join("agent-hud-next");
         fs::write(&exe, "").unwrap();
         let plugin = ChengxiaobangPlugin::new(root.path().join("channel"), &home);
@@ -324,13 +338,17 @@ mod tests {
             serde_json::from_slice(&fs::read(home.join("mcp.json")).unwrap()).unwrap();
         assert_eq!(config["mcpServers"]["other"]["command"], "x");
         assert_eq!(config["mcpServers"]["agent-hud"]["args"][0], "--mcp");
-        assert_eq!(config["mcpServers"]["agent-hud"]["env"]["AGENT_HUD_CLIENT"], "chengxiaobang");
+        assert_eq!(
+            config["mcpServers"]["agent-hud"]["env"]["AGENT_HUD_CLIENT"],
+            "chengxiaobang"
+        );
     }
 
     #[test]
     fn writes_nothing_without_chengxiaobang() {
         let root = tempfile::tempdir().unwrap();
-        let plugin = ChengxiaobangPlugin::new(root.path().join("channel"), &root.path().join("none"));
+        let plugin =
+            ChengxiaobangPlugin::new(root.path().join("channel"), &root.path().join("none"));
         assert!(!plugin.prepare().unwrap());
         assert!(!plugin.folder().exists());
     }

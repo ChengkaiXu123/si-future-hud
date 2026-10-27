@@ -112,7 +112,8 @@ impl Presentation<'_> {
                 facts["activity"] = json!({"work":null,"openCall":null,"toolAt":null,"delegating":false,"awaitsModel":false,"retrying":false,"compactingSince":null});
             }
             facts["activity"]["compactingSince"] = json!(
-                chrono::DateTime::<chrono::Utc>::from_timestamp_millis(since).map(|at| at.to_rfc3339())
+                chrono::DateTime::<chrono::Utc>::from_timestamp_millis(since)
+                    .map(|at| at.to_rfc3339())
             );
             if !matches!(session["state"].as_str(), Some("running" | "waiting")) {
                 session["state"] = json!("running");

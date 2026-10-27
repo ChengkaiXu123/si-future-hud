@@ -194,8 +194,11 @@ impl HookEvidence {
                     .strip_prefix("cursor:")
                     .unwrap_or(&event.session_id);
                 if std::env::var_os("HOME").is_some_and(|home| {
-                    agent_hud_agents::cursor::live::transcript_for(std::path::Path::new(&home), conversation)
-                        .is_some()
+                    agent_hud_agents::cursor::live::transcript_for(
+                        std::path::Path::new(&home),
+                        conversation,
+                    )
+                    .is_some()
                 }) {
                     continue;
                 }

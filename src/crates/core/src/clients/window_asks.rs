@@ -20,7 +20,8 @@ fn reword(source: &str, session: &str, ask: &DesktopAsk, now: i64) -> Option<Des
     let fresh = match source {
         "grok-bot" => {
             use agent_hud_agents::grok::{cache, live};
-            let directory = home.join("Library/Application Support/Grok Bot/sand-client-persistence");
+            let directory =
+                home.join("Library/Application Support/Grok Bot/sand-client-persistence");
             let account = cache::account(&directory)?;
             let replica = cache::value(&directory, &cache::transcript_key(&account, id), 1)?;
             live::stand(id, &replica, now)?.ask
@@ -40,7 +41,15 @@ pub(crate) struct WindowAsks {
     asks: HashMap<String, crate::requests::Ticket>,
 }
 
-fn view(req_id: &str, source: &str, vendor: &str, window: &str, session: &str, cwd: Option<&str>, ask: &DesktopAsk) -> Value {
+fn view(
+    req_id: &str,
+    source: &str,
+    vendor: &str,
+    window: &str,
+    session: &str,
+    cwd: Option<&str>,
+    ask: &DesktopAsk,
+) -> Value {
     let options = ask
         .options
         .iter()
@@ -98,7 +107,8 @@ impl crate::AgentHudCore {
             .values()
             .filter(|log| !log.gone && !log.archived)
             .filter_map(|log| {
-                let (source, vendor, window) = CLIENTS.into_iter().find(|(id, ..)| *id == log.source)?;
+                let (source, vendor, window) =
+                    CLIENTS.into_iter().find(|(id, ..)| *id == log.source)?;
                 if !self.enabled.get(source).copied().unwrap_or(true) {
                     return None;
                 }
@@ -115,12 +125,31 @@ impl crate::AgentHudCore {
                 };
                 let ask = &ask;
                 let key = crate::grok_cache::hash(&[&log.id, &ask.id]);
-                Some((format!("window-ask:{key}"), source, vendor, window, log.id.clone(), log.cwd.clone(), ask.clone()))
+                Some((
+                    format!("window-ask:{key}"),
+                    source,
+                    vendor,
+                    window,
+                    log.id.clone(),
+                    log.cwd.clone(),
+                    ask.clone(),
+                ))
             })
             .collect::<Vec<_>>();
         for (req_id, source, vendor, window, session, cwd, ask) in candidates {
-            let view = view(&req_id, source, vendor, window, &session, cwd.as_deref(), &ask);
-            match self.requests.register_native(req_id.clone(), view.clone(), now) {
+            let view = view(
+                &req_id,
+                source,
+                vendor,
+                window,
+                &session,
+                cwd.as_deref(),
+                &ask,
+            );
+            match self
+                .requests
+                .register_native(req_id.clone(), view.clone(), now)
+            {
                 Some(ticket) => {
                     active.insert(req_id, ticket);
                 }

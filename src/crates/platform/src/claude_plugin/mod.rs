@@ -242,10 +242,14 @@ impl ClaudeChannel {
     /// process stopped: closed, archived or put away by the app).
     pub fn ended(&self, session: &str) -> bool {
         valid_name(session)
-            && fs::read(self.directory.join("sessions").join(format!("{session}.json")))
-                .ok()
-                .and_then(|data| serde_json::from_slice::<Value>(&data).ok())
-                .is_some_and(|value| value.get("ended").is_some())
+            && fs::read(
+                self.directory
+                    .join("sessions")
+                    .join(format!("{session}.json")),
+            )
+            .ok()
+            .and_then(|data| serde_json::from_slice::<Value>(&data).ok())
+            .is_some_and(|value| value.get("ended").is_some())
     }
 
     /// Writes the plugin's files into `folder` (an absolute path), pointing
@@ -323,10 +327,16 @@ impl ClaudeChannel {
     /// Local build: leaves words another agent sent (relayed by Agent HUD) for
     /// `session`, marked `kind: "message"` so a plugin never takes them as the
     /// answer to a question it holds. Checked as `hand` checks an answer.
-    pub fn hand_message(&self, session: &str, text: &str, now: SystemTime) -> Result<String, Refusal> {
+    pub fn hand_message(
+        &self,
+        session: &str,
+        text: &str,
+        now: SystemTime,
+    ) -> Result<String, Refusal> {
         let id = self.hand(session, text, now)?;
         let file = self.prompt(session, &id)?;
-        let mut value: Value = serde_json::from_slice(&fs::read(&file)?).map_err(|_| Refusal::IdentityConflict)?;
+        let mut value: Value =
+            serde_json::from_slice(&fs::read(&file)?).map_err(|_| Refusal::IdentityConflict)?;
         value["kind"] = json!("message");
         write_json(&file, &value)?;
         Ok(id)

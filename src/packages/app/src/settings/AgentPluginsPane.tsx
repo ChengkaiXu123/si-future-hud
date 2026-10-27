@@ -611,7 +611,8 @@ interface ChengxiaobangStatus {
 const nativeChengxiaobang = async (
   action: "status" | "install",
 ): Promise<ChengxiaobangStatus> => {
-  if (!isTauri()) return { found: false, installed: false, sessions: 0, mcp: false };
+  if (!isTauri())
+    return { found: false, installed: false, sessions: 0, mcp: false };
   return invoke<ChengxiaobangStatus>("native_chengxiaobang_plugin", { action });
 };
 let cachedChengxiaobang: ChengxiaobangStatus | null = null;
@@ -634,7 +635,9 @@ function ChengxiaobangCard({
 }) {
   const zh = snapshotLanguage(snapshot) === "zh";
   const t = (words: Words) => say(zh, words);
-  const [status, setStatus] = useState<ChengxiaobangStatus | null>(cachedChengxiaobang);
+  const [status, setStatus] = useState<ChengxiaobangStatus | null>(
+    cachedChengxiaobang,
+  );
   const [running, setRunning] = useState<"plugin" | "mcp" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [answering, setAnswering] = useState(false);
@@ -669,7 +672,9 @@ function ChengxiaobangCard({
     try {
       apply(await nativeChengxiaobang("install"));
     } catch (failed) {
-      setError(t(failure(kind === "plugin" ? "install" : "add", String(failed))));
+      setError(
+        t(failure(kind === "plugin" ? "install" : "add", String(failed))),
+      );
     } finally {
       setRunning(null);
     }

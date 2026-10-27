@@ -333,12 +333,12 @@ impl Service {
             if let Some(claude) = replies {
                 carriers.push(("claude", claude));
             }
-            #[cfg(unix)]
-            if let Ok(home) = agent_hud_runtime::codex_client::data_directory() {
-                carriers.push((
-                    "codex",
-                    Arc::new(agent_hud_runtime::codex_client::message::CodexReplies::new(home)),
-                ));
+            // Codex Desktop threads, where the host has a carrier for them.
+            if let Some(codex) = agent_hud_runtime::codex_client::data_directory()
+                .ok()
+                .and_then(agent_hud_runtime::codex_client::message::carrier)
+            {
+                carriers.push(("codex", codex));
             }
             (!carriers.is_empty()).then(|| Arc::new(RepliesBySource(carriers)) as Carrier)
         };
@@ -550,8 +550,12 @@ fn set_client_hooks(
     backend: &Arc<Mutex<Backend>>,
     params: Value,
 ) -> Result<Value, String> {
-    let enabled = params["value"].as_bool().ok_or("clientHooks must be a boolean")?;
-    let _action = hook_actions.lock().map_err(|_| "Hook action owner unavailable")?;
+    let enabled = params["value"]
+        .as_bool()
+        .ok_or("clientHooks must be a boolean")?;
+    let _action = hook_actions
+        .lock()
+        .map_err(|_| "Hook action owner unavailable")?;
     if stopped.load(Ordering::Acquire) {
         return Err("The application is stopping".into());
     }
@@ -568,7 +572,10 @@ fn set_client_hooks(
     if result.is_err() {
         if let Ok(mut hooks) = hooks.lock() {
             if hooks.set_enabled(previous).is_err() {
-                return Err("The hook setting failed and its previous listener state could not be restored".into());
+                return Err(
+                    "The hook setting failed and its previous listener state could not be restored"
+                        .into(),
+                );
             }
         }
     }
@@ -593,7 +600,9 @@ async fn native_request(
         if method == "extension" {
             return tools::extension_request(
                 extension.as_deref(),
-                params["method"].as_str().ok_or("Extension method is required")?,
+                params["method"]
+                    .as_str()
+                    .ok_or("Extension method is required")?,
                 params.get("params").cloned().unwrap_or(Value::Null),
                 || {
                     if let Ok(mut backend) = backend.lock() {
@@ -602,30 +611,71 @@ async fn native_request(
                 },
             );
         }
-        let mut params=params;
+        let mut params = params;
         // The demo never reaches outside its own folder: no login item, no
         // client's hooks.
-        if method=="set_setting" && app.state::<AppState>().demo && matches!(params["key"].as_str(),Some("launchAtLogin"|"clientHooks")) {
-            return Err(agent_hud_runtime::l10n::text("演示模式不会更改这项设置。","The demo leaves this setting alone."));
+        if method == "set_setting"
+            && app.state::<AppState>().demo
+            && matches!(
+                params["key"].as_str(),
+                Some("launchAtLogin" | "clientHooks")
+            )
+        {
+            return Err(agent_hud_runtime::l10n::text(
+                "演示模式不会更改这项设置。",
+                "The demo leaves this setting alone.",
+            ));
         }
-        if method=="set_setting" {if let Some(value)=app.state::<system::System>().set_setting(params["key"].as_str().ok_or("Setting key is required")?,&params["value"])? {params["value"]=value;}}
-        if method=="set_setting" && params["key"]=="clientHooks" {
-            return set_client_hooks(&app,&hooks,&hook_actions,&stopped,&backend,params);
+        if method == "set_setting" {
+            if let Some(value) = app.state::<system::System>().set_setting(
+                params["key"].as_str().ok_or("Setting key is required")?,
+                &params["value"],
+            )? {
+                params["value"] = value;
+            }
         }
-        let _turn = matches!(method.as_str(), "snapshot" | "refresh" | "request_snapshot")
-            .then(|| collection.lock().unwrap_or_else(|poisoned| poisoned.into_inner()));
+        if method == "set_setting" && params["key"] == "clientHooks" {
+            return set_client_hooks(&app, &hooks, &hook_actions, &stopped, &backend, params);
+        }
+        let _turn =
+            matches!(method.as_str(), "snapshot" | "refresh" | "request_snapshot").then(|| {
+                collection
+                    .lock()
+                    .unwrap_or_else(|poisoned| poisoned.into_inner())
+            });
         let mut backend = backend
             .lock()
             .map_err(|_| "Runtime lock is unavailable".to_owned())?;
         // Success and failure notifications share this serial application owner.
-        let edited=if method=="set_setting"{params["key"].as_str().map(str::to_owned)}else{None};
-        let result=backend.request(&app,&method,params);
+        let edited = if method == "set_setting" {
+            params["key"].as_str().map(str::to_owned)
+        } else {
+            None
+        };
+        let result = backend.request(&app, &method, params);
         // Local build: a message card's answer flies its paper plane, at once
         // (a HUD drops a flight it first sees more than 2 s late).
-        if method=="answer_request" {if let Ok(value)=&result {if value["flight"].is_object() {activity::publish(&app,"hud:flight",&value["flight"]);}}}
+        if method == "answer_request" {
+            if let Ok(value) = &result {
+                if value["flight"].is_object() {
+                    activity::publish(&app, "hud:flight", &value["flight"]);
+                }
+            }
+        }
         // A newly enabled client's logs are read by the next collection pass.
-        if result.is_ok() && method=="set_provider" {wake_collector(&wake, DATA);}
-        if result.is_ok(){if let Some(key)=edited{if let Some(view)=app.state::<presentation::Presentation>().manual_app_edit(&key){coordinator::presentation_changed(&app,&view);}}}
+        if result.is_ok() && method == "set_provider" {
+            wake_collector(&wake, DATA);
+        }
+        if result.is_ok() {
+            if let Some(key) = edited {
+                if let Some(view) = app
+                    .state::<presentation::Presentation>()
+                    .manual_app_edit(&key)
+                {
+                    coordinator::presentation_changed(&app, &view);
+                }
+            }
+        }
         result
     })
     .await

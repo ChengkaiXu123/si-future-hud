@@ -380,10 +380,8 @@ pub(super) fn accepts_source(path: &Path, source: &str) -> bool {
                         && !name.ends_with(".zst")
                         && !name.ends_with(".tmp")))
         }
-        "hermes" | "zcode" | "devin" | "opencode" | "antigravity" | "grok-bot" | "chengxiaobang"
-        | "cursor" => {
-            false
-        }
+        "hermes" | "zcode" | "devin" | "opencode" | "antigravity" | "grok-bot"
+        | "chengxiaobang" | "cursor" => false,
         "grok-cli" => name == "updates.jsonl" || name == "unified.jsonl",
         "copilot" => name == "events.jsonl",
         _ => name.ends_with(".jsonl"),

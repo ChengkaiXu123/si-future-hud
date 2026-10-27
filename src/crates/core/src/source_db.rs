@@ -225,7 +225,9 @@ impl AgentHudCore {
         } else if is_cursor {
             Ok(agent_hud_agents::cursor::live::read(
                 path,
-                &std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default(),
+                &std::env::var_os("HOME")
+                    .map(PathBuf::from)
+                    .unwrap_or_default(),
                 chrono::Utc::now().timestamp_millis(),
             ))
         } else if is_batch {
@@ -377,7 +379,9 @@ impl AgentHudCore {
                 &reader.as_ref().unwrap().connection,
                 chrono::Utc::now().timestamp_millis(),
             )
-            .map_err(|_| "chengxiaobang session source has an unsupported or inconsistent schema")?;
+            .map_err(|_| {
+                "chengxiaobang session source has an unsupported or inconsistent schema"
+            })?;
             for run in &runs {
                 let Some(key) =
                     self.resolve_session_path(stamp.source, &run.session, path, &mut superseded)
@@ -401,7 +405,9 @@ impl AgentHudCore {
             // Local build: the conversation's standing, from its transcript.
             let now = chrono::Utc::now().timestamp_millis();
             if let Some(run) = agent_hud_agents::cursor::live::stand(path, now) {
-                let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
+                let home = std::env::var_os("HOME")
+                    .map(PathBuf::from)
+                    .unwrap_or_default();
                 let session = agent_hud_agents::cursor::live::session_id(
                     agent_hud_agents::cursor::live::account(&home).as_deref(),
                     &run.id,
@@ -432,7 +438,9 @@ impl AgentHudCore {
                     agent_hud_agents::grok::live::command_in_flight(Path::new(&home), now)
                 });
                 let agents = agent_hud_agents::grok::live::listed(directory, &account);
-                for run in agent_hud_agents::grok::live::runs(directory, &account, &agents, now, command) {
+                for run in
+                    agent_hud_agents::grok::live::runs(directory, &account, &agents, now, command)
+                {
                     let session = agent_hud_agents::grok::cache::session_id(&account, &run.agent);
                     let Some(key) =
                         self.resolve_session_path(stamp.source, &session, path, &mut superseded)

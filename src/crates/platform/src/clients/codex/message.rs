@@ -115,8 +115,20 @@ impl CodexReplies {
     }
 }
 
+/// The carrier for Codex Desktop threads, for the host's replies by source.
+/// Every host file offers it; this one has one.
+pub fn carrier(
+    home: std::path::PathBuf,
+) -> Option<std::sync::Arc<dyn agent_hud_core::replies::SessionReplies>> {
+    Some(std::sync::Arc::new(CodexReplies::new(home)))
+}
+
 impl agent_hud_core::replies::SessionReplies for CodexReplies {
-    fn reaches(&self, _source: &str, _session: &str) -> Result<(), agent_hud_core::replies::Unreachable> {
+    fn reaches(
+        &self,
+        _source: &str,
+        _session: &str,
+    ) -> Result<(), agent_hud_core::replies::Unreachable> {
         if self.home.join("ipc/ipc.sock").exists() {
             Ok(())
         } else {
@@ -166,14 +178,29 @@ mod tests {
         use std::io::Write;
         use std::time::{Duration, Instant};
         let thread = std::env::var("CODEX_TEST_THREAD").expect("CODEX_TEST_THREAD");
-        let seconds: u64 = std::env::var("WATCH_SECS").ok().and_then(|s| s.parse().ok()).unwrap_or(300);
-        let mut out = std::fs::File::create(std::env::var("WATCH_OUT").expect("WATCH_OUT")).unwrap();
+        let seconds: u64 = std::env::var("WATCH_SECS")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(300);
+        let mut out =
+            std::fs::File::create(std::env::var("WATCH_OUT").expect("WATCH_OUT")).unwrap();
         let home = super::super::data_directory().unwrap();
-        let mut connection = DesktopIpc::connect(&home.join("ipc/ipc.sock"), Duration::from_secs(5)).unwrap();
+        let mut connection =
+            DesktopIpc::connect(&home.join("ipc/ipc.sock"), Duration::from_secs(5)).unwrap();
         let initialized = connection
-            .request("initialize", 0, "initializing-client", None, json!({"clientType":"agent-hud-probe"}), None)
+            .request(
+                "initialize",
+                0,
+                "initializing-client",
+                None,
+                json!({"clientType":"agent-hud-probe"}),
+                None,
+            )
             .unwrap();
-        let client = initialized["result"]["clientId"].as_str().unwrap().to_owned();
+        let client = initialized["result"]["clientId"]
+            .as_str()
+            .unwrap()
+            .to_owned();
         let owner = super::owner(&mut connection, &client, &thread).unwrap();
         let follow = |connection: &mut DesktopIpc, following: bool| {
             connection.renew(Duration::from_secs(5));
@@ -183,7 +210,10 @@ mod tests {
         println!("following {thread} via {owner} for {seconds}s");
         let end = Instant::now() + Duration::from_secs(seconds);
         while Instant::now() < end {
-            if !connection.wait_for_message(Duration::from_millis(500)).unwrap_or(false) {
+            if !connection
+                .wait_for_message(Duration::from_millis(500))
+                .unwrap_or(false)
+            {
                 continue;
             }
             connection.renew(Duration::from_secs(120));

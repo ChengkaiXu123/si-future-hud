@@ -338,8 +338,15 @@ fn a_thread_compacting_its_context_is_seen_until_it_completes() {
             }}}
         })
     };
-    assert_eq!(compacting_since(&state("active", "inProgress", false)), Some(1_793_012_823_248));
+    assert_eq!(
+        compacting_since(&state("active", "inProgress", false)),
+        Some(1_793_012_823_248)
+    );
     assert_eq!(compacting_since(&state("active", "inProgress", true)), None);
     assert_eq!(compacting_since(&state("idle", "completed", true)), None);
-    assert_eq!(compacting_since(&state("idle", "inProgress", false)), None, "an idle thread compacts nothing");
+    assert_eq!(
+        compacting_since(&state("idle", "inProgress", false)),
+        None,
+        "an idle thread compacts nothing"
+    );
 }

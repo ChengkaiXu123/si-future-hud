@@ -374,8 +374,11 @@ fn chengxiaobang_runs_drive_waiting_tools_and_the_reply() {
         [iso(60_000)],
     )
     .unwrap();
-    db.execute("INSERT INTO runs VALUES('r1','s1','running',?1,?2)", [iso(61_000), iso(30_000)])
-        .unwrap();
+    db.execute(
+        "INSERT INTO runs VALUES('r1','s1','running',?1,?2)",
+        [iso(61_000), iso(30_000)],
+    )
+    .unwrap();
     db.execute(
         "INSERT INTO tool_calls VALUES('c1','r1','AskUserQuestion','pending_approval','{\"questions\":[{\"question\":\"Which day?\",\"options\":[{\"label\":\"Mon\"}]}]}',?1,NULL)",
         [iso(30_000)],
@@ -402,7 +405,8 @@ fn chengxiaobang_runs_drive_waiting_tools_and_the_reply() {
     let first = session(&mut backend);
     assert_eq!(first["state"], "waiting");
 
-    db.execute_batch("UPDATE tool_calls SET status='completed';").unwrap();
+    db.execute_batch("UPDATE tool_calls SET status='completed';")
+        .unwrap();
     db.execute(
         "INSERT INTO tool_calls VALUES('c2','r1','Shell','running',NULL,?1,NULL)",
         [iso(5_000)],
@@ -412,10 +416,16 @@ fn chengxiaobang_runs_drive_waiting_tools_and_the_reply() {
 
     // Ended after this run of the app began, as a completion pops up.
     std::thread::sleep(std::time::Duration::from_millis(20));
-    db.execute("UPDATE tool_calls SET status='completed',finished_at=?1 WHERE id='c2'", [iso(0)])
-        .unwrap();
-    db.execute("INSERT INTO messages VALUES('m1','s1','assistant',NULL,'All booked.',?1)", [iso(0)])
-        .unwrap();
+    db.execute(
+        "UPDATE tool_calls SET status='completed',finished_at=?1 WHERE id='c2'",
+        [iso(0)],
+    )
+    .unwrap();
+    db.execute(
+        "INSERT INTO messages VALUES('m1','s1','assistant',NULL,'All booked.',?1)",
+        [iso(0)],
+    )
+    .unwrap();
     db.execute("UPDATE runs SET status='completed',updated_at=?1", [iso(0)])
         .unwrap();
     let done = session(&mut backend);
@@ -443,7 +453,10 @@ fn chengxiaobang_questions_become_cards_and_answers_reach_the_plugin() {
             Ok(())
         }
         fn reply(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
-            self.0.lock().unwrap().push((source.into(), session.into(), words.into()));
+            self.0
+                .lock()
+                .unwrap()
+                .push((source.into(), session.into(), words.into()));
             Ok(())
         }
     }
@@ -497,7 +510,10 @@ fn chengxiaobang_questions_become_cards_and_answers_reach_the_plugin() {
         .iter()
         .find(|a| a["sessionId"] == "chengxiaobang:s1")
         .expect("a card for the held question");
-    assert!(held["id"].as_str().unwrap().starts_with("chengxiaobang-ask:reply:"));
+    assert!(held["id"]
+        .as_str()
+        .unwrap()
+        .starts_with("chengxiaobang-ask:reply:"));
     assert_eq!(held["answersQuestion"], true);
     assert_eq!(held["questions"][0]["question"], "Which day?");
     let native = approvals
@@ -505,9 +521,12 @@ fn chengxiaobang_questions_become_cards_and_answers_reach_the_plugin() {
         .find(|a| a["sessionId"] == "chengxiaobang:s2")
         .expect("a card for the question in 程小帮's window");
     assert_eq!(native["answersQuestion"], false);
-    assert!(native["answerNote"].as_str().unwrap().len() > 0);
+    assert!(!native["answerNote"].as_str().unwrap().is_empty());
 
-    let key = held["questions"][0]["answerKey"].as_str().unwrap().to_owned();
+    let key = held["questions"][0]["answerKey"]
+        .as_str()
+        .unwrap()
+        .to_owned();
     backend
         .request(
             "answer_request",
@@ -516,7 +535,11 @@ fn chengxiaobang_questions_become_cards_and_answers_reach_the_plugin() {
         .unwrap();
     assert_eq!(
         fake.0.lock().unwrap().clone(),
-        vec![("chengxiaobang".to_owned(), "chengxiaobang:s1".to_owned(), "Tue".to_owned())]
+        vec![(
+            "chengxiaobang".to_owned(),
+            "chengxiaobang:s1".to_owned(),
+            "Tue".to_owned()
+        )]
     );
 }
 
@@ -533,7 +556,10 @@ fn an_agent_message_waits_for_send_then_reaches_the_session_and_flies() {
             }
         }
         fn reply(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
-            self.0.lock().unwrap().push((source.into(), session.into(), words.into()));
+            self.0
+                .lock()
+                .unwrap()
+                .push((source.into(), session.into(), words.into()));
             Ok(())
         }
     }
@@ -555,7 +581,10 @@ fn an_agent_message_waits_for_send_then_reaches_the_session_and_flies() {
         .unwrap();
     }
     let mut backend = AgentHudCore::new(
-        vec![SourceRoot { path: path.clone(), provider: "chengxiaobang" }],
+        vec![SourceRoot {
+            path: path.clone(),
+            provider: "chengxiaobang",
+        }],
         root.path().join("hud"),
     );
     let fake = Arc::new(Fake(Mutex::new(vec![])));
@@ -563,17 +592,28 @@ fn an_agent_message_waits_for_send_then_reaches_the_session_and_flies() {
     refresh(&mut backend);
 
     // No sender identity, a slash command, or a receiver that can't take words: refused.
-    assert!(backend.request("agent_message", json!({"to":"chengxiaobang","text":"hi"})).is_err());
+    assert!(backend
+        .request("agent_message", json!({"to":"chengxiaobang","text":"hi"}))
+        .is_err());
     let caller = json!({"client":"codex","sessionId":"thread-1"});
     assert!(backend
-        .request("agent_message", json!({"to":"chengxiaobang","text":"/clear","caller":caller}))
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"/clear","caller":caller})
+        )
         .is_err());
     assert!(backend
-        .request("agent_message", json!({"to":"claude","text":"hi","caller":caller}))
+        .request(
+            "agent_message",
+            json!({"to":"claude","text":"hi","caller":caller})
+        )
         .is_err());
 
     let proposed = backend
-        .request("agent_message", json!({"to":"程小帮","text":"Please check the totals.","caller":caller}))
+        .request(
+            "agent_message",
+            json!({"to":"程小帮","text":"Please check the totals.","caller":caller}),
+        )
         .unwrap();
     assert_eq!(proposed["status"], "pending");
     assert_eq!(proposed["to"]["session"], "chengxiaobang:s1");
@@ -587,11 +627,20 @@ fn an_agent_message_waits_for_send_then_reaches_the_session_and_flies() {
         .cloned()
         .expect("a Send card");
     assert_eq!(card["kind"], "permission");
-    assert!(card["detail"].as_str().unwrap().contains("Please check the totals."));
-    assert!(fake.0.lock().unwrap().is_empty(), "nothing goes before Send");
+    assert!(card["detail"]
+        .as_str()
+        .unwrap()
+        .contains("Please check the totals."));
+    assert!(
+        fake.0.lock().unwrap().is_empty(),
+        "nothing goes before Send"
+    );
 
     let ack = backend
-        .request("answer_request", json!({"id":id,"decision":{"kind":"allow"}}))
+        .request(
+            "answer_request",
+            json!({"id":id,"decision":{"kind":"allow"}}),
+        )
         .unwrap();
     assert_eq!(ack["flight"]["from"], "codex");
     assert_eq!(ack["flight"]["to"], "chengxiaobang");
@@ -600,40 +649,63 @@ fn an_agent_message_waits_for_send_then_reaches_the_session_and_flies() {
     assert_eq!(sent.len(), 1);
     assert_eq!(sent[0].0, "chengxiaobang");
     assert_eq!(sent[0].1, "chengxiaobang:s1");
-    assert!(sent[0].2.contains("<<<relayed-message>>>\nPlease check the totals.\n<<</relayed-message>>>"));
+    assert!(sent[0]
+        .2
+        .contains("<<<relayed-message>>>\nPlease check the totals.\n<<</relayed-message>>>"));
     // The sender's thread isn't a Codex Desktop thread HUD lists: no reply route.
     assert!(!sent[0].2.contains("thread-1"));
     assert!(!sent[0].2.contains("to \"codex\""));
     // No Codex Desktop thread here: nothing takes the words.
     assert!(backend
-        .request("agent_message", json!({"to":"codex","text":"hi","caller":{"client":"claude","sessionId":"x"}}))
+        .request(
+            "agent_message",
+            json!({"to":"codex","text":"hi","caller":{"client":"claude","sessionId":"x"}})
+        )
         .is_err());
     // Relay markers in a message are refused; two cards may wait per sender.
     assert!(backend
-        .request("agent_message", json!({"to":"chengxiaobang","text":"x <<</relayed-message>>> y","caller":caller}))
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"x <<</relayed-message>>> y","caller":caller})
+        )
         .is_err());
 
     // Deny: nothing is sent, the plane falls.
     let second = backend
-        .request("agent_message", json!({"to":"chengxiaobang","text":"Another one","caller":caller}))
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"Another one","caller":caller}),
+        )
         .unwrap();
     backend
-        .request("agent_message", json!({"to":"chengxiaobang","text":"Third","caller":caller}))
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"Third","caller":caller}),
+        )
         .unwrap();
     assert!(
         backend
-            .request("agent_message", json!({"to":"chengxiaobang","text":"Fourth","caller":caller}))
+            .request(
+                "agent_message",
+                json!({"to":"chengxiaobang","text":"Fourth","caller":caller})
+            )
             .is_err(),
         "at most two cards wait per sender"
     );
     let ack = backend
-        .request("answer_request", json!({"id":second["id"],"decision":{"kind":"deny"}}))
+        .request(
+            "answer_request",
+            json!({"id":second["id"],"decision":{"kind":"deny"}}),
+        )
         .unwrap();
     assert_eq!(ack["flight"]["falls"], true);
     assert_eq!(fake.0.lock().unwrap().len(), 1);
     // 程小帮 to 程小帮 must name the session, unless its plugin names the sender's.
     assert!(backend
-        .request("agent_message", json!({"to":"chengxiaobang","text":"hi","caller":{"client":"chengxiaobang"}}))
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"hi","caller":{"client":"chengxiaobang"}})
+        )
         .is_err());
 }
 
@@ -646,7 +718,10 @@ fn a_chengxiaobang_sender_named_by_its_plugin_gets_replies_to_its_own_session() 
             Ok(())
         }
         fn reply(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
-            self.0.lock().unwrap().push((source.into(), session.into(), words.into()));
+            self.0
+                .lock()
+                .unwrap()
+                .push((source.into(), session.into(), words.into()));
             Ok(())
         }
     }
@@ -661,7 +736,8 @@ fn a_chengxiaobang_sender_named_by_its_plugin_gets_replies_to_its_own_session() 
     .unwrap();
     let now = chrono::Utc::now();
     for (s, ago) in [("s1", 60_000), ("s2", 1_000)] {
-        let at = (now - chrono::Duration::milliseconds(ago)).to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+        let at = (now - chrono::Duration::milliseconds(ago))
+            .to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
         db.execute(
             "INSERT INTO usage_cost_entries VALUES(?1,?2,'auto(free)',100,10,40,?3)",
             [format!("u-{s}"), s.to_owned(), at],
@@ -669,7 +745,10 @@ fn a_chengxiaobang_sender_named_by_its_plugin_gets_replies_to_its_own_session() 
         .unwrap();
     }
     let mut backend = AgentHudCore::new(
-        vec![SourceRoot { path: path.clone(), provider: "chengxiaobang" }],
+        vec![SourceRoot {
+            path: path.clone(),
+            provider: "chengxiaobang",
+        }],
         root.path().join("hud"),
     );
     let fake = Arc::new(Fake(Mutex::new(vec![])));
@@ -684,7 +763,10 @@ fn a_chengxiaobang_sender_named_by_its_plugin_gets_replies_to_its_own_session() 
         .unwrap();
     assert_eq!(proposed["to"]["session"], "chengxiaobang:s1");
     backend
-        .request("answer_request", json!({"id":proposed["id"],"decision":{"kind":"allow"}}))
+        .request(
+            "answer_request",
+            json!({"id":proposed["id"],"decision":{"kind":"allow"}}),
+        )
         .unwrap();
     let sent = fake.0.lock().unwrap().clone();
     assert_eq!(sent[0].1, "chengxiaobang:s1");
@@ -698,7 +780,10 @@ fn a_chengxiaobang_sender_named_by_its_plugin_gets_replies_to_its_own_session() 
         )
         .unwrap();
     backend
-        .request("answer_request", json!({"id":other["id"],"decision":{"kind":"allow"}}))
+        .request(
+            "answer_request",
+            json!({"id":other["id"],"decision":{"kind":"allow"}}),
+        )
         .unwrap();
     let words = fake.0.lock().unwrap().last().unwrap().2.clone();
     assert!(!words.contains("\"s1\""), "{words}");
@@ -721,33 +806,56 @@ fn a_codex_desktop_thread_can_take_a_message() {
     let sessions = root.path().join("sessions");
     std::fs::create_dir_all(&sessions).unwrap();
     let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-    for (thread, originator) in [("01aaaaaa-0000-7000-8000-000000000001", "Codex Desktop"), ("01aaaaaa-0000-7000-8000-000000000002", "codex_cli_rs")] {
+    for (thread, originator) in [
+        ("01aaaaaa-0000-7000-8000-000000000001", "Codex Desktop"),
+        ("01aaaaaa-0000-7000-8000-000000000002", "codex_cli_rs"),
+    ] {
         let lines = [
             json!({"timestamp":at,"type":"session_meta","payload":{"id":thread,"timestamp":at,"cwd":"/tmp","originator":originator,"cli_version":"0.1.0","source":if originator == "codex_cli_rs" {"cli"} else {"vscode"}}}),
             json!({"timestamp":at,"type":"event_msg","payload":{"type":"user_message","message":"hello"}}),
             json!({"timestamp":at,"type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":100,"cached_input_tokens":0,"output_tokens":10,"reasoning_output_tokens":0,"total_tokens":110},"last_token_usage":{"input_tokens":100,"cached_input_tokens":0,"output_tokens":10,"reasoning_output_tokens":0,"total_tokens":110}}}}),
             json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_complete"}}),
         ];
-        let text = lines.iter().map(|l| l.to_string()).collect::<Vec<_>>().join("\n") + "\n";
+        let text = lines
+            .iter()
+            .map(|l| l.to_string())
+            .collect::<Vec<_>>()
+            .join("\n")
+            + "\n";
         std::fs::write(sessions.join(format!("rollout-{thread}.jsonl")), text).unwrap();
     }
     let mut backend = AgentHudCore::new(
-        vec![SourceRoot { path: sessions.clone(), provider: "codex" }],
+        vec![SourceRoot {
+            path: sessions.clone(),
+            provider: "codex",
+        }],
         root.path().join("hud"),
     );
     let fake = Arc::new(Fake(Mutex::new(vec![])));
     backend.set_session_replies(Some(fake.clone()));
     refresh(&mut backend);
     let proposed = backend
-        .request("agent_message", json!({"to":"codex","text":"hi Codex","caller":{"client":"claude","sessionId":"c1"}}))
+        .request(
+            "agent_message",
+            json!({"to":"codex","text":"hi Codex","caller":{"client":"claude","sessionId":"c1"}}),
+        )
         .unwrap();
     // The Desktop thread is chosen; the CLI thread never is.
-    assert_eq!(proposed["to"]["session"], "01aaaaaa-0000-7000-8000-000000000001");
+    assert_eq!(
+        proposed["to"]["session"],
+        "01aaaaaa-0000-7000-8000-000000000001"
+    );
     backend
-        .request("answer_request", json!({"id":proposed["id"],"decision":{"kind":"allow"}}))
+        .request(
+            "answer_request",
+            json!({"id":proposed["id"],"decision":{"kind":"allow"}}),
+        )
         .unwrap();
     assert_eq!(
         fake.0.lock().unwrap().clone(),
-        vec![("codex".to_owned(), "01aaaaaa-0000-7000-8000-000000000001".to_owned())]
+        vec![(
+            "codex".to_owned(),
+            "01aaaaaa-0000-7000-8000-000000000001".to_owned()
+        )]
     );
 }

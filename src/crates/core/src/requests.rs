@@ -419,7 +419,10 @@ impl Requests {
                 .filter(|(id, _)| !id.is_empty())
                 .map(|(id, at)| (id.clone(), *at))
                 .collect();
-            if state.native_compacting.get(source).is_none_or(|old| *old != next)
+            if state
+                .native_compacting
+                .get(source)
+                .is_none_or(|old| *old != next)
                 && (!next.is_empty() || state.native_compacting.contains_key(source))
             {
                 if next.is_empty() {

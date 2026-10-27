@@ -15,6 +15,7 @@ The first commit of this repository imports Agent HUD exactly as it was at `428d
 | **Codex desktop.** An IPC observer that runs without client hooks, and message delivery into desktop threads. | **Codex 桌面版**：不依赖客户端回调的 IPC 监听，以及往桌面版对话投递消息。 |
 | **Grok Bot & Cursor.** Live states from their transcripts, reply popups, display‑only question cards, and Grok Bot team‑seat quotas. | **Grok Bot 和 Cursor**：从会话记录读取实时状态、回复提醒、只读的提问卡片，以及 Grok Bot 团队席位的额度。 |
 | **Distribution.** Renamed SI Future HUD. No hard‑coded paths (the installed location is found at run time), first‑launch set‑up, MCP entries and the login item re‑pointed when the app moves, and a release build that teammates can open (`scripts/build-release.sh`). | **分发**：改名 SI Future HUD；不写死任何路径（运行时识别安装位置）；首次启动自动配置；App 挪位置后自动改指 MCP 条目和开机自启；打出来的安装包组员能直接打开（`scripts/build-release.sh`）。 |
+| **Upstream checks pass.** Formatting (rustfmt, Prettier), the platform boundary (OS‑specific code only in per‑host files, with stubs where a host has no adapter), clippy with `-D warnings` and the tests. CI checks macOS and Ubuntu; the Windows job and workflow are removed because SI Future HUD ships for macOS only. | **通过上游的检查**：格式化（rustfmt、Prettier）、平台边界（按系统区分的代码只放在各系统自己的文件里，没实现的系统给空实现）、开启 `-D warnings` 的 clippy 和测试。CI 只检查 macOS 和 Ubuntu；SI Future HUD 只发 macOS 版，所以去掉了 Windows 的检查和工作流。 |
 | **Small fixes.** Compacting look, peek height, 24‑hour usage in peeks, the navigation target for Chengxiaobang, and artwork aliases for non‑ASCII agent names. | **小修复**：压缩上下文的动画、悬浮预览的高度、预览里的 24 小时用量、程小帮的跳转目标、非英文名助手的图标别名。 |
 
 ## Files / 文件
@@ -74,6 +75,7 @@ The first commit of this repository imports Agent HUD exactly as it was at `428d
 - `src/crates/platform/src/clients/codex/desktop/tests.rs`
 - `src/crates/platform/src/clients/codex/desktop_io.rs`
 - `src/crates/platform/src/clients/codex/message.rs` — **new**
+- `src/crates/platform/src/clients/codex/message_windows.rs` — **new** (stub)
 - `src/crates/platform/src/clients/codex/mod.rs`
 - `src/crates/platform/src/hooks/mod.rs`
 - `src/crates/platform/src/hooks/statusline_install.rs`
@@ -128,6 +130,9 @@ The first commit of this repository imports Agent HUD exactly as it was at `428d
 - `src/apps/desktop/index.html`
 - `src/apps/desktop/package.json`
 - `src/apps/desktop/src-tauri/src/main.rs`
+- `src/apps/desktop/src-tauri/src/installed/macos.rs` — **new**
+- `src/apps/desktop/src-tauri/src/installed/linux.rs` — **new** (stub)
+- `src/apps/desktop/src-tauri/src/installed/windows.rs` — **new** (stub)
 - `src/apps/desktop/src-tauri/tauri.conf.json`
 - `src/apps/desktop/src-tauri/tauri.macos.conf.json`
 
@@ -164,6 +169,11 @@ The first commit of this repository imports Agent HUD exactly as it was at `428d
 - `Cargo.lock`
 - `Cargo.toml`
 - `package.json`
+### CI / 持续集成
+
+- `.github/workflows/ci.yml`: Rust checks on macOS and Ubuntu only / Rust 检查只跑 macOS 和 Ubuntu
+- `.github/workflows/windows.yml`: removed, no Windows build / 已删除，不出 Windows 版
+
 ## Added in this repository / 本仓库新增
 
 - `README.md`, `README.zh-CN.md`: the SI Future HUD product page / 产品页

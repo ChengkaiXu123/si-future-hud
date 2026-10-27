@@ -165,14 +165,17 @@ pub(crate) fn compacting_since(state: &Value) -> Option<i64> {
             )
         })
         .flat_map(|turn| {
-            turn["items"].as_array().into_iter().flatten().filter_map(move |item| {
-                (item["type"] == "contextCompaction" && item["completed"] != true).then(|| {
+            turn["items"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter(|item| item["type"] == "contextCompaction" && item["completed"] != true)
+                .map(move |item| {
                     item["startedAtMs"]
                         .as_i64()
                         .or_else(|| turn["turnStartedAtMs"].as_i64())
                         .unwrap_or_else(crate::hooks::now_ms)
                 })
-            })
         })
         .max()
 }
@@ -255,7 +258,9 @@ impl Shared {
             state
                 .known
                 .iter()
-                .filter_map(|(thread, known)| Some((thread.clone(), compacting_since(&known.state)?)))
+                .filter_map(|(thread, known)| {
+                    Some((thread.clone(), compacting_since(&known.state)?))
+                })
                 .collect::<HashMap<_, _>>()
         } else {
             HashMap::new()

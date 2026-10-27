@@ -39,7 +39,9 @@ pub fn conversation(path: &Path) -> Option<&str> {
         && folder.file_name()?.to_str()? == id
         && folder.parent()?.file_name()? == "agent-transcripts"
         && !id.is_empty()
-        && id.bytes().all(|byte| byte.is_ascii_alphanumeric() || byte == b'-'))
+        && id
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || byte == b'-'))
     .then_some(id)
 }
 
@@ -107,7 +109,12 @@ fn composer(connection: &rusqlite::Connection, id: &str) -> (Option<String>, Opt
                     json_extract(value, '$.workspaceIdentifier.uri.fsPath') \
              FROM cursorDiskKV WHERE key = ?1",
             [format!("composerData:{id}")],
-            |row| Ok((row.get::<_, Option<String>>(0)?, row.get::<_, Option<String>>(1)?)),
+            |row| {
+                Ok((
+                    row.get::<_, Option<String>>(0)?,
+                    row.get::<_, Option<String>>(1)?,
+                ))
+            },
         )
         .map(|(model, folder)| {
             (
@@ -200,14 +207,21 @@ fn last_turn(path: &Path) -> Option<(Vec<Value>, Option<String>, u64)> {
         .last()
         .filter(|(_, line)| line["type"] == "turn_ended")
         .map(|(_, line)| line["status"].as_str().unwrap_or("success").to_owned());
-    let body = if ended.is_some() { &lines[..lines.len() - 1] } else { &lines[..] };
+    let body = if ended.is_some() {
+        &lines[..lines.len() - 1]
+    } else {
+        &lines[..]
+    };
     let begins = body
         .iter()
         .rposition(|(_, line)| line["type"] == "turn_ended")
         .map_or(0, |index| index + 1);
     let turn_at = body.get(begins).map_or(start, |(at, _)| *at);
     Some((
-        body[begins..].iter().map(|(_, line)| line.clone()).collect(),
+        body[begins..]
+            .iter()
+            .map(|(_, line)| line.clone())
+            .collect(),
         ended,
         turn_at,
     ))
@@ -228,12 +242,11 @@ pub struct CursorRun {
 fn work(name: &str) -> Option<Work> {
     match name {
         "Shell" | "AwaitShell" | "run_terminal_cmd" => Some(Work::Shell),
-        "StrReplace" | "Write" | "ApplyPatch" | "Edit" | "MultiEdit" | "Delete" | "EditNotebook"
-        | "edit_file" | "search_replace" => Some(Work::Edit),
-        "Read" | "ReadFile" | "Grep" | "Glob" | "rg" | "LS" | "SemanticSearch" | "codebase_search"
-        | "WebSearch" | "WebFetch" | "read_file" | "grep" | "list_dir" | "file_search" => {
-            Some(Work::Read)
-        }
+        "StrReplace" | "Write" | "ApplyPatch" | "Edit" | "MultiEdit" | "Delete"
+        | "EditNotebook" | "edit_file" | "search_replace" => Some(Work::Edit),
+        "Read" | "ReadFile" | "Grep" | "Glob" | "rg" | "LS" | "SemanticSearch"
+        | "codebase_search" | "WebSearch" | "WebFetch" | "read_file" | "grep" | "list_dir"
+        | "file_search" => Some(Work::Read),
         "Task" | "Subagent" => Some(Work::Agents),
         "AskQuestion" => Some(Work::Question),
         "TodoWrite" | "CreatePlan" | "GetDynamicTools" => None,
@@ -251,16 +264,18 @@ pub fn stand(path: &Path, now: i64) -> Option<CursorRun> {
         .iter()
         .filter(|line| line["role"] == "assistant")
         .flat_map(|line| line["message"]["content"].as_array().into_iter().flatten())
-        .filter(|item| item["type"] == "tool_use")
-        .last();
+        .rfind(|item| item["type"] == "tool_use");
     // A tool is in flight while it is the turn's last word.
     let last_item = lines
         .iter()
         .rev()
         .find_map(|line| line["message"]["content"].as_array()?.last().cloned());
-    let calling = running && last_item.as_ref().is_some_and(|item| item["type"] == "tool_use");
+    let calling = running
+        && last_item
+            .as_ref()
+            .is_some_and(|item| item["type"] == "tool_use");
     let ask = calling
-        .then(|| last_item.as_ref())
+        .then_some(last_item.as_ref())
         .flatten()
         .filter(|item| item["name"] == "AskQuestion")
         .and_then(|item| {
@@ -308,7 +323,11 @@ pub fn stand(path: &Path, now: i64) -> Option<CursorRun> {
         answer,
         ask,
         tool: calling
-            .then(|| last_tool.and_then(|item| item["name"].as_str()).map(str::to_owned))
+            .then(|| {
+                last_tool
+                    .and_then(|item| item["name"].as_str())
+                    .map(str::to_owned)
+            })
             .flatten(),
     })
 }
@@ -327,8 +346,12 @@ pub fn read(path: &Path, home: &Path, now: i64) -> Page {
     if now - at >= RECENT_MS {
         return empty;
     }
-    let fallback = first_question(path)
-        .or_else(|| Some(format!("Cursor · {}", id.chars().take(8).collect::<String>())));
+    let fallback = first_question(path).or_else(|| {
+        Some(format!(
+            "Cursor · {}",
+            id.chars().take(8).collect::<String>()
+        ))
+    });
     // What the completion card names: the model and the project folder.
     let (model, cwd) = conversation_facts(home, id);
     Page {
@@ -408,7 +431,14 @@ pub fn apply(live: &mut LiveLog, run: &CursorRun) {
         activity.work = work(name);
         activity.tool_at = Some(run.at);
     }
-    activity.line = Some(if activity.calls.is_empty() { "prompt" } else { "call" }.into());
+    activity.line = Some(
+        if activity.calls.is_empty() {
+            "prompt"
+        } else {
+            "call"
+        }
+        .into(),
+    );
 }
 
 /// For tests and callers that hold a time.
@@ -424,7 +454,11 @@ mod tests {
     use serde_json::json;
 
     fn transcript(lines: &[Value]) -> (PathBuf, PathBuf) {
-        let home = std::env::temp_dir().join(format!("cursor-live-{}-{}", std::process::id(), lines.len()));
+        let home = std::env::temp_dir().join(format!(
+            "cursor-live-{}-{}",
+            std::process::id(),
+            lines.len()
+        ));
         let folder = home.join(".cursor/projects/p/agent-transcripts/abc-1");
         std::fs::create_dir_all(&folder).unwrap();
         let path = folder.join("abc-1.jsonl");
@@ -461,16 +495,24 @@ mod tests {
 
     #[test]
     fn only_conversation_transcripts_are_accepted() {
-        assert!(accepts(Path::new("/h/.cursor/projects/p/agent-transcripts/abc-1/abc-1.jsonl")));
-        assert!(!accepts(Path::new("/h/.cursor/projects/p/agent-transcripts/abc-1/subagents/x.jsonl")));
-        assert!(!accepts(Path::new("/h/.cursor/projects/p/agent-transcripts/abc-1/other.jsonl")));
+        assert!(accepts(Path::new(
+            "/h/.cursor/projects/p/agent-transcripts/abc-1/abc-1.jsonl"
+        )));
+        assert!(!accepts(Path::new(
+            "/h/.cursor/projects/p/agent-transcripts/abc-1/subagents/x.jsonl"
+        )));
+        assert!(!accepts(Path::new(
+            "/h/.cursor/projects/p/agent-transcripts/abc-1/other.jsonl"
+        )));
     }
 
     #[test]
     fn an_ended_turn_has_its_answer_and_the_first_question_titles_it() {
         let (home, path) = transcript(&[
             user("Fix the build\nplease"),
-            assistant(json!([{"type":"text","text":"Looking"},{"type":"tool_use","name":"Read","input":{}}])),
+            assistant(
+                json!([{"type":"text","text":"Looking"},{"type":"tool_use","name":"Read","input":{}}]),
+            ),
             assistant(json!([{"type":"text","text":"Fixed it."}])),
             json!({"type":"turn_ended","status":"success"}),
         ]);
@@ -484,7 +526,10 @@ mod tests {
         assert!(page.records[0].id.ends_with(":abc-1"));
         let mut live = LiveLog::default();
         apply(&mut live, &run);
-        assert_eq!(live.turns.back().unwrap().message.as_deref(), Some("Fixed it."));
+        assert_eq!(
+            live.turns.back().unwrap().message.as_deref(),
+            Some("Fixed it.")
+        );
         std::fs::remove_dir_all(home).ok();
     }
 
@@ -508,7 +553,9 @@ mod tests {
 
         let (home, path) = transcript(&[
             user("pick"),
-            assistant(json!([{"type":"tool_use","name":"AskQuestion","input":{"questions":[{"id":"q1","prompt":"Which one?","options":[{"id":"a","label":"A"},{"id":"b","label":"B"}]}]}}])),
+            assistant(
+                json!([{"type":"tool_use","name":"AskQuestion","input":{"questions":[{"id":"q1","prompt":"Which one?","options":[{"id":"a","label":"A"},{"id":"b","label":"B"}]}]}}]),
+            ),
             json!({"role":"assistant","message":{"content":[]}}),
         ]);
         let run = stand(&path, now_ms()).unwrap();

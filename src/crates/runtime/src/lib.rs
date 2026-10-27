@@ -17,9 +17,9 @@ pub use agent_hud_core::l10n;
 pub use agent_hud_core::projects;
 pub use agent_hud_core::replies;
 pub use agent_hud_platform::chengxiaobang_plugin;
+pub use agent_hud_platform::claude_plugin;
 /// Local build: Codex's data folder and, on Unix, its desktop-message carrier.
 pub use agent_hud_platform::clients::codex as codex_client;
-pub use agent_hud_platform::claude_plugin;
 pub use agent_hud_platform::hooks;
 pub use agent_hud_platform::instance;
 pub use agent_hud_platform::local_tools;

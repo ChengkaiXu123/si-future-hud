@@ -280,7 +280,9 @@ export function chengxiaobangPluginRow(input: {
   running: boolean;
 }): RowState {
   const base: Pick<RowState, "menu" | "next"> = { menu: [], next: null };
-  const busy: Words | null = input.running ? ["Installing…", "正在安装…"] : null;
+  const busy: Words | null = input.running
+    ? ["Installing…", "正在安装…"]
+    : null;
   if (input.installed === null && !busy)
     return { ...base, tone: "off", status: checking, action: null, busy };
   if (input.found === false)
@@ -348,7 +350,9 @@ export function chengxiaobangMcpRow(input: {
       id: "add",
       label: ["Add", "添加"],
       unavailable:
-        input.found === false ? ["Install 程小帮 first.", "请先安装程小帮。"] : undefined,
+        input.found === false
+          ? ["Install 程小帮 first.", "请先安装程小帮。"]
+          : undefined,
     },
     busy,
   };
