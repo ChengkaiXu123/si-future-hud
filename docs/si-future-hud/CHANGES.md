@@ -6,6 +6,17 @@ SI Future HUD 是 **[Agent HUD](https://github.com/jazzenchen/agent-hud-open)** 
 
 The first commit of this repository imports Agent HUD exactly as it was at `428dc88`, and our changes are the commits after it. Agent HUD's full history lives in [its own repository](https://github.com/jazzenchen/agent-hud-open/commits/main). / 本仓库的第一个提交原样导入 `428dc88` 时的 Agent HUD，之后的提交是我们的改动。Agent HUD 的完整历史见[它自己的仓库](https://github.com/jazzenchen/agent-hud-open/commits/main)。
 
+## Keeping up with Agent HUD / 跟上游同步
+
+This repository's first commit has exactly the files of upstream `428dc88`, so upstream's later commits apply on top of ours one by one. / 本仓库第一个提交的文件和上游 `428dc88` 完全一样，所以上游之后的提交可以逐个接到我们的提交后面。
+
+```bash
+git fetch upstream
+git cherry-pick 428dc88..upstream/main   # resolve any conflict in the files listed below, then: git cherry-pick --continue
+```
+
+Then run the same checks as CI (`pnpm run format:check`, `pnpm run check:platform`, `pnpm run typecheck`, `pnpm run test:ts`, `pnpm run test:mcp`, `cargo clippy --workspace --tests --locked -- -D warnings`, `cargo test --workspace --locked`). Build the app, use it for a while, and only then release. / 然后跑一遍和 CI 相同的检查，打包后实际用一阵，再发版本。
+
 ## In short / 概要
 
 | Change | 改动 |
