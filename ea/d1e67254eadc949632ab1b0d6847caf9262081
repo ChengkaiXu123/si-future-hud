@@ -1,0 +1,101 @@
+src/packages/hud/src/scene/HUDMarkStrip.tsx
+  s_d48b3b8d3c26d0::t_27877129436d98 180-182
+src/crates/core/src/hook_events.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 197-201
+src/crates/platform/src/clients/codex/mod.rs
+  s_d48b3b8d3c26d0::t_b7c3f31e6b3043 9,12-13
+src/crates/host/src/lib.rs
+  s_d48b3b8d3c26d0::t_b7c3f31e6b3043 336-341
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 553-558,575-578,603-605,614,617-635,637-638,640-645,650-655,658-664,666-678
+src/crates/host/src/auto_setup.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 42-44,58-64,66-67,101-105
+  s_d48b3b8d3c26d0::t_f310c285683a35 74,114
+src/crates/agents/src/hooks/request.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 349-350
+src/crates/agents/src/agent.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 4-5
+src/crates/agents/src/grok/live.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 100-103,157-160,190-196,234-235,319-326,359-365,390-394,396-407,446-449,456-459,471-474,483-487,489-493,495-503
+src/crates/agents/src/chengxiaobang/mod.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 14-18,20-24
+src/crates/agents/src/cursor/live.rs
+  s_d48b3b8d3c26d0::t_8cc914ba12b6a6 267
+  s_d48b3b8d3c26d0::t_692c36ff51a2c0 278
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 42-44,112-117,210-214,221-224,245-249,273-276,326-330,349-354,434-441,457-461,498-506,513-515,529-532,556-558
+src/crates/core/src/tests/claude_desktop.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 557-560
+src/crates/runtime/src/lib.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 20
+.github/workflows/ci.yml
+  s_d48b3b8d3c26d0::t_2e225f65b57d2b 39-40
+src/crates/core/src/requests.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 422-425
+src/apps/desktop/src-tauri/src/main.rs
+  s_d48b3b8d3c26d0::t_b7c3f31e6b3043 3-14,21
+src/apps/desktop/src-tauri/src/installed/macos.rs
+  s_d48b3b8d3c26d0::t_b7c3f31e6b3043 1-14
+src/crates/platform/src/clients/codex/message.rs
+  s_d48b3b8d3c26d0::t_b7c3f31e6b3043 118-125
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 127-131,181-186,188-189,191-198,200-203,213-216
+src/crates/agents/src/chengxiaobang/transcript.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 4-9,52-55,232-236,283-284,301-304,529-536,586-589,620-622,625-631,639-641,656-658,679-681,691-693
+  s_d48b3b8d3c26d0::t_692c36ff51a2c0 316-328
+src/crates/core/src/source_db.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 228-230,382-384,408-410,441-443
+src/crates/host/src/claude_plugin.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 139-145
+src/apps/desktop/src-tauri/src/installed/linux.rs
+  s_d48b3b8d3c26d0::t_b7c3f31e6b3043 1-7
+src/crates/core/src/clients/chengxiaobang.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 101-104
+src/packages/app/src/settings/AgentPluginsPane.tsx
+  s_d48b3b8d3c26d0::t_27877129436d98 614-615,638-640,675-677
+src/crates/host/src/mcp_clients.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 158-162,167-168,177-180
+src/crates/core/src/clients/window_asks.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 23-24,44-52,110-111,128-136,140-152
+docs/si-future-hud/CHANGES.md
+  s_d48b3b8d3c26d0::t_ae6f6e47a1fe77 18,78,133-135,172-176
+src/crates/core/src/presentation.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 115-116
+src/crates/core/src/clients/agent_message.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 162-165,181-184,203-207,211-214,260-268,281-286,299-303,326-332,383-387,389-397
+src/apps/mcp/src/index.ts
+  s_d48b3b8d3c26d0::t_27877129436d98 502-506
+src/apps/desktop/src-tauri/src/installed/windows.rs
+  s_d48b3b8d3c26d0::t_b7c3f31e6b3043 1-7
+src/packages/app/src/lib/agent-plugins.ts
+  s_d48b3b8d3c26d0::t_27877129436d98 283-285,353-355
+src/crates/platform/src/claude_plugin/mod.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 245-252,330-335,338-339
+src/crates/core/src/log_files.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 383-384
+src/crates/platform/src/chengxiaobang_plugin/mod.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 195-199,297-299,306-311,325-329,341-344,350-351
+src/crates/platform/src/clients/codex/desktop.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 168-171,261-263
+  s_d48b3b8d3c26d0::t_42158b674a8eb1 172-173
+src/crates/core/src/source_db/tests.rs
+  s_d48b3b8d3c26d0::t_b7ddd4c70ca6bb 524
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 377-381,408-409,419-428,456-459,513-516,526-529,538-542,559-562,584-587,595-597,600-603,606-609,613-616,630-637,640-643,652-654,660-663,667-670,675-678,681-684,688-691,696-699,705-708,721-724,739-740,748-751,766-769,783-786,809-812,819-824,828-831,838-841,844-847,849-852,856-859
+src/crates/platform/src/clients/codex/desktop/tests.rs
+  s_d48b3b8d3c26d0::t_26a94f3f1a7a36 341-344,347-351
+src/crates/platform/src/clients/codex/message_windows.rs
+  s_d48b3b8d3c26d0::t_b7c3f31e6b3043 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "ead1e67254eadc949632ab1b0d6847caf9262081",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
