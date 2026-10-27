@@ -101,7 +101,7 @@ fn daemon_tui_origin(thread_id: &str, socket_path: &Path) -> Option<String> {
             "params": {
                 "clientInfo": {
                     "name": "agent_hud_origin",
-                    "title": "Agent HUD",
+                    "title": "SI Future HUD",
                     "version": "0.1.0"
                 }
             }

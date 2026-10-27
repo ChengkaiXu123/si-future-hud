@@ -238,6 +238,16 @@ impl ClaudeChannel {
         metadata.modified().ok()
     }
 
+    /// Local build: whether `session` ran the plugin and then ended (its
+    /// process stopped: closed, archived or put away by the app).
+    pub fn ended(&self, session: &str) -> bool {
+        valid_name(session)
+            && fs::read(self.directory.join("sessions").join(format!("{session}.json")))
+                .ok()
+                .and_then(|data| serde_json::from_slice::<Value>(&data).ok())
+                .is_some_and(|value| value.get("ended").is_some())
+    }
+
     /// Writes the plugin's files into `folder` (an absolute path), pointing
     /// it at this channel, and makes the channel's folders. Returns whether a
     /// file changed. Only what differs is written.
@@ -253,11 +263,11 @@ impl ClaudeChannel {
         let files = [
             (
                 ".claude-plugin/marketplace.json",
-                json!({"name":"agent-hud","owner":{"name":"Agent HUD"},"plugins":[{"name":"agent-hud","source":"./"}]}).to_string(),
+                json!({"name":"agent-hud","owner":{"name":"SI Future HUD"},"plugins":[{"name":"agent-hud","source":"./"}]}).to_string(),
             ),
             (
                 ".claude-plugin/plugin.json",
-                json!({"name":"agent-hud","version":"1.1.0","description":"Delivers user-authorized Agent HUD input to this existing session.","author":{"name":"Agent HUD"}}).to_string(),
+                json!({"name":"agent-hud","version":"1.1.0","description":"Delivers user-authorized SI Future HUD input to this existing session.","author":{"name":"SI Future HUD"}}).to_string(),
             ),
             ("hooks/hooks.json", json!({"modules":["./register.ts"]}).to_string()),
             ("hooks/register.ts", SCRIPT.replace("__AGENT_HUD_CHANNEL_JSON__", &channel)),
@@ -308,6 +318,18 @@ impl ClaudeChannel {
             &file,
             &json!({"id":id,"text":text,"at":at,"expiresAt":at.saturating_add(PROMPT_LIFETIME.as_millis() as u64),"asUser":as_user}),
         )
+    }
+
+    /// Local build: leaves words another agent sent (relayed by Agent HUD) for
+    /// `session`, marked `kind: "message"` so a plugin never takes them as the
+    /// answer to a question it holds. Checked as `hand` checks an answer.
+    pub fn hand_message(&self, session: &str, text: &str, now: SystemTime) -> Result<String, Refusal> {
+        let id = self.hand(session, text, now)?;
+        let file = self.prompt(session, &id)?;
+        let mut value: Value = serde_json::from_slice(&fs::read(&file)?).map_err(|_| Refusal::IdentityConflict)?;
+        value["kind"] = json!("message");
+        write_json(&file, &value)?;
+        Ok(id)
     }
 
     /// Leaves `text` for `session` as the answer to its question: refused when
@@ -471,10 +493,19 @@ impl ClaudeReplies {
         if !installed(&self.claude_config) {
             return Unreachable::new(
                 l10n::text(
-                    "Claude Code 还没装 Agent HUD 插件，装好后就能在 Agent HUD 里回答 Claude 的提问（设置 → 智能体插件）。",
-                    "Claude Code doesn't have Agent HUD's plugin yet. Install it to answer Claude's questions in Agent HUD (Settings → Agent plugins).",
+                    "Claude Code 还没装 SI Future HUD 插件，装好后就能在 SI Future HUD 里回答 Claude 的提问（设置 → 智能体插件）。",
+                    "Claude Code doesn't have SI Future HUD's plugin yet. Install it to answer Claude's questions in SI Future HUD (Settings → Agent plugins).",
                 ),
                 Some(AnswerFix::InstallPlugin),
+            );
+        }
+        if self.channel.ended(session) {
+            return Unreachable::new(
+                l10n::text(
+                    "这个 Claude 会话已经停了（它的进程已结束）。在 Claude 里打开它、发一句话让它跑起来，再发一次。",
+                    "This Claude session has stopped (its process ended). Open it in Claude and send a line so it runs, then send again.",
+                ),
+                None,
             );
         }
         let paused = installed_at(&self.claude_config)
@@ -483,16 +514,16 @@ impl ClaudeReplies {
         if paused {
             return Unreachable::new(
                 l10n::text(
-                    "这个会话有一阵没回应 Agent HUD 插件了，可能被 Claude 暂停了。在 Claude 里打开这个会话就能回答。",
-                    "This session hasn't answered Agent HUD's plugin for a while; Claude may have paused it. Open it in Claude to answer.",
+                    "这个会话有一阵没回应 SI Future HUD 插件了，可能被 Claude 暂停了。在 Claude 里打开这个会话就能回答。",
+                    "This session hasn't answered SI Future HUD's plugin for a while; Claude may have paused it. Open it in Claude to answer.",
                 ),
                 None,
             );
         }
         Unreachable::new(
             l10n::text(
-                "这个会话还没加载 Agent HUD 插件。在会话里执行 /reload-plugins 后，就能在 Agent HUD 里回答。",
-                "This session hasn't loaded Agent HUD's plugin. Run /reload-plugins in it to answer in Agent HUD.",
+                "这个会话还没加载 SI Future HUD 插件。在会话里执行 /reload-plugins 后，就能在 SI Future HUD 里回答。",
+                "This session hasn't loaded SI Future HUD's plugin. Run /reload-plugins in it to answer in SI Future HUD.",
             ),
             Some(AnswerFix::ReloadPlugins),
         )
@@ -502,8 +533,8 @@ impl ClaudeReplies {
 /// Why words for another client's session never reach it: the plugin is Claude Code's.
 fn not_claude() -> String {
     l10n::text(
-        "Agent HUD 的插件只能把回答发进 Claude Code 会话。",
-        "Agent HUD's plugin sends answers only into Claude Code sessions.",
+        "SI Future HUD 的插件只能把回答发进 Claude Code 会话。",
+        "SI Future HUD's plugin sends answers only into Claude Code sessions.",
     )
 }
 

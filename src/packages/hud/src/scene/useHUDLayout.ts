@@ -200,9 +200,14 @@ export function useHUDLayout({
             height: simplePeek
               ? 26 * scale
               : (20 +
+                  // An agent with no window and no balance shows one line
+                  // (AgentPeek's usage or "Quota --") that takes its height too.
                   (1 +
-                    focusedVendor.quotas.length +
-                    (focusedVendor.balance ? 1 : 0)) *
+                    Math.max(
+                      1,
+                      focusedVendor.quotas.length +
+                        (focusedVendor.balance ? 1 : 0),
+                    )) *
                     18) *
                 scale,
           }

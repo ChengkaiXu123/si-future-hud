@@ -108,6 +108,7 @@ pub fn mark(source: &str) -> String {
         "grok-cli" => "grok".into(),
         "opencode-go" | "opencode-dark" => "opencode".into(),
         "qoder-cn" | "qoder-work" | "qoderwork" | "qoder-dark" => "qoder".into(),
+        "程小帮" => "chengxiaobang".into(),
         _ => key,
     }
 }

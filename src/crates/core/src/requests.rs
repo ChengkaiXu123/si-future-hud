@@ -28,6 +28,8 @@ struct State {
     reviewers: HashMap<(String, String, String), Reviewer>,
     deliveries: VecDeque<Value>,
     native_waiting: HashMap<String, HashSet<String>>,
+    /// Local build: sessions a client's own stream shows compacting, by source, since when.
+    native_compacting: HashMap<String, HashMap<String, i64>>,
 }
 struct Reviewer {
     value: Option<String>,
@@ -68,6 +70,7 @@ impl Default for Requests {
                 reviewers: HashMap::new(),
                 deliveries: VecDeque::new(),
                 native_waiting: HashMap::new(),
+                native_compacting: HashMap::new(),
             }),
             wake: Mutex::new(None),
         }))
@@ -283,11 +286,14 @@ impl Requests {
     pub fn clear(&self) {
         let (pending, changed) = {
             let mut state = self.0.state.lock().unwrap_or_else(|p| p.into_inner());
-            let changed = !state.pending.is_empty() || !state.native_waiting.is_empty();
+            let changed = !state.pending.is_empty()
+                || !state.native_waiting.is_empty()
+                || !state.native_compacting.is_empty();
             if changed {
                 state.revision = state.revision.wrapping_add(1);
             }
             state.native_waiting.clear();
+            state.native_compacting.clear();
             state.dismissed.clear();
             (std::mem::take(&mut state.pending), changed)
         };
@@ -403,6 +409,41 @@ impl Requests {
         if changed {
             self.wake();
         }
+    }
+    /// Local build: replaces the sessions of `source` that compact now (since when).
+    pub fn set_native_compacting(&self, source: &str, sessions: &HashMap<String, i64>) {
+        let changed = {
+            let mut state = self.0.state.lock().unwrap_or_else(|p| p.into_inner());
+            let next: HashMap<String, i64> = sessions
+                .iter()
+                .filter(|(id, _)| !id.is_empty())
+                .map(|(id, at)| (id.clone(), *at))
+                .collect();
+            if state.native_compacting.get(source).is_none_or(|old| *old != next)
+                && (!next.is_empty() || state.native_compacting.contains_key(source))
+            {
+                if next.is_empty() {
+                    state.native_compacting.remove(source);
+                } else {
+                    state.native_compacting.insert(source.into(), next);
+                }
+                state.revision = state.revision.wrapping_add(1);
+                true
+            } else {
+                false
+            }
+        };
+        if changed {
+            self.wake();
+        }
+    }
+    pub fn native_compacting_sessions(&self) -> HashMap<String, HashMap<String, i64>> {
+        self.0
+            .state
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .native_compacting
+            .clone()
     }
     pub fn native_waiting_sessions(&self) -> HashMap<String, HashSet<String>> {
         self.0

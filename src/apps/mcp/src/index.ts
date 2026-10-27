@@ -120,6 +120,11 @@ const caller = (meta: Record<string, unknown> | undefined) => {
       sessionId: thread,
       turnId: typeof turn?.turn_id === "string" ? turn.turn_id : null,
     };
+  // Local build: a client whose MCP entry names it (程小帮's mcp.json sets
+  // AGENT_HUD_CLIENT, written by Agent HUD itself) is that client, whatever
+  // environment it inherited.
+  const named = process.env.AGENT_HUD_CLIENT;
+  if (named) return { client: named, sessionId: null, turnId: null };
   const session = process.env.CLAUDE_CODE_SESSION_ID;
   return session
     ? { client: "claude", sessionId: session, turnId: null }
@@ -266,7 +271,7 @@ const proposal = z
   })
   .strict();
 serveStdio(() => {
-  const server = new McpServer({ name: "agent-hud-next", version: "0.1.0" });
+  const server = new McpServer({ name: "agent-hud-next", version: "0.1.4" });
   server.server.onclose = () => engine.close();
   server.registerTool(
     "get_hud",
@@ -328,7 +333,7 @@ serveStdio(() => {
     "hud_snapshot",
     {
       description:
-        "Read Agent HUD’s current local snapshot: recent/active display sessions, complete token totals, provider status and capabilities. Historical sessions are paged with hud_sessions. Unavailable data stays unavailable.",
+        "Read SI Future HUD’s current local snapshot: recent/active display sessions, complete token totals, provider status and capabilities. Historical sessions are paged with hud_sessions. Unavailable data stays unavailable.",
       inputSchema: z.object({}),
       annotations: readOnly,
     },
@@ -464,7 +469,7 @@ serveStdio(() => {
     "hud_set_preference",
     {
       description:
-        "Save a user-requested presentation preference in Agent HUD Next. Does not change client configuration or the installed Agent HUD.",
+        "Save a user-requested presentation preference in SI Future HUD. Does not change client configuration or the installed SI Future HUD.",
       inputSchema: z.object({
         key: z.enum(["appearance", "animations"]),
         value: z.union([z.enum(["dark", "light", "system"]), z.boolean()]),
@@ -472,6 +477,45 @@ serveStdio(() => {
       annotations: localWrite,
     },
     ({ key, value }) => guarded("set_setting", { key, value }),
+  );
+  // Local build: one agent asks to send words to another agent's open
+  // session; the user confirms each message on the HUD (Send / Deny).
+  server.registerTool(
+    "hud_send_message",
+    {
+      description:
+        "Send a message to another coding agent's open session through SI Future HUD (Claude Code, Codex Desktop, 程小帮). The user confirms each message on the HUD before it is delivered as that session's next message, and a paper plane flies between the agents. Returns at once with status pending: the reply, if any, arrives later as a new message in your own session. To reply to a message you received, use the `to` and `session` it names.",
+      inputSchema: z.object({
+        to: z
+          .string()
+          .min(1)
+          .describe(
+            'The receiving agent: "claude" (Claude Code), "codex" (a Codex Desktop conversation) or "chengxiaobang" (程小帮).',
+          ),
+        session: z
+          .string()
+          .min(1)
+          .optional()
+          .describe(
+            "The receiving session's id (as hud_sessions lists it, or as a message you received names it). Omitted: the agent's most recently active session that can receive.",
+          ),
+        text: z.string().min(1).max(4000).describe("What to tell the other agent."),
+        from_session: z
+          .string()
+          .min(1)
+          .max(200)
+          .optional()
+          .describe("Set by 程小帮's SI Future HUD plugin; leave it out."),
+      }),
+      annotations: { ...localWrite, idempotentHint: false },
+    },
+    (params, context) =>
+      guarded("send_message", {
+        ...params,
+        caller: caller(
+          context.mcpReq._meta as Record<string, unknown> | undefined,
+        ),
+      }),
   );
   for (const tool of hostTools) {
     server.registerTool(

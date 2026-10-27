@@ -48,7 +48,7 @@ pub fn load(device: &str, directory: &Path) -> Result<Identity> {
                 (key(kSecAttrApplicationTag), tag.as_CFType()),
                 (
                     key(kSecAttrLabel),
-                    CFString::new("Agent HUD local connection").as_CFType(),
+                    CFString::new("SI Future HUD local connection").as_CFType(),
                 ),
             ]);
             let attrs = CFDictionary::from_CFType_pairs(&[

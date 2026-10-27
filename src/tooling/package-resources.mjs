@@ -63,3 +63,11 @@ if (platform !== "windows") {
   chmodSync(join(output, "agent-hud-engine"), 0o755);
   chmodSync(join(output, "agent-hud-mcp"), 0o755);
 }
+// Local build: on macOS each helper gets a whole ad-hoc signature of its own
+// (bun's compiled relay carries one its payload invalidates), so the app's
+// bundle signature seals valid code and a downloaded copy is not "damaged".
+if (platform === "darwin" && process.platform === "darwin") {
+  for (const helper of ["agent-hud-engine", "agent-hud-mcp"]) {
+    run("/usr/bin/codesign", ["--force", "--sign", "-", join(output, helper)]);
+  }
+}

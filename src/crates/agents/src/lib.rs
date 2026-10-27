@@ -38,6 +38,7 @@ pub use transcript::{
 // One folder per client, or per family of clients that share a format.
 pub mod antigravity;
 pub mod buddy;
+pub mod chengxiaobang;
 pub mod claude;
 pub mod codex;
 pub mod coding_plans;

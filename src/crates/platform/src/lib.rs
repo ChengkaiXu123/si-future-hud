@@ -7,6 +7,7 @@ mod file_changes;
 pub mod instance;
 pub use file_changes::FileChanges;
 mod accounts;
+pub mod chengxiaobang_plugin;
 pub mod claude_plugin;
 pub mod clients;
 pub mod hooks;
@@ -89,6 +90,14 @@ impl NativePlatform {
             Some("claude-background-job" | "claudeBackgroundJob")
         ) {
             return navigation::open_claude_job(&self.home, target);
+        }
+        if target["kind"] == "chengxiaobang-app" {
+            // Brings 程小帮 forward, or opens it when it isn't running.
+            return Ok(navigation::activate_app("com.chengxiaobang.desktop")
+                || std::process::Command::new("/usr/bin/open")
+                    .args(["-b", "com.chengxiaobang.desktop"])
+                    .status()
+                    .is_ok_and(|status| status.success()));
         }
         if matches!(
             target["kind"].as_str(),

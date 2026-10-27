@@ -108,6 +108,7 @@ export const ProviderCard = memo(function ProviderCard({
         kimi: "#6366f1",
         github: "#a855f7",
         qwen: "#615ced",
+        chengxiaobang: "#1f63d6",
       } as Record<string, string>
     )[vendorKey(provider.id)] ?? theme.secondary;
   const cells: [string, ReactNode][] = [

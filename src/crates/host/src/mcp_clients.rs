@@ -118,6 +118,83 @@ fn status(app: &tauri::AppHandle) -> Result<Value, String> {
         json!({"ready":ready,"notice":if ready{None}else{Some("MCP setup requires the fixed installed app and its packaged relay")},"json":path.map(|path|json!({"mcpServers":{"agent-hud":{"command":path,"args":["--mcp"]}}})),"clients":(["claudeCode","codex"].map(|client|json!({"id":client,"name":if client=="claudeCode"{"Claude Code"}else{"Codex"},"available":executable(client,&home).is_some(),"installed":installed(client,&home),"command":path.map(|p|super::system::client_command_line(&std::iter::once(client_command(client).unwrap().into()).chain(args(client,true,p)).collect::<Vec<_>>()))}))) }),
     )
 }
+/// Local build: the command `client` lists for Agent HUD's MCP server, if any.
+fn listed_command(client: &str, home: &std::path::Path) -> Option<String> {
+    let path = if client == "claudeCode" {
+        std::env::var_os("CLAUDE_CONFIG_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| home.into())
+            .join(".claude.json")
+    } else {
+        std::env::var_os("CODEX_HOME")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| home.join(".codex"))
+            .join("config.toml")
+    };
+    if fs::metadata(&path).ok()?.len() > 4 * 1024 * 1024 {
+        return None;
+    }
+    let text = fs::read_to_string(path).ok()?;
+    if client == "claudeCode" {
+        serde_json::from_str::<Value>(&text).ok()?["mcpServers"]["agent-hud"]["command"]
+            .as_str()
+            .map(str::to_owned)
+    } else {
+        toml::from_str::<toml::Value>(&text)
+            .ok()?
+            .get("mcp_servers")?
+            .get("agent-hud")?
+            .get("command")?
+            .as_str()
+            .map(str::to_owned)
+    }
+}
+
+/// Local build: when the app was moved or renamed, `client`'s entry for the
+/// HUD tools still names the old place; it is pointed at this app again.
+/// Only an entry that names this app's own executable elsewhere is touched.
+pub(crate) fn repoint(app: &tauri::AppHandle, client: &str) -> Result<bool, String> {
+    let home = home()?;
+    let Some(path) = app.state::<super::HostOptions>().canonical_executable.clone() else {
+        return Ok(false);
+    };
+    // A re-add that failed after its removal is finished first, so the
+    // client never stays without the HUD tools.
+    let pending = agent_hud_runtime::local_tools_directory()?.join(format!("mcp-repoint-{client}.pending"));
+    let Some(listed) = listed_command(client, &home) else {
+        if pending.exists() && executable(client, &home).is_some() {
+            run(app, client, true)?;
+            let _ = fs::remove_file(&pending);
+            return Ok(true);
+        }
+        return Ok(false);
+    };
+    let ours = path.file_name().and_then(|name| name.to_str()).unwrap_or("agent-hud-next");
+    if std::path::Path::new(&listed) == path
+        || !listed.ends_with(&format!(".app/Contents/MacOS/{ours}"))
+        || executable(client, &home).is_none()
+    {
+        return Ok(false);
+    }
+    fs::write(&pending, &listed).map_err(|error| error.to_string())?;
+    run(app, client, false)?;
+    run(app, client, true)?;
+    let _ = fs::remove_file(&pending);
+    Ok(true)
+}
+
+/// Local build: adds Agent HUD's MCP server to `client` when its command line
+/// is here and it lists none. Ok(false) while the client is not here.
+pub(crate) fn add_once(app: &tauri::AppHandle, client: &str) -> Result<bool, String> {
+    let home = home()?;
+    if executable(client, &home).is_none() {
+        return Ok(false);
+    }
+    if !installed(client, &home) {
+        run(app, client, true)?;
+    }
+    Ok(true)
+}
 fn run(app: &tauri::AppHandle, client: &str, install: bool) -> Result<Value, String> {
     let home = home()?;
     let options = app.state::<super::HostOptions>();

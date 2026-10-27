@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Agent HUD Next",
-  "version": "0.1.0",
+  "productName": "SI Future HUD",
+  "version": "0.1.4",
   "identifier": "com.agenthud.next.preview",
   "build": {
     "beforeDevCommand": "pnpm run dev",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Agent HUD Next \u2014 Settings",
+        "title": "SI Future HUD — Settings",
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
         "width": 960,

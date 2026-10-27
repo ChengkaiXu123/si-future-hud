@@ -2,7 +2,7 @@
 // one card per client. A row says what the thing lets you do, shows where it
 // stands as a coloured chip, offers the one action that matters now, keeps
 // removing in its ⋯ menu, and opens a next-step line only when there is a step.
-// Claude Code's card leads with Agent HUD's plugin, whose switches say what the
+// Claude Code's card leads with SI Future HUD's plugin, whose switches say what the
 // plugin may do. A product build adds its own switches to that row, or rows of
 // its own to a card, through `AgentPluginItem`, drawn with `PluginControl` and
 // `PluginRow`, so both builds read the same.
@@ -37,6 +37,8 @@ import {
 import { HUDArtwork } from "@agent-hud/hud/HUDArtwork";
 import { snapshotLanguage } from "@agent-hud/ui/format";
 import {
+  chengxiaobangMcpRow,
+  chengxiaobangPluginRow,
   failure,
   mcpRow,
   pluginRow,
@@ -55,7 +57,7 @@ export interface AgentPluginContext {
   active: boolean;
   /** Whether the client's command line is on this Mac; null while unknown. */
   clientFound: boolean | null;
-  /** The client's Agent HUD plugin (Claude Code's); installed is null while
+  /** The client's SI Future HUD plugin (Claude Code's); installed is null while
    * it is read, or when the client has none. */
   plugin: { installed: boolean | null };
 }
@@ -65,7 +67,7 @@ export interface AgentPluginItem {
   id: string;
   /** The card it joins: "claudeCode", "codex", or a client of its own. */
   client: string;
-  /** "plugin": a switch in the client's Agent HUD plugin row, after Next's
+  /** "plugin": a switch in the client's SI Future HUD plugin row, after Next's
    * own, drawn with `PluginControl`. "row" (the default): a row of its own,
    * drawn with `PluginRow`, before Next's rows. "tools": a tool group of the
    * product's own in the tools section, after the HUD tools switch, drawn
@@ -560,10 +562,10 @@ function ClaudePluginRow({
   return (
     <PluginRow
       icon={<Puzzle size={14} strokeWidth={1.9} />}
-      title={t(["Agent HUD plugin", "Agent HUD 插件"])}
+      title={t(["SI Future HUD plugin", "SI Future HUD 插件"])}
       description={t([
-        "Agent HUD's plugin for Claude Code. Install it once, then choose what it may do.",
-        "Agent HUD 的 Claude Code 插件。安装一次，再选择它可以做什么。",
+        "SI Future HUD's plugin for Claude Code. Install it once, then choose what it may do.",
+        "SI Future HUD 的 Claude Code 插件。安装一次，再选择它可以做什么。",
       ])}
       state={state}
       error={error}
@@ -594,6 +596,144 @@ function ClaudePluginRow({
         </Fragment>
       ))}
     </PluginRow>
+  );
+}
+
+/** Local build: native_chengxiaobang_plugin — whether 程小帮 is here, whether
+ * Agent HUD's plugin is in its plugins folder, how many sessions run it, and
+ * whether its mcp.json lists the HUD tools. */
+interface ChengxiaobangStatus {
+  found: boolean;
+  installed: boolean;
+  sessions: number;
+  mcp: boolean;
+}
+const nativeChengxiaobang = async (
+  action: "status" | "install",
+): Promise<ChengxiaobangStatus> => {
+  if (!isTauri()) return { found: false, installed: false, sessions: 0, mcp: false };
+  return invoke<ChengxiaobangStatus>("native_chengxiaobang_plugin", { action });
+};
+let cachedChengxiaobang: ChengxiaobangStatus | null = null;
+
+/** Local build: 程小帮's card, as Claude Code's: its plugin (written on
+ * launch), answering its questions, and the HUD tools in its MCP settings. */
+function ChengxiaobangCard({
+  snapshot,
+  action,
+  active,
+  light,
+}: {
+  snapshot: Snapshot;
+  action: (
+    method: NativeMethod,
+    params?: Record<string, unknown>,
+  ) => Promise<unknown>;
+  active: boolean;
+  light: boolean;
+}) {
+  const zh = snapshotLanguage(snapshot) === "zh";
+  const t = (words: Words) => say(zh, words);
+  const [status, setStatus] = useState<ChengxiaobangStatus | null>(cachedChengxiaobang);
+  const [running, setRunning] = useState<"plugin" | "mcp" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [answering, setAnswering] = useState(false);
+  const apply = (next: ChengxiaobangStatus) => {
+    cachedChengxiaobang = next;
+    setStatus(next);
+  };
+  // Sessions check in every few seconds: read again while Settings is on screen.
+  useEffect(() => {
+    if (!active) return;
+    let dead = false;
+    const again = () =>
+      void nativeChengxiaobang("status")
+        .then((next) => {
+          if (!dead) apply(next);
+        })
+        .catch((failed) => {
+          if (!dead) setError(String(failed));
+        });
+    again();
+    const timer = setInterval(again, 10_000);
+    window.addEventListener("focus", again);
+    return () => {
+      dead = true;
+      clearInterval(timer);
+      window.removeEventListener("focus", again);
+    };
+  }, [active]);
+  async function install(kind: "plugin" | "mcp") {
+    setRunning(kind);
+    setError(null);
+    try {
+      apply(await nativeChengxiaobang("install"));
+    } catch (failed) {
+      setError(t(failure(kind === "plugin" ? "install" : "add", String(failed))));
+    } finally {
+      setRunning(null);
+    }
+  }
+  if (status && !status.found) return null;
+  const installed = status ? status.installed : null;
+  const answers = snapshot.settings.chengxiaobangAnswers !== false;
+  return (
+    <ClientCard name="程小帮" logo="chengxiaobang" light={light}>
+      <PluginRow
+        icon={<Puzzle size={14} strokeWidth={1.9} />}
+        title={t(["SI Future HUD plugin", "SI Future HUD 插件"])}
+        description={t([
+          "SI Future HUD's plugin for 程小帮, installed with SI Future HUD. Choose what it may do.",
+          "SI Future HUD 的程小帮插件，随 SI Future HUD 自动安装。选择它可以做什么。",
+        ])}
+        state={chengxiaobangPluginRow({
+          found: status ? status.found : null,
+          installed,
+          sessions: status?.sessions ?? 0,
+          running: running === "plugin",
+        })}
+        error={error}
+        zh={zh}
+        controlsOpen={installed === true}
+        onAction={(id) => {
+          if (id === "install") void install("plugin");
+        }}
+      >
+        <PluginControl
+          title={t(["Answer questions", "回答提问"])}
+          description={t([
+            "Answer 程小帮's questions from the HUD. Your answer goes to the session that asked.",
+            "在 HUD 上回答程小帮的提问，回答会发回提问的会话。",
+          ])}
+          checked={answers}
+          pending={answering}
+          onChange={(value) => {
+            setAnswering(true);
+            void action("set_setting", { key: "chengxiaobangAnswers", value })
+              .catch(() => {})
+              .finally(() => setAnswering(false));
+          }}
+        />
+      </PluginRow>
+      <PluginRow
+        icon={<Wrench size={14} strokeWidth={1.9} />}
+        title={t(["HUD tools", "HUD 工具"])}
+        tag="MCP"
+        description={t([
+          "程小帮 can read the HUD and propose layouts and styles for you to save.",
+          "程小帮可以读取 HUD，提出布局和样式草稿，由你保存。",
+        ])}
+        state={chengxiaobangMcpRow({
+          found: status ? status.found : null,
+          listed: status ? status.mcp : null,
+          running: running === "mcp",
+        })}
+        zh={zh}
+        onAction={(id) => {
+          if (id === "add") void install("mcp");
+        }}
+      />
+    </ClientCard>
   );
 }
 
@@ -774,8 +914,8 @@ export function AgentPluginsPane({
           <p className="agent-plugins-notice">
             <Info size={13} aria-hidden />
             {t([
-              "HUD tools can only be added from the Agent HUD installed in Applications.",
-              "只有装在「应用程序」里的 Agent HUD 才能添加 HUD 工具。",
+              "Drag SI Future HUD out of its disk image into Applications and open it from there to add HUD tools.",
+              "先把 SI Future HUD 从安装盘拖进「应用程序」，再从那里打开，才能添加 HUD 工具。",
             ])}
           </p>
         )}
@@ -865,6 +1005,12 @@ export function AgentPluginsPane({
             </ClientCard>
           );
         })}
+        <ChengxiaobangCard
+          snapshot={snapshot}
+          action={action}
+          active={active}
+          light={light}
+        />
         <ClientCard name={t(["Other agents", "其他智能体"])} light={light}>
           <div className="agent-plugins-row">
             <span className="agent-plugins-glyph" aria-hidden>

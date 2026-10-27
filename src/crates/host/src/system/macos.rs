@@ -43,7 +43,7 @@ fn app_name() -> String {
     Path::new(&path)
         .file_stem()
         .and_then(|stem| stem.to_str())
-        .unwrap_or("Agent HUD")
+        .unwrap_or("SI Future HUD")
         .to_owned()
 }
 /// Returns whether the login item status may have changed.

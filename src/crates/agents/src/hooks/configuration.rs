@@ -66,7 +66,7 @@ fn optional_array(parent: &Map<String, Value>, key: &str) -> Result<Vec<Value>, 
             .ok_or_else(|| "Unrecognized hook event layout".into()),
     }
 }
-/// Whether a handler's command is Agent HUD's for this hook: it ends in the
+/// Whether a handler's command is SI Future HUD's for this hook: it ends in the
 /// flag and the client's id or an older name of it. A compaction hook also
 /// owns its older flag's command, checked only inside PreCompact.
 fn owns(command: Option<&str>, source: &str, hooks: &Hooks, flag: &str) -> bool {

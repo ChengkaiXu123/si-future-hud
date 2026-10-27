@@ -512,7 +512,7 @@ impl AccountService {
             .flatten()
         {
             if let Some(provider) = metadata["provider"].as_str() {
-                let entry=result.providers.entry(provider.into()).or_insert_with(||json!({"status":"unavailable","checkedAt":null,"notice":l10n::text("可以在 Agent HUD 中配置 API 凭据", "API credentials can be configured in Agent HUD")}));
+                let entry=result.providers.entry(provider.into()).or_insert_with(||json!({"status":"unavailable","checkedAt":null,"notice":l10n::text("可以在 SI Future HUD 中配置 API 凭据", "API credentials can be configured in SI Future HUD")}));
                 entry["configurableFields"] = metadata["configurableFields"].clone();
                 entry["configured"] = metadata["configured"].clone();
             }

@@ -500,7 +500,7 @@ async fn connect(
                 tokio::time::sleep(Duration::from_millis(10)).await;
             }
             Err(_) => return Err(
-                "Agent HUD Next is not listening; enable the requested local service in Settings"
+                "SI Future HUD is not listening; enable the requested local service in Settings"
                     .into(),
             ),
         }

@@ -30,6 +30,7 @@ pub(crate) fn accepts(path: &Path, source: &str) -> bool {
     if (source == "opencode" && agent_hud_agents::opencode::legacy::accepts(path))
         || source_batches::accepts(path, source)
         || (source == "grok-bot" && agent_hud_agents::grok::bot::accepts(path))
+        || (source == "cursor" && agent_hud_agents::cursor::live::accepts(path))
     {
         return true;
     }
@@ -42,12 +43,20 @@ pub(crate) fn accepts(path: &Path, source: &str) -> bool {
         "zcode" => name == "db.sqlite",
         "devin" => name == "sessions.db",
         "opencode" => name == "opencode.db",
+        "chengxiaobang" => name == "chengxiaobang.sqlite",
         _ => false,
     }
 }
 
 pub(crate) fn reader_version(path: &Path, source: &str) -> u16 {
     if source == "opencode" && path.file_name().is_some_and(|name| name == "opencode.db") {
+        2
+    } else if source == "chengxiaobang" {
+        // 2: runs, tool calls and answers on the live log; a checkpoint from
+        // the usage-only reader is read again once.
+        2
+    } else if source == "grok-bot" {
+        // 2 (local build): hidden Bots archived, replicas' live facts laid on.
         2
     } else {
         1
@@ -194,10 +203,11 @@ impl AgentHudCore {
             *budget = budget.saturating_sub(2 * 1024 * 1024);
         }
         let is_bot = stamp.source == "grok-bot";
+        let is_cursor = stamp.source == "cursor";
         let is_legacy =
             stamp.source == "opencode" && agent_hud_agents::opencode::legacy::accepts(path);
         let replaces_sessions = stamp.source == "opencode" && !is_legacy;
-        let reader = if is_batch || is_bot || is_legacy {
+        let reader = if is_batch || is_bot || is_cursor || is_legacy {
             None
         } else {
             Some(legacy_database::ReadOnlyDatabase::open(path).map_err(|_| {
@@ -212,6 +222,12 @@ impl AgentHudCore {
             agent_hud_agents::opencode::legacy::read(path)
         } else if is_bot {
             agent_hud_agents::grok::bot::read(path, cursor)
+        } else if is_cursor {
+            Ok(agent_hud_agents::cursor::live::read(
+                path,
+                &std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default(),
+                chrono::Utc::now().timestamp_millis(),
+            ))
         } else if is_batch {
             source_batches::read(
                 path,
@@ -233,6 +249,9 @@ impl AgentHudCore {
                     agent_hud_agents::opencode::transcript::read(&reader.connection, cursor)
                 }
                 "devin" => agent_hud_agents::devin::transcript::read(&reader.connection, cursor),
+                "chengxiaobang" => {
+                    agent_hud_agents::chengxiaobang::transcript::read(&reader.connection, cursor)
+                }
                 "antigravity" => crate::clients::antigravity::read(
                     &reader.connection,
                     self.database.as_ref().ok_or("Usage ledger unavailable")?,
@@ -256,6 +275,7 @@ impl AgentHudCore {
         let mut reset_contributions = HashSet::<PathBuf>::new();
         let mut superseded = HashSet::<PathBuf>::new();
         let mut mappings = Vec::<(String, String, PathBuf, Option<String>)>::new();
+        let mut live_heads = Vec::<PathBuf>::new();
         let generation = checkpoint.source_state["generation"].clone();
 
         for record in page.records {
@@ -291,7 +311,11 @@ impl AgentHudCore {
                 log.live.parent_id = record.parent.clone();
                 log.live.is_subagent = true;
             }
-            log.archived = record.archived;
+            // Local build: a Cursor transcript knows nothing of archiving (the
+            // dashboard does), so it leaves the flag as it is.
+            if !is_cursor {
+                log.archived = record.archived;
+            }
             log.naming.name(0, record.title.as_deref());
             if let Some(fallback) = record.title_fallback {
                 log.naming.fallback(fallback);
@@ -308,7 +332,9 @@ impl AgentHudCore {
                 .next()
                 .unwrap_or(&record.model)
                 .to_owned();
-            if clean_model != "Unknown" || log.model == "Unknown" {
+            // Local build: a Cursor transcript's model (its composer's base name)
+            // only stands in until the dashboard names the exact one.
+            if (clean_model != "Unknown" && !is_cursor) || log.model == "Unknown" {
                 log.model = clean_model;
             }
             if is_batch && record.usage.total() > 0 && log.source_state["hasInference"] != true {
@@ -320,6 +346,12 @@ impl AgentHudCore {
                 if stamp.source == "copilot" {
                     log.source_state["hasOtel"] = json!(true);
                 }
+            }
+            if stamp.source == "chengxiaobang" {
+                // Its database has no turn lifecycle: a model call in the last
+                // two minutes is the evidence that a turn is in flight.
+                log.live
+                    .note_usage(&json!({"timestamp": agent_hud_agents::iso(record.at)}));
             }
             log.count_timed_source(
                 record.key,
@@ -335,6 +367,90 @@ impl AgentHudCore {
                 key,
                 log.live.parent_id.clone(),
             ));
+        }
+
+        if stamp.source == "chengxiaobang" {
+            // 程小帮's usage rows carry no turn events: its runs, open tool
+            // calls, held calls and answers come from its own tables and are
+            // laid on each session's live log (turn, tools, question, reply).
+            let runs = agent_hud_agents::chengxiaobang::transcript::runs(
+                &reader.as_ref().unwrap().connection,
+                chrono::Utc::now().timestamp_millis(),
+            )
+            .map_err(|_| "chengxiaobang session source has an unsupported or inconsistent schema")?;
+            for run in &runs {
+                let Some(key) =
+                    self.resolve_session_path(stamp.source, &run.session, path, &mut superseded)
+                else {
+                    continue;
+                };
+                if !logs.contains_key(&key) {
+                    if !self.logs.contains_key(&key) {
+                        continue;
+                    }
+                    let log = self.load_parser(&key)?.0;
+                    logs.insert(key.clone(), log);
+                }
+                let log = logs.get_mut(&key).unwrap();
+                agent_hud_agents::chengxiaobang::transcript::apply(&mut log.live, run);
+                live_heads.push(key);
+            }
+        }
+
+        if is_cursor {
+            // Local build: the conversation's standing, from its transcript.
+            let now = chrono::Utc::now().timestamp_millis();
+            if let Some(run) = agent_hud_agents::cursor::live::stand(path, now) {
+                let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
+                let session = agent_hud_agents::cursor::live::session_id(
+                    agent_hud_agents::cursor::live::account(&home).as_deref(),
+                    &run.id,
+                );
+                if let Some(key) =
+                    self.resolve_session_path(stamp.source, &session, path, &mut superseded)
+                {
+                    if !logs.contains_key(&key) && self.logs.contains_key(&key) {
+                        let log = self.load_parser(&key)?.0;
+                        logs.insert(key.clone(), log);
+                    }
+                    if let Some(log) = logs.get_mut(&key) {
+                        agent_hud_agents::cursor::live::apply(&mut log.live, &run);
+                        live_heads.push(key);
+                    }
+                }
+            }
+        }
+
+        if is_bot {
+            // Local build: each listed Bot's standing, from its transcript
+            // replica, is laid on its session's live log (turn, question card,
+            // reply, a command it runs on this Mac).
+            let directory = path.parent().ok_or("Grok Bot cache folder unavailable")?;
+            if let Some(account) = agent_hud_agents::grok::cache::account(directory) {
+                let now = chrono::Utc::now().timestamp_millis();
+                let command = std::env::var_os("HOME").is_some_and(|home| {
+                    agent_hud_agents::grok::live::command_in_flight(Path::new(&home), now)
+                });
+                let agents = agent_hud_agents::grok::live::listed(directory, &account);
+                for run in agent_hud_agents::grok::live::runs(directory, &account, &agents, now, command) {
+                    let session = agent_hud_agents::grok::cache::session_id(&account, &run.agent);
+                    let Some(key) =
+                        self.resolve_session_path(stamp.source, &session, path, &mut superseded)
+                    else {
+                        continue;
+                    };
+                    if !logs.contains_key(&key) {
+                        if !self.logs.contains_key(&key) {
+                            continue;
+                        }
+                        let log = self.load_parser(&key)?.0;
+                        logs.insert(key.clone(), log);
+                    }
+                    let log = logs.get_mut(&key).unwrap();
+                    agent_hud_agents::grok::live::apply(&mut log.live, &run, now);
+                    live_heads.push(key);
+                }
+            }
         }
 
         if let Some(watermark) = page.watermark {
@@ -422,7 +538,12 @@ impl AgentHudCore {
             .commit()
             .map_err(|_| "Could not commit client database page")?;
 
-        for (mut log, _, _, bytes) in encoded {
+        for (mut log, head, _, bytes) in encoded {
+            // Turn text lives only in memory (`LiveLog::keep_words`): a head
+            // that carries an answer stays here for the sync to keep it.
+            if live_heads.contains(&log.path) {
+                self.logs.insert(log.path.clone(), head);
+            }
             log.meter_events.clear();
             self.parser_cache.insert(log, bytes);
         }
@@ -486,7 +607,11 @@ impl AgentHudCore {
                 log.live.parent_id = Some(parent.to_owned());
                 log.live.is_subagent = true;
             }
-            log.archived = row["archived"].as_bool().unwrap_or(false);
+            // Local build: only Cursor's own rows say whether a chat is
+            // archived; whether a Grok Bot is hidden is the roster's to say.
+            if source == "cursor" {
+                log.archived = row["archived"].as_bool().unwrap_or(false);
+            }
             log.naming.name(0, row["title"].as_str());
             if let Some(fallback) = row["titleFallback"].as_str() {
                 log.naming.fallback(fallback);

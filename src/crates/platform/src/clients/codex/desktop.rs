@@ -147,6 +147,36 @@ impl Drop for CodexDesktopObserver {
         self.stop();
     }
 }
+/// Local build: when a thread began compacting its context, while it does:
+/// Codex Desktop's state holds a `contextCompaction` item not yet completed
+/// in a turn still in progress (seen live: the item opens with the compaction
+/// and completes with it, then the thread goes idle).
+pub(crate) fn compacting_since(state: &Value) -> Option<i64> {
+    if state["threadRuntimeStatus"]["type"] != "active" {
+        return None;
+    }
+    state["turnHistory"]["history"]["entitiesByKey"]
+        .as_object()?
+        .values()
+        .filter(|turn| {
+            !matches!(
+                turn["status"].as_str(),
+                Some("completed" | "failed" | "interrupted" | "cancelled")
+            )
+        })
+        .flat_map(|turn| {
+            turn["items"].as_array().into_iter().flatten().filter_map(move |item| {
+                (item["type"] == "contextCompaction" && item["completed"] != true).then(|| {
+                    item["startedAtMs"]
+                        .as_i64()
+                        .or_else(|| turn["turnStartedAtMs"].as_i64())
+                        .unwrap_or_else(crate::hooks::now_ms)
+                })
+            })
+        })
+        .max()
+}
+
 fn valid_id(id: &str) -> bool {
     id.len() == 36
         && id.bytes().enumerate().all(|(i, b)| {
@@ -220,10 +250,21 @@ impl Shared {
             Vec::new()
         };
         sessions.sort();
+        // Local build: threads compacting their context now, since when.
+        let compacting = if self.active.load(Ordering::Acquire) {
+            state
+                .known
+                .iter()
+                .filter_map(|(thread, known)| Some((thread.clone(), compacting_since(&known.state)?)))
+                .collect::<HashMap<_, _>>()
+        } else {
+            HashMap::new()
+        };
         // Keep this complete-list replacement ordered with disconnect/stop. The
         // Requests owner changes phase only; this creates no actionable request.
         self.requests
             .set_native_waiting(AGENT.id, &sessions, crate::hooks::now_ms());
+        self.requests.set_native_compacting(AGENT.id, &compacting);
     }
     fn reconcile(&self, thread: &str, owner: &str, state_value: Value) {
         if !self.active.load(Ordering::Acquire) {

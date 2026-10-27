@@ -98,6 +98,10 @@ pub struct Activity {
     #[serde(default)]
     pub desktop_ask: Option<DesktopAsk>,
     pub latest: Option<Work>,
+    /// When the client began compacting its context, where its own records
+    /// say so (程小帮's compaction calls); hooks report it for others.
+    #[serde(default)]
+    pub compacting_since: Option<i64>,
 }
 
 impl Activity {
@@ -587,7 +591,7 @@ impl LiveLog {
         let requests = self.requests(now).map(|call| json!({"id":format!("log:{source}:{id}:{}",call.id),"sessionId":id,"kind":call.request,"at":iso(Some(call.at))})).collect::<Vec<_>>();
         let activity = self.activity.as_ref().map(|activity| {
             let open = activity.calls.iter().rev().find(|call| call.work.is_some_and(Work::shown)).or_else(|| activity.calls.last());
-            json!({"work":activity.work,"openCall":open.map(|call| json!({"work":call.work,"at":iso(Some(call.at))})),"toolAt":iso(activity.tool_at),"delegating":subagents_at.is_some() || activity.calls.iter().any(|call|call.work==Some(Work::Agents)),"awaitsModel":activity.awaits_model(),"retrying":activity.retrying,"compactingSince":null})
+            json!({"work":activity.work,"openCall":open.map(|call| json!({"work":call.work,"at":iso(Some(call.at))})),"toolAt":iso(activity.tool_at),"delegating":subagents_at.is_some() || activity.calls.iter().any(|call|call.work==Some(Work::Agents)),"awaitsModel":activity.awaits_model(),"retrying":activity.retrying,"compactingSince":iso(activity.compacting_since)})
         });
         let turn_id = turn.and_then(|turn| {
             turn.id.clone().or_else(|| {

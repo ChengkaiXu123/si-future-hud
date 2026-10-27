@@ -7,6 +7,7 @@ pub(super) struct Presentation<'a> {
     claude_jobs: &'a claude_jobs::ClaudeJobs,
     pending: HashMap<String, HashMap<String, Vec<Value>>>,
     native_waiting: HashMap<String, HashSet<String>>,
+    native_compacting: HashMap<String, HashMap<String, i64>>,
     now: i64,
 }
 impl AgentHudCore {
@@ -17,6 +18,7 @@ impl AgentHudCore {
             claude_jobs: &self.claude_desktop.jobs,
             pending: self.requests.session_attention(),
             native_waiting: self.requests.native_waiting_sessions(),
+            native_compacting: self.requests.native_compacting_sessions(),
             now,
         }
     }
@@ -66,6 +68,10 @@ impl Presentation<'_> {
                 {
                     session["navigationTarget"] = json!({"kind":"codex-thread","id":id});
                 }
+                // Local build: 程小帮 has no link into one session; its app comes forward.
+                Some("chengxiaobang") => {
+                    session["navigationTarget"] = json!({"kind":"chengxiaobang-app","id":id});
+                }
                 _ => {}
             }
         }
@@ -89,6 +95,28 @@ impl Presentation<'_> {
         }
         if claude && session["navigationTarget"].is_null() {
             self.background_job_target(session, desktop);
+        }
+        // Local build: a Codex Desktop thread its own stream shows compacting
+        // its context has the compacting look, as Claude's PreCompact gives.
+        if let Some(since) = self
+            .native_compacting
+            .get(session["source"].as_str().unwrap_or(""))
+            .and_then(|sessions| sessions.get(session["id"].as_str().unwrap_or("")))
+            .copied()
+        {
+            if !session["liveFacts"].is_object() {
+                session["liveFacts"] = json!({"turnId":null,"turnStartedAt":null,"outcome":null,"endedAt":null,"limitedUntil":null,"observedAt":session["updatedAt"],"lastEventAt":session["updatedAt"],"activity":null,"requests":[]});
+            }
+            let facts = &mut session["liveFacts"];
+            if !facts["activity"].is_object() {
+                facts["activity"] = json!({"work":null,"openCall":null,"toolAt":null,"delegating":false,"awaitsModel":false,"retrying":false,"compactingSince":null});
+            }
+            facts["activity"]["compactingSince"] = json!(
+                chrono::DateTime::<chrono::Utc>::from_timestamp_millis(since).map(|at| at.to_rfc3339())
+            );
+            if !matches!(session["state"].as_str(), Some("running" | "waiting")) {
+                session["state"] = json!("running");
+            }
         }
         let source = session["source"].as_str().unwrap_or("");
         let id = session["id"].as_str().unwrap_or("");

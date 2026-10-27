@@ -89,7 +89,7 @@ pub fn install(app: &tauri::App) -> tauri::Result<()> {
         .icon(status_icon(&initial))
         .icon_as_template(false)
         .title(" —")
-        .tooltip("Agent HUD · highest usage")
+        .tooltip("SI Future HUD · highest usage")
         .menu(&menu)
         .show_menu_on_left_click(true)
         .on_menu_event(|app, event| match event.id.as_ref() {
@@ -110,7 +110,7 @@ fn statistics(app: &tauri::AppHandle) {
     let app = app.clone();
     tauri::async_runtime::spawn_blocking(move || {
         if let Err(error) = super::show_statistics(&app) {
-            eprintln!("Agent HUD Next Statistics: {error}");
+            eprintln!("SI Future HUD Statistics: {error}");
         }
     });
 }
@@ -269,7 +269,7 @@ pub(crate) fn apply(app: &tauri::AppHandle, state: Presentation) -> Result<(), S
     tray.set_title(Some(format!(" {value}")))
         .map_err(|e| e.to_string())?;
     tray.set_tooltip(Some(format!(
-        "Agent HUD · {}: {value}",
+        "SI Future HUD · {}: {value}",
         match (chinese, state.remaining) {
             (true, true) => "最低剩余额度",
             (true, false) => "最高已用额度",

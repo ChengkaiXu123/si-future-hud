@@ -63,7 +63,8 @@ pub fn read(path: &Path, cursor: &Value) -> rusqlite::Result<Page> {
             at,
             usage: Usage::default(),
             parent: None,
-            archived: false,
+            // Local build: Bots hidden or removed from the Bot's sidebar stay out of lists.
+            archived: row["isHiddenFromSidebar"] == true || row["isRemovedFromSidebar"] == true,
             updated: None,
             duration_ms: None,
         });

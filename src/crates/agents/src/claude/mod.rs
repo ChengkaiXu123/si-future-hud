@@ -12,7 +12,7 @@ use crate::{Location, Source};
 /// The Claude desktop app's questions take their answers as words into the
 /// session, through Agent HUD's Claude Code plugin.
 pub static REPLIES: Replies = Replies {
-    carrier: "Agent HUD's Claude Code plugin",
+    carrier: "SI Future HUD's Claude Code plugin",
     setting: "claudeAnswers",
 };
 

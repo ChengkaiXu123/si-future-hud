@@ -1,7 +1,7 @@
 //! Saves a change to a JSON settings file that another program owns, such as
 //! a client's `settings.json`. Only the values that changed are rewritten;
 //! every other key, its order, spacing and escapes stay byte for byte, so the
-//! user's own layout survives Agent HUD's edits.
+//! user's own layout survives SI Future HUD's edits.
 use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Map, Value};
 use std::collections::HashSet;

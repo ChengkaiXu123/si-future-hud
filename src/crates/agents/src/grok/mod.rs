@@ -2,6 +2,7 @@
 pub mod account;
 pub mod bot;
 pub mod cache;
+pub mod live;
 pub mod transcript;
 
 use crate::Agent;

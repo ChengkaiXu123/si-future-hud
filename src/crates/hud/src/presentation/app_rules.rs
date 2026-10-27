@@ -211,7 +211,7 @@ pub(super) fn note(draft: Option<&Value>) -> String {
         return "The app's own settings are as they are saved, so there is no draft of them."
             .into();
     };
-    let mut note = "The app's own settings show as an unsaved draft on every display: the user keeps it by hovering the Agent HUD on any of them and pressing Save in the panel, which keeps whatever else that panel shows unsaved with it, or drops it with Discard; it is dropped when Agent HUD restarts, and a setting of it also when the user changes that setting in Settings.".to_owned();
+    let mut note = "The app's own settings show as an unsaved draft on every display: the user keeps it by hovering the SI Future HUD on any of them and pressing Save in the panel, which keeps whatever else that panel shows unsaved with it, or drops it with Discard; it is dropped when SI Future HUD restarts, and a setting of it also when the user changes that setting in Settings.".to_owned();
     if draft["showMenuBarIcon"] == false {
         note += " With the menu-bar icon hidden, Save, Discard and the Settings button stay in the HUD's panel.";
     }

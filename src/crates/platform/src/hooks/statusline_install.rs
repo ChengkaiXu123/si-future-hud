@@ -25,8 +25,8 @@ fn unavailable() -> String {
 
 fn conflict() -> String {
     l10n::text(
-        "Antigravity CLI 的状态栏或 Agent HUD 安装记录已被其他程序修改，请先恢复原有配置。",
-        "The Antigravity CLI status line or Agent HUD installation record was modified externally; restore its previous configuration first.",
+        "Antigravity CLI 的状态栏或 SI Future HUD 安装记录已被其他程序修改，请先恢复原有配置。",
+        "The Antigravity CLI status line or SI Future HUD installation record was modified externally; restore its previous configuration first.",
     )
 }
 

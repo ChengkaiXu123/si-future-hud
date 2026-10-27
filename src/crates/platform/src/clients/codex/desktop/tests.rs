@@ -320,3 +320,26 @@ fn native_waiting_is_phase_only_and_clears_on_disconnect_and_stop() {
         .is_none_or(|sessions| sessions.is_empty()));
     assert!(requests.views(crate::hooks::now_ms()).is_empty());
 }
+
+/// Local build: a compaction in flight, in the shape Codex Desktop broadcast
+/// it on 2026-10-26 (a manual /compact): the item opens uncompleted in an
+/// in-progress turn while the thread is active, then completes and goes idle.
+#[test]
+fn a_thread_compacting_its_context_is_seen_until_it_completes() {
+    use super::super::desktop::compacting_since;
+    let state = |runtime: &str, status: &str, completed: bool| {
+        json!({
+            "threadRuntimeStatus": {"type": runtime, "activeFlags": []},
+            "turnHistory": {"history": {"entitiesByKey": {
+                "tail:0:local:old": {"status": "completed", "items": [{"type": "userMessage", "id": "u"}]},
+                "tail:0:local:2b47": {"status": status, "turnStartedAtMs": 1_793_012_822_000_i64,
+                    "items": [{"type": "contextCompaction", "id": "01a1", "source": "manual",
+                               "completed": completed, "startedAtMs": 1_793_012_823_248_i64}]}
+            }}}
+        })
+    };
+    assert_eq!(compacting_since(&state("active", "inProgress", false)), Some(1_793_012_823_248));
+    assert_eq!(compacting_since(&state("active", "inProgress", true)), None);
+    assert_eq!(compacting_since(&state("idle", "completed", true)), None);
+    assert_eq!(compacting_since(&state("idle", "inProgress", false)), None, "an idle thread compacts nothing");
+}

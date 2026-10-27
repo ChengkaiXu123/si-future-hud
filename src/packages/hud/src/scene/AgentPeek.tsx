@@ -49,7 +49,11 @@ export function peekItems(
       color: color(vendor.level),
     });
   if (!items.length)
-    items.push({ id: "quota", label: zh ? "额度" : "Quota", value: "--" });
+    items.push(
+      vendor.usage
+        ? { id: "usage", label: zh ? "24 小时" : "24h", value: vendor.usage }
+        : { id: "quota", label: zh ? "额度" : "Quota", value: "--" },
+    );
   return items;
 }
 
@@ -194,8 +198,16 @@ export function AgentPeek({
             height: 18 * scale,
           }}
         >
-          <span style={{ opacity: 0.55 }}>{zh ? "额度" : "Quota"}</span>
-          <strong>--</strong>
+          <span style={{ opacity: 0.55 }}>
+            {vendor.usage
+              ? zh
+                ? "最近 24 小时"
+                : "Last 24 hours"
+              : zh
+                ? "额度"
+                : "Quota"}
+          </span>
+          <strong>{vendor.usage ?? "--"}</strong>
         </div>
       )}
       {vendor.balance && (

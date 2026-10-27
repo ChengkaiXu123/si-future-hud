@@ -11,7 +11,7 @@ pub(super) fn certificate(
         0x31,
         seq([
             oid(&[2, 5, 4, 3]),
-            der(0x0c, format!("Agent HUD {device}").into_bytes()),
+            der(0x0c, format!("SI Future HUD {device}").into_bytes()),
         ]
         .concat()),
     ));

@@ -168,6 +168,7 @@ mod tests {
             ("antigravity", ".gemini/antigravity-cli/conversations"),
             ("antigravity", ".gemini/antigravity"),
             ("antigravity", ".gemini/antigravity/conversations"),
+            ("cursor", ".cursor/projects"),
             ("grok-cli", ".grok/sessions"),
             ("grok-cli", ".grok/logs"),
             ("copilot", ".copilot/session-state"),
@@ -184,6 +185,7 @@ mod tests {
             ("kimi", ".kimi/sessions"),
             ("pi", ".pi/agent/sessions"),
             ("devin", ".local/share/devin/cli"),
+            ("chengxiaobang", ".chengxiaobang/data"),
         ];
         let expected = expected
             .iter()

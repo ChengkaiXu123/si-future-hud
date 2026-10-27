@@ -48807,7 +48807,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -48816,7 +48816,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -48825,7 +48825,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. Their feedback: Split the migration into two steps."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. Their feedback: Split the migration into two steps."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -48837,7 +48837,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53118,7 +53118,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53127,7 +53127,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53136,7 +53136,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. Their feedback: Split the migration into two steps."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. Their feedback: Split the migration into two steps."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53148,7 +53148,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53305,7 +53305,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53314,7 +53314,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53323,7 +53323,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. Their feedback: Split the migration into two steps."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. Their feedback: Split the migration into two steps."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53335,7 +53335,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53492,7 +53492,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53501,7 +53501,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53510,7 +53510,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. Their feedback: Split the migration into two steps."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. Their feedback: Split the migration into two steps."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53522,7 +53522,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53903,7 +53903,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53912,7 +53912,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53921,7 +53921,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. Their feedback: Split the migration into two steps."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. Their feedback: Split the migration into two steps."
             },
             "hookEventName": "PermissionRequest"
           }
@@ -53933,7 +53933,7 @@
           "hookSpecificOutput": {
             "decision": {
               "behavior": "deny",
-              "message": "The user reviewed this plan in Agent HUD and did not approve it. They want to keep planning."
+              "message": "The user reviewed this plan in SI Future HUD and did not approve it. They want to keep planning."
             },
             "hookEventName": "PermissionRequest"
           }

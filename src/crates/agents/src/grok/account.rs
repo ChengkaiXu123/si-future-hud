@@ -57,7 +57,6 @@ pub fn read(host: &dyn Host) -> Result<Reading, String> {
         || expires <= observed
         || u["hasNonZeroIncludedLimit"] != true
         || !u["isSandTrial"].is_boolean()
-        || u["isTeamSeat"] == true
     {
         return Err(l10n::text(
             "Grok Bot 的个人额度缓存已过期，或在当前团队选择下不可用",
@@ -78,6 +77,9 @@ pub fn read(host: &dyn Host) -> Result<Reading, String> {
         ));
     }
     let trial = u["isSandTrial"] == true;
+    // Local build: a team seat's reading is cached under the personal view
+    // (selectedTeamId null) like any other, so it is shown, marked as a seat.
+    let seat = u["isTeamSeat"] == true;
     r.quotas.push(json!({"id":format!("{id}/grok"),"vendor":"grok-bot","accountId":id,"legacyWindowId":format!("{id}/grok"),"name":if trial{"Trial usage limit"}else{"Weekly usage limit"},"shortLabel":if trial{"Trial".to_owned()}else{window_names::Period::Week.short_name()},"usedPercent":used,"resetAt":reset,"windowDurationSeconds":if trial{None}else{Some(604800)},"allModels":true,"observedAt":observed.and_then(iso),"status":used.map(status).unwrap_or("unknown")}));
     let cap = u["onDemand"]["limitCents"].as_f64();
     let extra = u["onDemand"]["usedCents"].as_f64();
@@ -86,7 +88,7 @@ pub fn read(host: &dyn Host) -> Result<Reading, String> {
         r.quotas.push(json!({"id":format!("{id}/grok:extra"),"vendor":"grok-bot","accountId":id,"legacyWindowId":format!("{id}/grok:extra"),"name":"Extra usage","shortLabel":"Extra","usedPercent":used,"resetAt":reset,"allModels":true,"observedAt":observed.and_then(iso),"status":used.map(status).unwrap_or("unknown")}));
     }
     r.account = Some(
-        json!({"id":id,"provider":"grok-bot","identity":"unresolved","plan":u["grokPlanLabel"],"checkedAt":observed.and_then(iso)}),
+        json!({"id":id,"provider":"grok-bot","identity":"unresolved","plan":u["grokPlanLabel"],"teamSeat":seat,"checkedAt":observed.and_then(iso)}),
     );
     r.notice = Some(l10n::text(
         "额度来自 Grok Bot 缓存；在 Bot 中刷新可更新读数",
@@ -164,6 +166,20 @@ mod tests {
         assert_eq!(reading.quotas[1]["usedPercent"], 95.0);
         assert_eq!(reading.quotas[1]["status"], "critical");
         assert_eq!(reading.account.unwrap()["plan"], "SuperGrok");
+    }
+
+    #[test]
+    fn a_team_seat_read_in_the_personal_view_is_shown() {
+        let mut quota = fresh_quota(false);
+        quota["reading"]["usage"]["isTeamSeat"] = json!(true);
+        let reading = read(&host_with(quota)).unwrap();
+        assert_eq!(reading.quotas[0]["usedPercent"], 42.0);
+        assert_eq!(reading.account.unwrap()["teamSeat"], true);
+        // A team picked in the Bot is still not this account's own reading.
+        let mut quota = fresh_quota(false);
+        quota["reading"]["usage"]["isTeamSeat"] = json!(true);
+        quota["selectedTeamId"] = json!(7);
+        assert!(read(&host_with(quota)).is_err());
     }
 
     #[test]

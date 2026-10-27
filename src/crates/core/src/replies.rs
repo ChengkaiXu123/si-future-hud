@@ -19,4 +19,9 @@ pub trait SessionReplies: Send + Sync {
     /// Leaves `words` for that session as its user's next message. Err with
     /// the reason, in the app's language, when they could not be left.
     fn reply(&self, source: &str, session: &str, words: &str) -> Result<(), String>;
+    /// Local build: leaves words another agent sent, which are never an answer
+    /// to a question the session holds. Carriers that tell them apart say so.
+    fn relay(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
+        self.reply(source, session, words)
+    }
 }

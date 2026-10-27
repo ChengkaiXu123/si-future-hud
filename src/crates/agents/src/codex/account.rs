@@ -134,7 +134,7 @@ fn read_home(host: &dyn Host, executable: &Path, home: &Path) -> Result<Reading,
         folder: "codex",
         env: &[("CODEX_HOME", home.to_string_lossy().into_owned())],
     })?;
-    process.send(&json!({"id":1,"method":"initialize","params":{"clientInfo":{"name":"agent_hud","title":"Agent HUD","version":"0.1.0"}}}))?;
+    process.send(&json!({"id":1,"method":"initialize","params":{"clientInfo":{"name":"agent_hud","title":"SI Future HUD","version":"0.1.0"}}}))?;
     let deadline = Instant::now() + Duration::from_secs(30);
     let mut grace = deadline;
     let mut limits = None;

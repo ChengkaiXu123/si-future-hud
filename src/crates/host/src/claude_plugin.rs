@@ -121,6 +121,26 @@ fn install_error(error: String) -> String {
 /// as the Swift app's, has Claude Code install it from this app's instead.
 /// Runs in the background under the Settings actions' owner; never installs
 /// a plugin the user has not, and only logs a failure.
+/// Local build: installs Agent HUD's Claude Code plugin when Claude Code is
+/// here and runs no copy of it from this app. Ok(false) while Claude Code's
+/// command line is not here (a later launch tries again).
+pub(crate) fn install_once(app: &tauri::AppHandle) -> Result<bool, String> {
+    let state = app.state::<ClaudePlugin>();
+    let _owner = state
+        .owner
+        .lock()
+        .map_err(|_| "The plugin's owner is unavailable")?;
+    let home = super::mcp_clients::home()?;
+    let Some(executable) = super::mcp_clients::executable("claudeCode", &home) else {
+        return Ok(false);
+    };
+    let config = plugin::claude_config_directory(&home);
+    if !plugin::installed_from(&config, &state.folder) {
+        install(&state.channel, &state.folder, Some(&executable), &config, &home)?;
+    }
+    Ok(true)
+}
+
 pub(crate) fn repair_on_launch(app: &tauri::AppHandle) {
     // The demo leaves the user's Claude Code alone.
     if app.state::<super::AppState>().demo {

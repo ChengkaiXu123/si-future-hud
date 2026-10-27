@@ -20,7 +20,7 @@ const LAYOUT_KEYS: &[&str] = &[
     "sessions",
     "tokens",
 ];
-const DRAFT_NOTE: &str = "Shown in the panel as an unsaved draft. The user keeps it by hovering the Agent HUD and pressing Save in the panel; it is dropped when Agent HUD restarts.";
+const DRAFT_NOTE: &str = "Shown in the panel as an unsaved draft. The user keeps it by hovering the SI Future HUD and pressing Save in the panel; it is dropped when SI Future HUD restarts.";
 const SAVED_NOTE: &str = "This is the layout already saved, so there is no draft.";
 /// How long an edit holds a panel open, renewed by each edit.
 const HOLD_MS: i64 = 120_000;
@@ -475,7 +475,7 @@ fn proposal_note(s: &State, id: &str) -> String {
     if s.styles.contains_key(id) {
         let dropped =
             "and the style also when the user moves that HUD or changes that display in Settings.";
-        let both = format!("The user keeps both by hovering the Agent HUD on that display and pressing Save in the panel; they are dropped when Agent HUD restarts, {dropped}");
+        let both = format!("The user keeps both by hovering the SI Future HUD on that display and pressing Save in the panel; they are dropped when SI Future HUD restarts, {dropped}");
         if let Some(draft) = s.layouts.get(id) {
             return format!(
                 "Shown on {name} as {}, with its resting HUD's style as an unsaved draft too. {both}",
@@ -485,15 +485,15 @@ fn proposal_note(s: &State, id: &str) -> String {
         if uses_shared(s, id) && s.layouts.contains_key("all") {
             return format!("The resting HUD of {name} shows its style as an unsaved draft, and its panel the shared layout's unsaved draft. {both}");
         }
-        return format!("The resting HUD of {name} shows its style as an unsaved draft; its panel's layout is the one it has saved. The user keeps the style by hovering the Agent HUD on that display and pressing Save in the panel; it is dropped when Agent HUD restarts, {dropped}");
+        return format!("The resting HUD of {name} shows its style as an unsaved draft; its panel's layout is the one it has saved. The user keeps the style by hovering the SI Future HUD on that display and pressing Save in the panel; it is dropped when SI Future HUD restarts, {dropped}");
     }
     let Some(draft) = s.layouts.get(id) else {
         return format!("This is what {name} already has saved, so there is no draft for it.");
     };
     if attached(s, id).is_none() {
-        return format!("Kept for {name} as {}. It shows in that display's panel if it returns before Agent HUD restarts, which drops it; the user keeps it with Save in that panel.", what(draft));
+        return format!("Kept for {name} as {}. It shows in that display's panel if it returns before SI Future HUD restarts, which drops it; the user keeps it with Save in that panel.", what(draft));
     }
-    format!("Shown in the panel on {name} as {}. The user keeps it by hovering the Agent HUD on that display and pressing Save in the panel; it is dropped when Agent HUD restarts.", what(draft))
+    format!("Shown in the panel on {name} as {}. The user keeps it by hovering the SI Future HUD on that display and pressing Save in the panel; it is dropped when SI Future HUD restarts.", what(draft))
 }
 
 fn refusal(reasons: Vec<String>) -> String {

@@ -39,7 +39,7 @@ impl std::fmt::Display for IpcError {
             }
             Self::Protocol => f.write_str(&text(
                 "Codex 的回应无法识别",
-                "Codex answered in a way Agent HUD cannot read",
+                "Codex answered in a way SI Future HUD cannot read",
             )),
             Self::Rejected(reason) => {
                 if agent_hud_core::l10n::chinese() {

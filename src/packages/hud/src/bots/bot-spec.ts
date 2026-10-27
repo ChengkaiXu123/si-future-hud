@@ -306,6 +306,17 @@ export function botSpecs(light: boolean): Record<string, BotSpec> {
       spin: 7,
       crossesEyes: true,
     }),
+    chengxiaobang: spec({
+      radius: 0.4,
+      reach: 0.8,
+      shape: { kind: "rect", width: 0.8, height: 0.76, round: 0.16 },
+      paint: {
+        from: [0.5, 0.12],
+        to: [0.5, 0.88],
+        colors: ["#5aa8ff", "#1f63d6"],
+      },
+      eyeColor: "#ffffff",
+    }),
     devin: spec({
       reach: 0.55,
       shape: { kind: "outline", keep: 1, smooth: 5 },

@@ -177,7 +177,7 @@ export function HUDMarkStrip({
       {config.mode === "notch" ? (
         <div
           className="hud-classic-silhouette"
-          aria-label={zh ? "悬停展开 Agent HUD" : "Hover to expand Agent HUD"}
+          aria-label={zh ? "悬停展开 SI Future HUD" : "Hover to expand SI Future HUD"}
           tabIndex={0}
           role="button"
           aria-describedby={`hud-instructions-${id}`}

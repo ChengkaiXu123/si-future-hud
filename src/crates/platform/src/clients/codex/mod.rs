@@ -6,6 +6,8 @@ pub mod desktop;
 #[path = "desktop_windows.rs"]
 pub mod desktop;
 pub mod desktop_io;
+#[cfg(unix)]
+pub mod message;
 
 use serde_json::Value;
 use std::{

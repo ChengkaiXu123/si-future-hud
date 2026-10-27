@@ -182,10 +182,10 @@ fn reconcile(app: &tauri::AppHandle, connected: &HashSet<String>) {
                 let _ = release_text_focus(&window, &mut state);
                 let _ = apply_ignore_cursor(&window, &mut state, true, true);
                 if let Err(error) = window.hide() {
-                    eprintln!("Agent HUD Next HUD hide on disconnect: {error}");
+                    eprintln!("SI Future HUD HUD hide on disconnect: {error}");
                 }
                 if let Err(error) = window.destroy() {
-                    eprintln!("Agent HUD Next HUD destroy on disconnect: {error}");
+                    eprintln!("SI Future HUD HUD destroy on disconnect: {error}");
                 }
             }
             cancelled
@@ -278,7 +278,7 @@ fn configure_display(
     let was_dragging = state.drag.is_some();
     if was_dragging {
         if let Err(error) = restore_drag(app, &mut state, &shared) {
-            eprintln!("Agent HUD Next HUD drag rollback: {error}");
+            eprintln!("SI Future HUD HUD drag rollback: {error}");
         }
     }
     let result = configure(app, config, &mut state, &shared, display, false);
@@ -373,7 +373,7 @@ fn configure(
                 .into(),
             );
             host::panel_builder(app, &owner.label, url)
-                .title("Agent HUD Next HUD")
+                .title("SI Future HUD HUD")
                 .decorations(false)
                 .resizable(false)
                 .maximizable(false)
@@ -461,6 +461,6 @@ fn configure(
 
 pub(super) fn emit_geometry(app: &tauri::AppHandle, geometry: &HudGeometry) {
     if let Err(error) = app.emit("hud:geometry", geometry) {
-        eprintln!("Agent HUD Next HUD geometry event: {error}");
+        eprintln!("SI Future HUD HUD geometry event: {error}");
     }
 }

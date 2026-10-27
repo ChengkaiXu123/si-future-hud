@@ -2,7 +2,7 @@ pub(super) use super::unix::{client_command_line, configure_client_command, stop
 use serde_json::{json, Value};
 use std::path::Path;
 use std::{fs, path::PathBuf};
-const MARKER: &str = "# Agent HUD Next autostart\n";
+const MARKER: &str = "# SI Future HUD autostart\n";
 fn path() -> Result<PathBuf, String> {
     let root = std::env::var_os("XDG_CONFIG_HOME")
         .map(PathBuf::from)
@@ -53,7 +53,7 @@ pub(super) fn set_login(_identifier: &str, value: bool) -> Result<(), String> {
         .replace('%', "%%");
     fs::create_dir_all(path.parent().unwrap())
         .map_err(|_| "The autostart directory is unavailable")?;
-    let content=format!("{MARKER}[Desktop Entry]\nType=Application\nName=Agent HUD Next\nExec=\"{escaped}\"\nTerminal=false\nX-GNOME-Autostart-enabled=true\n");
+    let content=format!("{MARKER}[Desktop Entry]\nType=Application\nName=SI Future HUD\nExec=\"{escaped}\"\nTerminal=false\nX-GNOME-Autostart-enabled=true\n");
     let temporary = path.with_extension(format!("{}.tmp", std::process::id()));
     fs::write(&temporary, content).map_err(|_| "The autostart entry could not be written")?;
     fs::rename(&temporary, &path).map_err(|_| "The autostart entry could not be committed".into())

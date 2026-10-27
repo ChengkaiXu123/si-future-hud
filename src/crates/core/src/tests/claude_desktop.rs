@@ -554,5 +554,5 @@ fn every_replies_setting_is_a_setting_that_starts_on() {
             assert_eq!(core.settings[replies.setting], true, "{}", agent.id);
         }
     }
-    assert_eq!(with_replies, 1, "Claude Code alone takes words today");
+    assert_eq!(with_replies, 2, "Claude Code and (local build) 程小帮 take words");
 }

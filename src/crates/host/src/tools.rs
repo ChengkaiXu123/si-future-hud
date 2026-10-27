@@ -182,6 +182,9 @@ fn handle(
             drop(owner);
             super::picture::capture(app, params)
         }
+        // Local build: an agent asks to send words to another agent's session;
+        // registering its card wakes the collector, which publishes it.
+        "send_message" => owner.runtime.request("agent_message", params.clone()),
         _ => Err("Unknown local application tool".into()),
     }
 }

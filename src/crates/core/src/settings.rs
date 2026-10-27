@@ -117,6 +117,7 @@ impl crate::AgentHudCore {
             | "appearanceFollowsScreen"
             | "hudTools"
             | "claudeAnswers"
+            | "chengxiaobangAnswers"
             | "readCopilotQuota"
             | "clientHooks"
             | "launchAtLogin"

@@ -16,6 +16,9 @@ pub use agent_hud_core::demo::DemoScript;
 pub use agent_hud_core::l10n;
 pub use agent_hud_core::projects;
 pub use agent_hud_core::replies;
+pub use agent_hud_platform::chengxiaobang_plugin;
+/// Local build: Codex's data folder and, on Unix, its desktop-message carrier.
+pub use agent_hud_platform::clients::codex as codex_client;
 pub use agent_hud_platform::claude_plugin;
 pub use agent_hud_platform::hooks;
 pub use agent_hud_platform::instance;
@@ -103,6 +106,10 @@ impl Runtime {
             .lock()
             .unwrap_or_else(|p| p.into_inner())
             .observe_local_clients()?;
+        hooks
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .start_codex_desktop()?;
         core.set_platform(platform.name());
         core.set_provider_discovery(platform.discover_providers());
         let legacy_database = platform.legacy_quota_database();
@@ -209,7 +216,12 @@ impl Runtime {
         let mut hooks = self.hooks.lock().unwrap_or_else(|p| p.into_inner());
         hooks.delegate_owner(context)?;
         if self.core.client_hooks_enabled() {
-            hooks.set_enabled(true)?;
+            // Local build: one client that can't take hooks leaves the others
+            // working; its notice shows in Settings.
+            if let Err(error) = hooks.set_enabled(true) {
+                eprintln!("SI Future HUD hooks: {error}");
+                let _ = hooks.configure(true);
+            }
         }
         Ok(())
     }
@@ -308,7 +320,7 @@ impl Runtime {
             self.platform.reveal_transcript(&path)?;
             return Ok(json!({"opened":true,"action":"reveal_transcript"}));
         }
-        if method == "answer_request" {
+        if method == "answer_request" || method == "agent_message" {
             return self.core.request(method, params);
         }
         if method == "antigravity_cli_status" {

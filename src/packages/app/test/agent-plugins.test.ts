@@ -129,7 +129,7 @@ test("the MCP row asks for the one step left, and never removes from its main bu
     ],
     [
       "Unavailable",
-      "Only the Agent HUD installed in Applications can add HUD tools.",
+      "Drag SI Future HUD out of its disk image into Applications and open it from there to add HUD tools.",
       [],
     ],
   );

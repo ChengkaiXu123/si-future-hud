@@ -236,6 +236,7 @@ fn vendor_name(source: &str) -> String {
         "qwen" => "Qwen",
         "qoder" => "Qoder",
         "devin" => "Devin",
+        "chengxiaobang" => "程小帮",
         _ => source,
     };
     name.to_owned()

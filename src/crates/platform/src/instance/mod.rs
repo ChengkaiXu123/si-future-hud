@@ -56,14 +56,14 @@ impl std::fmt::Display for CollectorError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Held { path, executable } => {
-                write!(formatter, "Agent HUD already owns {}", path.display())?;
+                write!(formatter, "SI Future HUD already owns {}", path.display())?;
                 if let Some(executable) = executable {
                     write!(formatter, " ({})", application(executable).display())?;
                 }
                 Ok(())
             }
             Self::Unavailable(error) => {
-                write!(formatter, "Agent HUD could not take its lock: {error}")
+                write!(formatter, "SI Future HUD could not take its lock: {error}")
             }
         }
     }

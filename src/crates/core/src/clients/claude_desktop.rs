@@ -64,8 +64,8 @@ impl crate::AgentHudCore {
         (self.settings[REPLIES.setting] == false).then(|| {
             Unreachable::new(
                 crate::l10n::text(
-                    "在 Agent HUD 里回答 Claude 的提问已关闭（设置 → 智能体插件）。",
-                    "Answering Claude's questions in Agent HUD is off (Settings → Agent plugins).",
+                    "在 SI Future HUD 里回答 Claude 的提问已关闭（设置 → 智能体插件）。",
+                    "Answering Claude's questions in SI Future HUD is off (Settings → Agent plugins).",
                 ),
                 Some(AnswerFix::TurnOnAnswers),
             )
@@ -97,8 +97,8 @@ impl crate::AgentHudCore {
             Some(replies) => replies.reaches(CLAUDE.id, session),
             None => Err(Unreachable::new(
                 crate::l10n::text(
-                    "Agent HUD 不能把回答发进 Claude 会话。",
-                    "Agent HUD can't send answers into Claude sessions.",
+                    "SI Future HUD 不能把回答发进 Claude 会话。",
+                    "SI Future HUD can't send answers into Claude sessions.",
                 ),
                 None,
             )),
@@ -126,8 +126,8 @@ impl crate::AgentHudCore {
             }
             let replies = self.session_replies.as_ref().ok_or_else(|| {
                 crate::l10n::text(
-                    "Agent HUD 不能把回答发进 Claude 会话。",
-                    "Agent HUD can't send answers into Claude sessions.",
+                    "SI Future HUD 不能把回答发进 Claude 会话。",
+                    "SI Future HUD can't send answers into Claude sessions.",
                 )
             })?;
             replies.reply(

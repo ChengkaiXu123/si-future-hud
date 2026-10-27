@@ -50,9 +50,9 @@ fn launch(result: Result<CollectorLocks, CollectorError>, executable: Option<&Pa
 pub(crate) fn unavailable(error: &str) {
     let chinese = crate::shell::system_prefers_chinese();
     let title = if chinese {
-        "Agent HUD 无法启动"
+        "SI Future HUD 无法启动"
     } else {
-        "Agent HUD could not start"
+        "SI Future HUD could not start"
     };
     let body = if chinese {
         format!("无法独占使用数据目录或客户端回调，采集未启动。\n{error}")
@@ -92,12 +92,12 @@ pub(crate) fn refuse(holder: Option<&Path>) {
             )
         }
         None => text(
-            "请先退出正在运行的 Agent HUD，再打开这一个。",
-            "Quit the Agent HUD that is running first, then open this one.",
+            "请先退出正在运行的 SI Future HUD，再打开这一个。",
+            "Quit the SI Future HUD that is running first, then open this one.",
         ),
     };
     crate::shell::alert(
-        &text("Agent HUD 已在运行", "Agent HUD is already running"),
+        &text("SI Future HUD 已在运行", "SI Future HUD is already running"),
         &body,
         &text("好", "OK"),
     );

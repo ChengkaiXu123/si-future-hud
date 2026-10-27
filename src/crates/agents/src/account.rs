@@ -88,7 +88,7 @@ pub struct HttpRequest<'a> {
 pub struct EngineStart<'a> {
     pub executable: &'a Path,
     pub args: &'a [&'a str],
-    /// The engine's working folder, by name, under Agent HUD's own folder
+    /// The engine's working folder, by name, under SI Future HUD's own folder
     /// for account engines.
     pub folder: &'a str,
     /// Environment the engine gets on top of the user's.

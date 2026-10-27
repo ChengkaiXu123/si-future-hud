@@ -161,7 +161,7 @@ fn a_saved_glm_team_key_asks_for_the_team_quota() {
     ));
     let reading = glm(&host).unwrap();
     assert_eq!(reading.quotas.len(), 2);
-    assert_eq!(reading.services[0]["client"], "Agent HUD");
+    assert_eq!(reading.services[0]["client"], "SI Future HUD");
     let headers = host.headers.borrow();
     assert!(headers[0].contains(&("Bigmodel-Organization".into(), "org".into())));
     assert!(headers[0].contains(&("Bigmodel-Project".into(), "proj".into())));

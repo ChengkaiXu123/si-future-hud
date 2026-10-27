@@ -133,7 +133,7 @@ const pages = [
     icon: Plug,
     color: "#30b0c7",
     description:
-      "What Agent HUD adds to your coding agents. Everything here works on this Mac.",
+      "What SI Future HUD adds to your coding agents. Everything here works on this Mac.",
   },
   {
     id: "display",
@@ -147,7 +147,7 @@ const pages = [
     label: "Updates",
     icon: Download,
     color: "#007aff",
-    description: "Manage Agent HUD updates and Beta participation.",
+    description: "Manage SI Future HUD updates and Beta participation.",
   },
 ] as const;
 const chinesePages: Record<string, [string, string]> = {
@@ -155,10 +155,10 @@ const chinesePages: Record<string, [string, string]> = {
   agents: ["智能体", "管理实时状态、套餐与显示窗口。"],
   "agent-plugins": [
     "智能体插件",
-    "Agent HUD 为编程智能体添加的功能，都在这台 Mac 上运行。",
+    "SI Future HUD 为编程智能体添加的功能，都在这台 Mac 上运行。",
   ],
   display: ["显示", "自定义灵动岛光晕与面板内容，更改自动生效。"],
-  updates: ["更新", "管理 Agent HUD 更新与 Beta 参与设置。"],
+  updates: ["更新", "管理 SI Future HUD 更新与 Beta 参与设置。"],
 };
 const selectedScreenKey = "agenthud.next.selected-screen";
 
@@ -190,7 +190,7 @@ export default function App(props: AppProps = {}) {
 function AppContent({
   extensionPages = [],
   agentPlugins = [],
-  productName = "Agent HUD Next",
+  productName = "SI Future HUD",
   version = "0.1.0",
 }: AppProps) {
   const replaced = new Set(extensionPages.map((page) => page.replaces));
@@ -741,7 +741,7 @@ function AppContent({
                 })}
               </nav>
               <div className="sidebar-product">
-                <img src={appIcon} alt="Agent HUD" width={32} height={32} />
+                <img src={appIcon} alt="SI Future HUD" width={32} height={32} />
                 <div>
                   <strong>{productName}</strong>
                   <span>

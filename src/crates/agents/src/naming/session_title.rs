@@ -203,6 +203,7 @@ fn client_name(source: &str) -> &str {
         "qwen" => "Qwen",
         "zcode" => "ZCode",
         "devin" => "Devin",
+        "chengxiaobang" => "程小帮",
         "hermes" => "Hermes",
         "antigravity" => "Antigravity",
         "cursor" => "Cursor",

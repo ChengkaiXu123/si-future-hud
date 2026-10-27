@@ -503,8 +503,9 @@ export interface AppSettings {
   hudVisible: boolean;
   showMenuBarIcon?: boolean;
   hudTools?: boolean;
-  /** Answer the Claude desktop app's questions on the HUD through Agent HUD's Claude Code plugin; on unless turned off. */
+  /** Answer the Claude desktop app's questions on the HUD through SI Future HUD's Claude Code plugin; on unless turned off. */
   claudeAnswers?: boolean;
+  chengxiaobangAnswers?: boolean;
 }
 /** Acquisition status belongs to the selected native adapter, not the UI. */
 export interface PlatformCapabilities {

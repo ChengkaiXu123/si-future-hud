@@ -180,8 +180,8 @@ export function mcpRow(input: McpInput): RowState {
   if (!input.added) {
     const unavailable: Words | undefined = !input.setupReady
       ? [
-          "Only the Agent HUD installed in Applications can add HUD tools.",
-          "只有装在「应用程序」里的 Agent HUD 才能添加 HUD 工具。",
+          "Drag SI Future HUD out of its disk image into Applications and open it from there to add HUD tools.",
+          "先把 SI Future HUD 从安装盘拖进「应用程序」，再从那里打开，才能添加 HUD 工具。",
         ]
       : !input.clientFound
         ? [`Install ${client} first.`, `请先安装 ${client}。`]
@@ -269,4 +269,87 @@ export function toolsSwitch(input: ToolsSwitchInput): {
         ? unavailable
         : null;
   return { unavailable, problem };
+}
+
+/** Local build: Agent HUD's 程小帮 plugin, written on launch; 程小帮 loads it
+ * once it is enabled on 程小帮's own Plugins page. */
+export function chengxiaobangPluginRow(input: {
+  found: boolean | null;
+  installed: boolean | null;
+  sessions: number;
+  running: boolean;
+}): RowState {
+  const base: Pick<RowState, "menu" | "next"> = { menu: [], next: null };
+  const busy: Words | null = input.running ? ["Installing…", "正在安装…"] : null;
+  if (input.installed === null && !busy)
+    return { ...base, tone: "off", status: checking, action: null, busy };
+  if (input.found === false)
+    return {
+      ...base,
+      tone: "off",
+      status: ["Not found on this Mac", "这台 Mac 上没有程小帮"],
+      action: null,
+      busy,
+    };
+  if (!input.installed)
+    return {
+      ...base,
+      tone: "off",
+      status: ["Not installed", "未安装"],
+      action: { id: "install", label: ["Install", "安装"] },
+      busy,
+    };
+  if (input.sessions > 0)
+    return {
+      ...base,
+      tone: "working",
+      status: sessionCount(input.sessions),
+      action: null,
+      busy,
+    };
+  return {
+    ...base,
+    tone: "attention",
+    status: ["Enable it in 程小帮", "等你在程小帮里启用"],
+    action: null,
+    busy,
+    next: {
+      words: [
+        "Enable SI Future HUD on 程小帮's Plugins page once; open sessions load it when you switch to them.",
+        "在程小帮的「插件」页启用 SI Future HUD（只需一次）；已打开的会话切换一下就会加载。",
+      ],
+    },
+  };
+}
+
+/** Local build: Agent HUD's MCP server in 程小帮's mcp.json. */
+export function chengxiaobangMcpRow(input: {
+  found: boolean | null;
+  listed: boolean | null;
+  running: boolean;
+}): RowState {
+  const base: Pick<RowState, "menu" | "next"> = { menu: [], next: null };
+  const busy: Words | null = input.running ? ["Adding…", "正在添加…"] : null;
+  if (input.listed === null && !busy)
+    return { ...base, tone: "off", status: checking, action: null, busy };
+  if (input.listed)
+    return {
+      ...base,
+      tone: "working",
+      status: ["Ready to use", "可以使用"],
+      action: null,
+      busy,
+    };
+  return {
+    ...base,
+    tone: "off",
+    status: ["Not added", "未添加"],
+    action: {
+      id: "add",
+      label: ["Add", "添加"],
+      unavailable:
+        input.found === false ? ["Install 程小帮 first.", "请先安装程小帮。"] : undefined,
+    },
+    busy,
+  };
 }

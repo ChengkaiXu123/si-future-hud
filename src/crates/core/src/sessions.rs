@@ -115,6 +115,8 @@ impl AgentHudCore {
         self.ensure_usage_projection();
         self.requests.expire(now);
         self.sync_claude_desktop_asks(now);
+        self.sync_chengxiaobang_asks(now);
+        self.sync_window_asks(now);
         // The snapshot, the session list's pages and the session details of a
         // pass share one fingerprint: it holds while the logs, the requests and
         // the hook facts (their deadlines included) stay as they were, for up

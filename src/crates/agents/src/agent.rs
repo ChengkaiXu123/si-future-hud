@@ -1,7 +1,7 @@
 //! The descriptor every client has, and the registry of them all.
 use crate::hooks::{Hooks, Observer};
 use crate::{
-    antigravity, buddy, claude, codex, copilot, cursor, deepseek, devin, glm, grok, hermes, kimi,
+    antigravity, buddy, chengxiaobang, claude, codex, copilot, cursor, deepseek, devin, glm, grok, hermes, kimi,
     openclaw, opencode, pi, qoder, qwen, zcode,
 };
 use crate::{Channel, Discovery, PerOs, Replies, Source};
@@ -64,6 +64,7 @@ pub static ALL: &[&Agent] = &[
     &qoder::QODER_WORK,
     &devin::AGENT,
     &glm::AGENT,
+    &chengxiaobang::AGENT,
 ];
 
 /// The client with this id.
@@ -103,6 +104,7 @@ mod tests {
                 "qoder-work",
                 "devin",
                 "glm",
+                "chengxiaobang",
             ]
         );
         for agent in ALL {

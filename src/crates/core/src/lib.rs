@@ -132,6 +132,9 @@ pub struct AgentHudCore {
     /// (`render_if_changed`).
     render: snapshot::Rendered,
     claude_desktop: crate::clients::claude_desktop::ClaudeDesktop,
+    chengxiaobang_asks: crate::clients::chengxiaobang::ChengxiaobangAsks,
+    window_asks: crate::clients::window_asks::WindowAsks,
+    agent_messages: crate::clients::agent_message::AgentMessages,
     /// The host's way into a session (`replies`); None in the public build.
     session_replies: Option<std::sync::Arc<dyn replies::SessionReplies>>,
     /// The store that keeps conversations (`conversation_feed`); None in the
@@ -161,7 +164,7 @@ impl AgentHudCore {
             .ok()
             .and_then(|bytes| serde_json::from_slice(&bytes).ok())
             .unwrap_or(Value::Null);
-        let mut settings = json!({"quotaDisplay":"consumed","codexHomes":[],"antigravityCliSettings":[],"appearance":"system","appearanceFollowsScreen":false,"language":"system","clientHooks":false,"readCopilotQuota":false,"approvalWaitMinutes":10,"launchAtLogin":true,"animations":true,"hudVisible":true,"showMenuBarIcon":true,"hudTools":false,"claudeAnswers":true});
+        let mut settings = json!({"quotaDisplay":"consumed","codexHomes":[],"antigravityCliSettings":[],"appearance":"system","appearanceFollowsScreen":false,"language":"system","clientHooks":false,"readCopilotQuota":false,"approvalWaitMinutes":10,"launchAtLogin":true,"animations":true,"hudVisible":true,"showMenuBarIcon":true,"hudTools":false,"claudeAnswers":true,"chengxiaobangAnswers":true});
         if let Some(values) = stored["settings"].as_object() {
             for (key, value) in values {
                 if settings.get(key).is_some() {
@@ -243,6 +246,9 @@ impl AgentHudCore {
             metrics_clock: None,
             render: Default::default(),
             claude_desktop: Default::default(),
+            chengxiaobang_asks: Default::default(),
+            window_asks: Default::default(),
+            agent_messages: Default::default(),
             session_replies: None,
             conversation_sink: None,
             conversation_positions: None,
@@ -428,8 +434,17 @@ impl AgentHudCore {
                 // A Claude desktop question's answer goes into its session
                 // first; a refusal leaves the card waiting with the reason.
                 self.answer_desktop_ask(id, &decision, now)?;
+                self.answer_chengxiaobang_ask(id, &decision, now)?;
+                // Local build: a message card's answer sends it, and the host
+                // flies a paper plane for it.
+                let flight = self.answer_agent_message(id, &decision, now)?;
                 self.requests.answer(id, &decision, now)?;
-                Ok(json!({"kind":"ack"}))
+                self.settle_agent_message(id);
+                Ok(json!({"kind":"ack","flight":flight}))
+            }
+            "agent_message" => {
+                let now = Utc::now().timestamp_millis();
+                self.propose_agent_message(&params, now)
             }
             "refresh" => {
                 self.reads.listing.note_changes(None);

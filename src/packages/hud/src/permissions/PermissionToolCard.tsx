@@ -112,10 +112,16 @@ export function PermissionToolCard({
               fontSize: 11,
               fontVariantNumeric: "tabular-nums",
               color: text(0.84),
-              display: "-webkit-box",
-              WebkitLineClamp: 6,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
+              // Local build: a message another agent asks to send shows in
+              // full (it scrolls), so Send never confirms unseen words.
+              ...(request.toolName === "hud_send_message"
+                ? { maxHeight: 220, overflowY: "auto" as const }
+                : {
+                    display: "-webkit-box",
+                    WebkitLineClamp: 6,
+                    WebkitBoxOrient: "vertical" as const,
+                    overflow: "hidden",
+                  }),
               whiteSpace: "pre-wrap",
               overflowWrap: "anywhere",
             }}

@@ -1,4 +1,4 @@
-//! Antigravity's completion hook, kept in Agent HUD's own `agent-hud` entry.
+//! Antigravity's completion hook, kept in SI Future HUD's own `agent-hud` entry.
 //! Its permissions are observed natively (`permissions.rs`), not through hooks.
 use crate::hooks::{Completed, Completion, Hooks, Layout, POSIX_ONLY};
 use crate::text;

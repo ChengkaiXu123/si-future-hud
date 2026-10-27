@@ -292,8 +292,24 @@ pub(super) fn stamp(path: &Path, source: &'static str, metadata: &fs::Metadata) 
                 None
             })
             .chain(related_meta.and_then(|m| m.modified().ok()))
+            // Local build: a Bot's live facts come from its replica, beside the roster.
+            .chain(if source == "grok-bot" {
+                grok_followed(path)
+            } else {
+                vec![]
+            })
             .max(),
     }
+}
+fn grok_followed(path: &Path) -> Vec<std::time::SystemTime> {
+    let (Some(directory), Some(home)) = (path.parent(), std::env::var_os("HOME")) else {
+        return vec![];
+    };
+    agent_hud_agents::grok::live::followed_writes(
+        directory,
+        Path::new(&home),
+        chrono::Utc::now().timestamp_millis(),
+    )
 }
 fn accepts(path: &Path, roots: &[(PathBuf, &'static str)]) -> bool {
     roots
@@ -364,7 +380,10 @@ pub(super) fn accepts_source(path: &Path, source: &str) -> bool {
                         && !name.ends_with(".zst")
                         && !name.ends_with(".tmp")))
         }
-        "hermes" | "zcode" | "devin" | "opencode" | "antigravity" | "grok-bot" => false,
+        "hermes" | "zcode" | "devin" | "opencode" | "antigravity" | "grok-bot" | "chengxiaobang"
+        | "cursor" => {
+            false
+        }
         "grok-cli" => name == "updates.jsonl" || name == "unified.jsonl",
         "copilot" => name == "events.jsonl",
         _ => name.ends_with(".jsonl"),
@@ -394,6 +413,16 @@ fn walk(
         return;
     }
     let name = path.file_name().unwrap_or_default();
+    // Local build: in Cursor's projects only the conversations' transcripts count.
+    if source == "cursor" {
+        let parent = path.parent().and_then(Path::file_name);
+        let keep = name == "projects"
+            || name == "agent-transcripts"
+            || parent.is_some_and(|parent| parent == "projects" || parent == "agent-transcripts");
+        if !keep {
+            return;
+        }
+    }
     if source == "grok-bot"
         && path.parent().is_some_and(|p| {
             p.file_name()
@@ -425,11 +454,12 @@ fn walk(
     {
         return;
     }
-    if matches!(source, "zcode" | "devin")
+    if matches!(source, "zcode" | "devin" | "chengxiaobang")
         && !path
             .join(match source {
                 "zcode" => "db.sqlite",
                 "devin" => "sessions.db",
+                "chengxiaobang" => "chengxiaobang.sqlite",
                 _ => "opencode.db",
             })
             .is_file()
@@ -494,7 +524,8 @@ fn owned_path(path: &Path, roots: &[(PathBuf, &'static str)]) -> Option<(PathBuf
     for (root, source) in roots {
         if path == root || path.starts_with(root) {
             if *source == "grok-bot"
-                && path == super::grok_cache::path(root, super::grok_cache::ACCOUNT_KEY)
+                && (path == super::grok_cache::path(root, super::grok_cache::ACCOUNT_KEY)
+                    || agent_hud_agents::grok::live::is_replica(path))
             {
                 return Some((root.clone(), *source));
             }

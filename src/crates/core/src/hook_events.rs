@@ -185,6 +185,21 @@ impl HookEvidence {
             if !supported {
                 continue;
             }
+            // Local build: a Cursor conversation with a transcript is read
+            // from it (turns, tools, replies); its stop hook would only
+            // repeat the reply under another session.
+            if event.kind == "completion" && event.source == "cursor" {
+                let conversation = event
+                    .session_id
+                    .strip_prefix("cursor:")
+                    .unwrap_or(&event.session_id);
+                if std::env::var_os("HOME").is_some_and(|home| {
+                    agent_hud_agents::cursor::live::transcript_for(std::path::Path::new(&home), conversation)
+                        .is_some()
+                }) {
+                    continue;
+                }
+            }
             if event.kind == "attention" && !valid(event, now, DAY)
                 || event.kind == "compaction" && !valid(event, now, COMPACTION)
             {

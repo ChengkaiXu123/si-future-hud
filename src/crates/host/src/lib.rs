@@ -11,7 +11,9 @@ use tauri::{Emitter, Manager};
 use agent_hud_hud::{bots, presentation, vendors};
 
 mod activity;
+mod auto_setup;
 mod capture;
+mod chengxiaobang;
 mod claude_plugin;
 mod cli;
 mod coordinator;
@@ -300,6 +302,46 @@ impl Service {
                 app.try_state::<claude_plugin::ClaudePlugin>()
                     .map(|plugin| plugin.replies())
             });
+        // Local build: each client that takes words has its carrier: Claude
+        // Code (above), 程小帮 through Agent HUD's 程小帮 plugin (written into
+        // its plugins folder when 程小帮 is here), and Codex Desktop threads
+        // through the desktop app's IPC.
+        let replies = {
+            use agent_hud_runtime::chengxiaobang_plugin::{
+                chengxiaobang_directory, ChengxiaobangPlugin, RepliesBySource,
+            };
+            type Carrier = Arc<dyn agent_hud_runtime::replies::SessionReplies>;
+            let mut carriers: Vec<(&'static str, Carrier)> = Vec::new();
+            if let (Ok(data), Ok(home)) = (
+                agent_hud_runtime::local_tools_directory(),
+                agent_hud_runtime::home_directory(),
+            ) {
+                if chengxiaobang_directory(&home).is_dir() {
+                    let plugin = ChengxiaobangPlugin::new(
+                        data.join("chengxiaobang-channel"),
+                        &chengxiaobang_directory(&home),
+                    );
+                    // Installed with the app: the plugin and the HUD tools are in
+                    // place on every launch, as Claude Code's integration is.
+                    if let Err(error) = chengxiaobang::set_up(&app, &plugin) {
+                        eprintln!("SI Future HUD 程小帮 setup: {error}");
+                    }
+                    carriers.push(("chengxiaobang", Arc::new(plugin.replies())));
+                    app.manage(chengxiaobang::Chengxiaobang { plugin });
+                }
+            }
+            if let Some(claude) = replies {
+                carriers.push(("claude", claude));
+            }
+            #[cfg(unix)]
+            if let Ok(home) = agent_hud_runtime::codex_client::data_directory() {
+                carriers.push((
+                    "codex",
+                    Arc::new(agent_hud_runtime::codex_client::message::CodexReplies::new(home)),
+                ));
+            }
+            (!carriers.is_empty()).then(|| Arc::new(RepliesBySource(carriers)) as Carrier)
+        };
         if let Some(replies) = replies {
             backend
                 .lock()
@@ -495,6 +537,44 @@ struct AuxiliaryWindows {
     page: Mutex<Option<String>>,
 }
 
+/// Turns client hooks on or off: the hooks first (the transport owns waiting
+/// connections and may join on stop, so it is configured before the serial
+/// collector's lock), then the setting saved; a failed save puts the listener
+/// back as it was. Local build: shared by Settings and first-launch setup, so
+/// a switch whose hooks did not install is never saved as on.
+fn set_client_hooks(
+    app: &tauri::AppHandle,
+    hooks: &Arc<Mutex<agent_hud_runtime::hooks::Hooks>>,
+    hook_actions: &Arc<Mutex<()>>,
+    stopped: &AtomicBool,
+    backend: &Arc<Mutex<Backend>>,
+    params: Value,
+) -> Result<Value, String> {
+    let enabled = params["value"].as_bool().ok_or("clientHooks must be a boolean")?;
+    let _action = hook_actions.lock().map_err(|_| "Hook action owner unavailable")?;
+    if stopped.load(Ordering::Acquire) {
+        return Err("The application is stopping".into());
+    }
+    let previous = {
+        let mut hooks = hooks.lock().map_err(|_| "Hook service unavailable")?;
+        let previous = hooks.is_listening();
+        hooks.set_enabled(enabled)?;
+        previous
+    };
+    let result = match backend.lock() {
+        Ok(mut backend) => backend.request(app, "set_setting", params),
+        Err(_) => Err("Runtime lock is unavailable".into()),
+    };
+    if result.is_err() {
+        if let Ok(mut hooks) = hooks.lock() {
+            if hooks.set_enabled(previous).is_err() {
+                return Err("The hook setting failed and its previous listener state could not be restored".into());
+            }
+        }
+    }
+    result
+}
+
 #[tauri::command]
 async fn native_request(
     app: tauri::AppHandle,
@@ -530,27 +610,7 @@ async fn native_request(
         }
         if method=="set_setting" {if let Some(value)=app.state::<system::System>().set_setting(params["key"].as_str().ok_or("Setting key is required")?,&params["value"])? {params["value"]=value;}}
         if method=="set_setting" && params["key"]=="clientHooks" {
-            let enabled=params["value"].as_bool().ok_or("clientHooks must be a boolean")?;
-            let _action=hook_actions.lock().map_err(|_|"Hook action owner unavailable")?;
-            if stopped.load(Ordering::Acquire){return Err("The application is stopping".into());}
-            // The transport owns waiting connections and may join on stop. It
-            // must be configured before taking the serial collector's lock.
-            let previous={
-                let mut hooks=hooks.lock().map_err(|_|"Hook service unavailable")?;
-                let previous=hooks.is_listening();hooks.set_enabled(enabled)?;previous
-            };
-            let result={
-                match backend.lock(){
-                    Ok(mut backend)=>backend.request(&app,&method,params),
-                    Err(_)=>Err("Runtime lock is unavailable".into())
-                }
-            };
-            if result.is_err(){
-                if let Ok(mut hooks)=hooks.lock(){
-                    if hooks.set_enabled(previous).is_err(){return Err("The hook setting failed and its previous listener state could not be restored".into());}
-                }
-            }
-            return result;
+            return set_client_hooks(&app,&hooks,&hook_actions,&stopped,&backend,params);
         }
         let _turn = matches!(method.as_str(), "snapshot" | "refresh" | "request_snapshot")
             .then(|| collection.lock().unwrap_or_else(|poisoned| poisoned.into_inner()));
@@ -560,6 +620,9 @@ async fn native_request(
         // Success and failure notifications share this serial application owner.
         let edited=if method=="set_setting"{params["key"].as_str().map(str::to_owned)}else{None};
         let result=backend.request(&app,&method,params);
+        // Local build: a message card's answer flies its paper plane, at once
+        // (a HUD drops a flight it first sees more than 2 s late).
+        if method=="answer_request" {if let Ok(value)=&result {if value["flight"].is_object() {activity::publish(&app,"hud:flight",&value["flight"]);}}}
         // A newly enabled client's logs are read by the next collection pass.
         if result.is_ok() && method=="set_provider" {wake_collector(&wake, DATA);}
         if result.is_ok(){if let Some(key)=edited{if let Some(view)=app.state::<presentation::Presentation>().manual_app_edit(&key){coordinator::presentation_changed(&app,&view);}}}
@@ -662,7 +725,7 @@ fn show(app: &tauri::AppHandle) {
     let app = app.clone();
     tauri::async_runtime::spawn_blocking(move || {
         if let Err(error) = show_settings(&app) {
-            eprintln!("Agent HUD Next Settings: {error}");
+            eprintln!("SI Future HUD Settings: {error}");
         }
     });
 }
@@ -679,7 +742,7 @@ fn show_settings_page(app: &tauri::AppHandle, page: String) {
             use tauri::Emitter;
             let _ = app.emit_to("main", "settings:page", page);
         }
-        Err(error) => eprintln!("Agent HUD Next Settings: {error}"),
+        Err(error) => eprintln!("SI Future HUD Settings: {error}"),
     });
 }
 
@@ -856,6 +919,7 @@ pub fn run_with_options(
             presentation_request,
             mcp_clients::native_mcp_clients,
             claude_plugin::native_claude_plugin,
+            chengxiaobang::native_chengxiaobang_plugin,
             picture::picture_payload,
             picture::picture_complete,
             picture::picture_resize,
@@ -926,8 +990,13 @@ pub fn run_with_options(
                     app,
                     legacy.as_ref().and_then(|v| v.get("settings")).cloned(),
                 )?;
+                // Local build: a client whose hook settings can't be written
+                // (malformed, read-only, owned by root) never stops the app
+                // from starting; Settings shows that client's notice.
                 if let Some(path) = &options.canonical_executable {
-                    runtime.delegate_hook_owner(path.clone())?;
+                    if let Err(error) = runtime.delegate_hook_owner(path.clone()) {
+                        eprintln!("SI Future HUD hooks: {error}");
+                    }
                 }
                 let launch_at_login = runtime.launch_at_login_enabled();
                 let service = Service::start(
@@ -948,6 +1017,7 @@ pub fn run_with_options(
             screens::install(app)?;
             shell::install(app.handle());
             coordinator::start(app.handle())?;
+            auto_setup::on_launch(app.handle());
             // Keep the claimed lock throughout setup, but accept handovers
             // only once Settings and every command owner can answer them.
             if let Some(lock) = instance {
@@ -981,7 +1051,7 @@ pub fn run_with_options(
             }
         })
         .build(context)
-        .expect("Agent HUD Next could not start")
+        .expect("SI Future HUD could not start")
         .run(|app, event| {
             // The app lives in the menu bar: closing its last window does not quit it.
             if let tauri::RunEvent::ExitRequested {

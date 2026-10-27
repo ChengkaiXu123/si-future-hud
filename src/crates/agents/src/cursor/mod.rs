@@ -2,10 +2,17 @@
 pub mod account;
 mod events;
 mod hooks;
+pub mod live;
 mod sessions;
 
 use crate::Agent;
-use crate::{Discovery, Location};
+use crate::{Discovery, Location, Source};
+
+/// Local build: the agent transcripts Cursor writes per conversation.
+static SOURCES: [Source; 1] = [Source {
+    reads_as: "cursor",
+    location: Location::home(&[], &[".cursor"], "projects"),
+}];
 
 static DISCOVERY: Discovery = Discovery {
     storage: &[
@@ -29,7 +36,7 @@ static DISCOVERY: Discovery = Discovery {
 pub static AGENT: Agent = Agent {
     id: "cursor",
     name: "Cursor",
-    sessions: false,
+    sessions: true,
     hooks: Some(&hooks::HOOKS),
     observer: None,
     channel: None,
@@ -37,6 +44,6 @@ pub static AGENT: Agent = Agent {
     replies: None,
     turns: None,
     items: None,
-    sources: crate::everywhere(&[]),
+    sources: crate::everywhere(&SOURCES),
     discovery: &DISCOVERY,
 };
