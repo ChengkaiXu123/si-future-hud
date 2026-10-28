@@ -45,7 +45,7 @@ SI Future HUD 基于开源项目 [Agent HUD](https://github.com/jazzenchen/agent
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
     <img src="docs/si-future-hud/media/poster.jpg" alt="宣传片截图：刘海弹开后的面板" width="72%">
   </a><br>
-  <sub>▶ <b>看 2 分半的宣传片</b>（1080p60，MP4，34 MB）· 片中均为演示数据</sub>
+  <sub>▶ <b>看 3 分钟的宣传片</b>（1080p60，MP4，46 MB）· 片中均为演示数据</sub>
 </p>
 
 ## 鼠标移上刘海，一切尽收眼底
