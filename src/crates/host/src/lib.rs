@@ -971,6 +971,7 @@ pub fn run_with_options(
             startup_mode,
             presentation_request,
             mcp_clients::native_mcp_clients,
+            mcp_clients::native_codex_messages,
             claude_plugin::native_claude_plugin,
             chengxiaobang::native_chengxiaobang_plugin,
             picture::picture_payload,

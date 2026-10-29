@@ -349,3 +349,27 @@ pub async fn native_mcp_clients(
     .await
     .map_err(|e| e.to_string())?
 }
+
+/// Local build: whether Codex Desktop can take messages now, for its card
+/// in Settings: Codex is here, and its app answers on its local channel
+/// (`<codex home>/ipc/ipc.sock`), which only it serves.
+#[tauri::command]
+pub async fn native_codex_messages(window: tauri::WebviewWindow) -> Result<Value, String> {
+    if window.label() != "main" {
+        return Err("Codex's messages are shown in Settings".into());
+    }
+    tauri::async_runtime::spawn_blocking(|| {
+        let Ok(home) = agent_hud_runtime::codex_client::data_directory() else {
+            return json!({"found":false,"running":false});
+        };
+        let found = home.is_dir();
+        #[cfg(unix)]
+        let running =
+            found && std::os::unix::net::UnixStream::connect(home.join("ipc/ipc.sock")).is_ok();
+        #[cfg(not(unix))]
+        let running = false;
+        json!({"found":found,"running":running})
+    })
+    .await
+    .map_err(|e| e.to_string())
+}

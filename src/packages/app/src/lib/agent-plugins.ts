@@ -197,10 +197,12 @@ export function mcpRow(input: McpInput): RowState {
       next: copied,
     };
   }
+  // Messages go on with "Let agents arrange the HUD" off: only reading
+  // and arranging the HUD wait for it.
   if (!input.toolsOn)
     return {
       tone: "attention",
-      status: ["Tools off", "工具已关闭"],
+      status: ["Messages only", "仅可传话"],
       action: {
         id: "turn-on",
         label: ["Turn on", "打开"],
@@ -369,6 +371,45 @@ export function chengxiaobangPluginRow(input: {
         "程小帮里点开过的对话才能收消息；以前收过消息的对话会先排队，等你再点开时送达。",
       ],
     },
+  };
+}
+
+/** Local build: whether Codex Desktop takes messages now. Codex needs no
+ * plugin: the HUD starts a turn through the app's own local channel. */
+export function codexMessagesRow(input: {
+  found: boolean | null;
+  running: boolean | null;
+}): RowState {
+  const base: Pick<RowState, "menu" | "next" | "action" | "busy"> = {
+    menu: [],
+    next: null,
+    action: null,
+    busy: null,
+  };
+  if (input.found === null || input.running === null)
+    return { ...base, tone: "off", status: checking };
+  if (!input.found)
+    return {
+      ...base,
+      tone: "off",
+      status: ["Codex desktop not found", "没有找到 Codex 桌面版"],
+    };
+  if (!input.running)
+    return {
+      ...base,
+      tone: "off",
+      status: ["Codex desktop isn't running", "Codex 桌面版没在运行"],
+      next: {
+        words: [
+          "Open the Codex desktop app; its conversations take messages while it runs.",
+          "打开 Codex 桌面版，它运行时里面的对话就能收消息。",
+        ],
+      },
+    };
+  return {
+    ...base,
+    tone: "working",
+    status: ["Ready to receive", "可以收消息"],
   };
 }
 

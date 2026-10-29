@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  codexMessagesRow,
   mcpRow,
   pluginRow,
   toolsSwitch,
@@ -138,7 +139,7 @@ test("the MCP row asks for the one step left, and never removes from its main bu
   const off = mcpRow({ ...mcp, added: true });
   assert.deepEqual(
     [off.tone, off.status, off.action?.id],
-    ["attention", ["Tools off", "工具已关闭"], "turn-on"],
+    ["attention", ["Messages only", "仅可传话"], "turn-on"],
   );
   assert.deepEqual(
     off.menu.map((item) => item.id),
@@ -239,4 +240,26 @@ test("the switch explains itself only when it cannot change or the channel broke
     listening: false,
   });
   assert.deepEqual(unsupported.unavailable, unsupported.problem);
+});
+
+test("Codex's message row says whether its desktop app can take messages", () => {
+  assert.equal(
+    codexMessagesRow({ found: null, running: null }).status[0],
+    "Checking…",
+  );
+  assert.deepEqual(codexMessagesRow({ found: false, running: false }).status, [
+    "Codex desktop not found",
+    "没有找到 Codex 桌面版",
+  ]);
+  const closed = codexMessagesRow({ found: true, running: false });
+  assert.deepEqual(
+    [closed.tone, closed.status[1], closed.action],
+    ["off", "Codex 桌面版没在运行", null],
+  );
+  assert.ok(closed.next);
+  const ready = codexMessagesRow({ found: true, running: true });
+  assert.deepEqual(
+    [ready.tone, ready.status[1], ready.next],
+    ["working", "可以收消息", null],
+  );
 });

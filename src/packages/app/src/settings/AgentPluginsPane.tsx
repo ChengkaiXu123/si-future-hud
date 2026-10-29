@@ -16,6 +16,7 @@ import {
   Copy,
   Info,
   LoaderCircle,
+  MessageSquare,
   MoreHorizontal,
   Wrench,
 } from "lucide-react";
@@ -39,6 +40,7 @@ import { snapshotLanguage } from "@agent-hud/ui/format";
 import {
   chengxiaobangMcpRow,
   chengxiaobangPluginRow,
+  codexMessagesRow,
   failure,
   mcpRow,
   pluginRow,
@@ -599,6 +601,59 @@ function ClaudePluginRow({
   );
 }
 
+/** Local build: native_codex_messages — whether Codex is here and its
+ * desktop app answers on its local channel. */
+interface CodexMessagesStatus {
+  found: boolean;
+  running: boolean;
+}
+let cachedCodexMessages: CodexMessagesStatus | null = null;
+
+/** Local build: Codex's row for messages from other agents. Codex needs no
+ * plugin, so its card shows here what the plugin row shows for the others. */
+function CodexMessagesRow({ zh, active }: { zh: boolean; active: boolean }) {
+  const t = (words: Words) => say(zh, words);
+  const [status, setStatus] = useState<CodexMessagesStatus | null>(
+    cachedCodexMessages,
+  );
+  // The app may open or quit while Settings is on screen: read again.
+  useEffect(() => {
+    if (!active || !isTauri()) return;
+    let dead = false;
+    const again = () =>
+      void invoke<CodexMessagesStatus>("native_codex_messages")
+        .then((next) => {
+          cachedCodexMessages = next;
+          if (!dead) setStatus(next);
+        })
+        .catch(() => {});
+    again();
+    const timer = setInterval(again, 10_000);
+    window.addEventListener("focus", again);
+    return () => {
+      dead = true;
+      clearInterval(timer);
+      window.removeEventListener("focus", again);
+    };
+  }, [active]);
+  return (
+    <PluginRow
+      icon={<MessageSquare size={14} strokeWidth={1.9} />}
+      title={t(["Messages", "收消息"])}
+      description={t([
+        "Messages other agents send through the HUD start a new turn in a Codex desktop conversation; one in the middle of a turn gets it when the turn ends. No plugin needed.",
+        "其他智能体通过 HUD 发来的消息，会在 Codex 桌面版的对话里开始新的一轮；对话正忙时，等这一轮结束再送进去。不用装插件。",
+      ])}
+      state={codexMessagesRow({
+        found: status ? status.found : null,
+        running: status ? status.running : null,
+      })}
+      zh={zh}
+      onAction={() => {}}
+    />
+  );
+}
+
 /** Local build: native_chengxiaobang_plugin — whether 程小帮 is here, whether
  * Agent HUD's plugin is in its plugins folder, how many sessions run it, and
  * whether its mcp.json lists the HUD tools. */
@@ -736,8 +791,8 @@ function ChengxiaobangCard({
         title={t(["HUD tools", "HUD 工具"])}
         tag="MCP"
         description={t([
-          "程小帮 can read the HUD and propose layouts and styles for you to save.",
-          "程小帮可以读取 HUD，提出布局和样式草稿，由你保存。",
+          "程小帮 can message other agents through the HUD (you confirm each one), read the HUD, and propose layouts and styles for you to save.",
+          "程小帮可以通过 HUD 给其他智能体发消息（每条都要你确认），读取 HUD，提出布局和样式草稿，由你保存。",
         ])}
         state={chengxiaobangMcpRow({
           found: status ? status.found : null,
@@ -983,6 +1038,9 @@ export function AgentPluginsPane({
                   onStatus={(next) => setPluginInstalled(next.installed)}
                 />
               )}
+              {card.id === "codex" && (
+                <CodexMessagesRow zh={zh} active={active} />
+              )}
               {own.map((item) => (
                 <Fragment key={item.id}>
                   {item.render({
@@ -1000,8 +1058,8 @@ export function AgentPluginsPane({
                   title={t(["HUD tools", "HUD 工具"])}
                   tag="MCP"
                   description={t([
-                    `${card.name} can read the HUD and propose layouts and styles for you to save.`,
-                    `${card.name} 可以读取 HUD，提出布局和样式草稿，由你保存。`,
+                    `${card.name} can message other agents through the HUD (you confirm each one), read the HUD, and propose layouts and styles for you to save.`,
+                    `${card.name} 可以通过 HUD 给其他智能体发消息（每条都要你确认），读取 HUD，提出布局和样式草稿，由你保存。`,
                   ])}
                   state={row}
                   error={errors[card.id]}

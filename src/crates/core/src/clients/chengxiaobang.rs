@@ -85,8 +85,7 @@ impl crate::AgentHudCore {
                 }
                 let way = if let Some(off) = self.chengxiaobang_answers_off() {
                     Err(off)
-                } else if ask.kind == "question" && self.chengxiaobang_asks.reached.contains(&key)
-                {
+                } else if ask.kind == "question" && self.chengxiaobang_asks.reached.contains(&key) {
                     // Once reached it stays answerable, until the plugin hands
                     // the question back to 程小帮's own window.
                     Ok(())
