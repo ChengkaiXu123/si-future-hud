@@ -72,7 +72,7 @@ sequenceDiagram
 只要能跑命令，不管有没有 HUD 工具，任何智能体都能发。命令会自己认出是哪个对话在发（Claude Code 看它所在的 `claude` 进程，Codex 和程小帮看它们的命令行环境），加 `--wait` 时会把回信直接打印出来：
 
 ```bash
-"/Applications/SI Future HUD.app/Contents/MacOS/agent-hud-next" send --to chengxiaobang --wait 600 <<'EOF'
+"/Applications/SI Future HUD.app/Contents/MacOS/agent-hud-next" send --to chengxiaobang --wait 1800 <<'EOF'
 我今天有哪些会？
 EOF
 ```

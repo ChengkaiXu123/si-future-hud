@@ -87,7 +87,7 @@ claude auth status
 
 **原因：** HUD 工具只会出现在 HUD 加上它之后新开的对话里。
 
-**解决：** 不用重启。HUD 会写入一个 `si-future-hud` 技能，已经开着的 Claude Code 和 Codex 窗口会立刻用上它；再说一遍要发的话，助手会改用 HUD 的命令行（`agent-hud-next send … --wait 600`），并把回信打印出来。见[互相传话 → 任何窗口都能发](MESSAGING.zh-CN.md#任何窗口都能发)。
+**解决：** 不用重启。HUD 会写入一个 `si-future-hud` 技能，已经开着的 Claude Code 和 Codex 窗口会立刻用上它；再说一遍要发的话，助手会改用 HUD 的命令行（`agent-hud-next send … --wait 1800`），并把回信打印出来。见[互相传话 → 任何窗口都能发](MESSAGING.zh-CN.md#任何窗口都能发)。
 </details>
 
 <details>

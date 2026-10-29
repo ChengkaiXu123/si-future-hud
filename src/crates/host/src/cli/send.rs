@@ -17,7 +17,7 @@ const HELP: &str = "\
 agent-hud-next send — 通过 SI Future HUD 给另一个智能体窗口发消息 / message another agent's window through SI Future HUD
 
   agent-hud-next send --to <claude|codex|chengxiaobang> [--session <id>] [--wait <秒/seconds>] --text \"…\"
-  agent-hud-next send --to codex --wait 600 <<'EOF'
+  agent-hud-next send --to codex --wait 1800 <<'EOF'
   …长消息 / a long message…
   EOF
 

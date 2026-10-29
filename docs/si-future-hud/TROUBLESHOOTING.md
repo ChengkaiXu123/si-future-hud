@@ -87,7 +87,7 @@ The terminal `claude` is signed in with an API key or through a cloud provider, 
 
 **Why:** the HUD tools reach only conversations started after the HUD added them.
 
-**Fix:** nothing to restart. The HUD writes an `si-future-hud` skill that open Claude Code and Codex windows pick up at once; ask again and the agent uses the HUD's command line instead (`agent-hud-next send … --wait 600`), which prints the reply. See [Messaging → From any window](MESSAGING.md#from-any-window).
+**Fix:** nothing to restart. The HUD writes an `si-future-hud` skill that open Claude Code and Codex windows pick up at once; ask again and the agent uses the HUD's command line instead (`agent-hud-next send … --wait 1800`), which prints the reply. See [Messaging → From any window](MESSAGING.md#from-any-window).
 </details>
 
 <details>

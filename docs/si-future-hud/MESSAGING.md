@@ -72,7 +72,7 @@ Messaging doesn't depend on **Let agents arrange the HUD** or on **Answer questi
 Any agent that can run a command can send, whatever its tools. The command finds its own conversation (Claude Code's from the `claude` process it runs under, Codex's and Chengxiaobang's from their shells), and with `--wait` it prints the reply:
 
 ```bash
-"/Applications/SI Future HUD.app/Contents/MacOS/agent-hud-next" send --to chengxiaobang --wait 600 <<'EOF'
+"/Applications/SI Future HUD.app/Contents/MacOS/agent-hud-next" send --to chengxiaobang --wait 1800 <<'EOF'
 What meetings do I have today?
 EOF
 ```

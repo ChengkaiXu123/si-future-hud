@@ -29,14 +29,14 @@ If a tool named `hud_send_message` (such as `mcp__agent-hud__hud_send_message`) 
 Otherwise — in a window opened before SI Future HUD was installed, for example — run the command line. It finds your own session by itself:
 
 ```bash
-"{exe}" send --to <claude|codex|chengxiaobang> --wait 600 <<'EOF'
+"{exe}" send --to <claude|codex|chengxiaobang> --wait 1800 <<'EOF'
 <your message>
 EOF
 ```
 
 - `--to`: `claude` (Claude Code), `codex` (Codex Desktop) or `chengxiaobang` (程小帮).
 - `--session <id>`: one receiving session; leave it out to reach that agent's most recently active session that can take messages.
-- `--wait <seconds>`: wait for the reply and print it (up to 3600). Use it whenever you need the answer. Without it the command returns at once, and a reply comes later as a new message only if this window can take messages.
+- `--wait <seconds>`: wait for the reply and print it (up to 3600). Use it whenever you need the answer, and wait long: the other agent may finish its own work first, and the user confirms both messages on the HUD. Without it the command returns at once, and a reply comes later as a new message only if this window can take messages.
 - Exit codes: 0 sent (with the reply printed when waiting); 2 no reply in time; 3 the user denied it or nobody confirmed it; 1 an error, which the output explains.
 - The text must not start with `/`, and holds at most 4000 characters.
 - In Codex's sandbox the command may be blocked from reaching the HUD: run it again with permission to leave the sandbox.
