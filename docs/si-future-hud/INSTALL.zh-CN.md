@@ -27,7 +27,7 @@ HUD 会在这些位置找它们：`~/.local/bin`、`~/.bun/bin`、`~/.npm-global
 
 最快的方式：直接下载 **[SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg)**（47 MB，免登录）。也可以到[发布页](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)（需登录公司 GitLab）下载：
 
-- `SI-Future-HUD_0.1.4_aarch64.dmg`：安装包
+- `SI-Future-HUD_0.1.5_aarch64.dmg`：安装包
 - `SHA256SUMS.txt`：校验值（想确认下载完整时用）
 
 校验方法：在下载文件夹里打开终端，运行：
@@ -36,7 +36,7 @@ HUD 会在这些位置找它们：`~/.local/bin`、`~/.bun/bin`、`~/.npm-global
 shasum -a 256 -c SHA256SUMS.txt --ignore-missing
 ```
 
-看到 `SI-Future-HUD_0.1.4_aarch64.dmg: OK` 就对了。
+看到 `SI-Future-HUD_0.1.5_aarch64.dmg: OK` 就对了。
 
 ## 2 · 拖进「应用程序」
 
