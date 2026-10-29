@@ -1,6 +1,8 @@
 # Changelog / 版本记录
 
-## Unreleased / 未发布
+## v0.1.5 · 2026‑10‑29
+
+What changed since 0.1.4: install it, and the agents on this Mac can message each other from every window, old or new. / 相对 0.1.4：装好之后，这台 Mac 上的智能体在新旧窗口里都能互相传话。
 
 **A first-run guide, and only your agents / 新手引导，只显示你在用的智能体**
 - **Get started**: on its first launch the HUD opens Settings on a six-step guide with the product's own pictures: where the HUD is, how its panel and bots read, how agents message each other, what was set up by itself (checked live), and the one step left for you, enabling the plugin in 程小帮, which ticks itself once done. It stays in Settings → Get started. / 新增「开始使用」：第一次启动时自动打开 6 步引导，配产品图示，讲清 HUD 在哪、面板和小机器人怎么看、怎么互相传话、哪些已自动配好（实时检查），以及还差你的一步：在程小帮里启用插件，启用后自动打勾；以后在「设置 → 开始使用」随时重看。
