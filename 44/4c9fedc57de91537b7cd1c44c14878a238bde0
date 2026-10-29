@@ -1,0 +1,84 @@
+src/crates/host/src/system/macos.rs
+  s_d48b3b8d3c26d0::t_b3ceee94a478e0 103-112,116-139
+src/crates/platform/src/local_tools/unix.rs
+  s_d48b3b8d3c26d0::t_4403ba1243961d 163-170
+src/packages/app/src/settings/AgentPluginsPane.tsx
+  s_d48b3b8d3c26d0::t_b2741f39d5497a 610-613,616,703-705,712-715
+src/crates/core/src/lib.rs
+  s_d48b3b8d3c26d0::t_8faaa014e7e228 449-453
+src/crates/core/src/clients/agent_message.rs
+  s_d48b3b8d3c26d0::t_2a8fab41ab6677 1-7,16-21,30-35,39-40,62-83,85,87-88,91-92,101-107,109,128-143,145-147,154-155,162-181,195-200,216-220,227-228,261-271,274-321,323-349,355,382-383,395-409,422-425,436,442-443,446,451,458-462,465-474,477,485,522-523,531-535,551-552,554,560-563,567-573,578,580,582,588-590,606-613,615-624,626-630,632,644-645,658,669-670,673,689-690,693
+  s_d48b3b8d3c26d0::t_1faf6a01c4c008 192,322,564-566
+src/crates/host/src/tools.rs
+  s_d48b3b8d3c26d0::t_c4f8a287899608 135-142,148
+src/packages/app/src/lib/agent-plugins.ts
+  s_d48b3b8d3c26d0::t_01ab2f38735d05 309-337,346-359,363-364,368-369
+  s_d48b3b8d3c26d0::t_5842f6543e5148 281-285
+docs/si-future-hud/MESSAGING.md
+  s_d48b3b8d3c26d0::t_02699252818046 35,60-61,64-80,96,99,103,107,110
+docs/si-future-hud/MESSAGING.zh-CN.md
+  s_d48b3b8d3c26d0::t_02699252818046 35,60-61,64-80,96,99,103,107,110
+src/crates/host/src/cli.rs
+  s_d48b3b8d3c26d0::t_19240436610b77 17-20,34-35
+src/crates/host/src/cli/send.rs
+  s_d48b3b8d3c26d0::t_19240436610b77 251,271
+  s_d48b3b8d3c26d0::t_5e88816a6f8178 1-125,129-250,252-270,272-299
+  s_d48b3b8d3c26d0::t_1faf6a01c4c008 126-128
+src/crates/host/src/agent_skills.rs
+  s_d48b3b8d3c26d0::t_1faf6a01c4c008 120-122
+  s_d48b3b8d3c26d0::t_ceeddc0d92046d 1-119,123-135
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_66bcf7db8a5dc9 3-23
+src/apps/mcp/src/index.ts
+  s_d48b3b8d3c26d0::t_1faf6a01c4c008 542-544,550-552
+  s_d48b3b8d3c26d0::t_08f09724dee95e 9-11,93-94,97-101,120-135,147,152-179
+  s_d48b3b8d3c26d0::t_d229055eb5211d 534
+src/crates/runtime/src/lib.rs
+  s_d48b3b8d3c26d0::t_40d4dd4fddb61c 109-111,114-117
+src/crates/core/src/replies.rs
+  s_d48b3b8d3c26d0::t_12985055c56131 27-32
+src/crates/host/src/lib.rs
+  s_d48b3b8d3c26d0::t_d5e535e1ae87eb 14
+  s_d48b3b8d3c26d0::t_c4f8a287899608 53-57,110-111
+  s_d48b3b8d3c26d0::t_397ce9cd2d2345 317-324,330-334
+src/crates/host/src/auto_setup.rs
+  s_d48b3b8d3c26d0::t_3dc73563fce803 3-4,48-57
+src/crates/platform/src/claude_plugin/mod.rs
+  s_d48b3b8d3c26d0::t_a1f0077d0b55ed 580-581
+  s_d48b3b8d3c26d0::t_9972d0d2ab0cb1 403-406,411
+  s_d48b3b8d3c26d0::t_e4dfd427864b0b 607-620,624-629
+  s_d48b3b8d3c26d0::t_26278e0b69b682 316-328,335-339,351-373,381-391
+  s_d48b3b8d3c26d0::t_1faf6a01c4c008 621-623
+src/crates/platform/src/chengxiaobang_plugin/mod.rs
+  s_d48b3b8d3c26d0::t_c4a81af93d2278 458,482-518
+  s_d48b3b8d3c26d0::t_8f7c0cba84e640 429-431
+  s_d48b3b8d3c26d0::t_d1c93606ba46e6 10,13-14,25,32-80,93-111,211-213,215-217,223-227,235-236,238-272,274-275,277,281,290-326,329-330,340,343,350-358,360-374,377
+src/crates/agents/src/chengxiaobang/transcript.rs
+  s_d48b3b8d3c26d0::t_02518195315bec 316-325
+src/crates/platform/src/claude_plugin/register.ts
+  s_d48b3b8d3c26d0::t_0aea0d01588b6b 12-14,35-37
+src/crates/platform/src/chengxiaobang_plugin/register.ts
+  s_d48b3b8d3c26d0::t_0aea0d01588b6b 26-28,48-50
+docs/si-future-hud/INSTALL.md
+  s_d48b3b8d3c26d0::t_831cdf2aac6283 16,89
+src/crates/host/src/chengxiaobang.rs
+  s_d48b3b8d3c26d0::t_28144191965aa2 5,12-14,18-24,31,33-38,60-65
+src/crates/core/src/source_db/tests.rs
+  s_d48b3b8d3c26d0::t_dc37e3f9896258 862-1010
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "444c9fedc57de91537b7cd1c44c14878a238bde0",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
