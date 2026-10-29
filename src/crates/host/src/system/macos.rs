@@ -1,6 +1,8 @@
 //! SMAppService uses only public frameworks. The Mac never posts system
 //! notifications: the HUD island is its alert surface.
-pub(super) use super::unix::{client_command_line, configure_client_command, stop_client};
+pub(super) use super::unix::{
+    client_command_line, configure_client_command, socket_answers, stop_client,
+};
 use objc2::{
     msg_send,
     rc::Retained,

@@ -7,3 +7,8 @@ pub(super) fn serve(mut command: Command) -> i32 {
         .map(|status| status.code().unwrap_or(1))
         .unwrap_or(1)
 }
+
+/// Not walked on Windows yet, so `send` can't tell which agent calls there.
+pub(super) fn ancestors() -> Vec<(u32, String)> {
+    Vec::new()
+}

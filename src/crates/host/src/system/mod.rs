@@ -48,6 +48,11 @@ pub(crate) fn stop_client(child: &mut std::process::Child) {
     target::stop_client(child)
 }
 
+/// Whether a program answers on the local socket at `path`.
+pub(crate) fn socket_answers(path: &std::path::Path) -> bool {
+    target::socket_answers(path)
+}
+
 pub struct System {
     identifier: String,
     cached: Mutex<Option<Value>>,

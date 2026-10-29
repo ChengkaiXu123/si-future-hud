@@ -363,11 +363,7 @@ pub async fn native_codex_messages(window: tauri::WebviewWindow) -> Result<Value
             return json!({"found":false,"running":false});
         };
         let found = home.is_dir();
-        #[cfg(unix)]
-        let running =
-            found && std::os::unix::net::UnixStream::connect(home.join("ipc/ipc.sock")).is_ok();
-        #[cfg(not(unix))]
-        let running = false;
+        let running = found && crate::system::socket_answers(&home.join("ipc/ipc.sock"));
         json!({"found":found,"running":running})
     })
     .await

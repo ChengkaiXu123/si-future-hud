@@ -23,6 +23,16 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+// A session's inbox is a Unix socket; Windows has none to reach yet.
+#[cfg(unix)]
+mod unix;
+#[cfg(unix)]
+use unix::{is_socket, process_runs, write_line};
+#[cfg(windows)]
+mod windows;
+#[cfg(windows)]
+use windows::{is_socket, process_runs, write_line};
+
 /// A session that has not checked in for this long no longer runs the plugin.
 pub const CHECK_IN_LIFETIME: Duration = Duration::from_secs(20);
 /// Words not taken within an hour expire.
@@ -565,34 +575,11 @@ pub fn native_inboxes(claude_config: &Path) -> Vec<(String, PathBuf)> {
         .collect()
 }
 
-#[cfg(unix)]
-fn process_runs(pid: u32) -> bool {
-    pid > 1 && unsafe { libc::kill(pid as libc::pid_t, 0) } == 0
-}
-#[cfg(not(unix))]
-fn process_runs(_pid: u32) -> bool {
-    false
-}
-
-#[cfg(unix)]
-fn is_socket(path: &Path) -> bool {
-    use std::os::unix::fs::FileTypeExt;
-    fs::symlink_metadata(path).is_ok_and(|meta| meta.file_type().is_socket())
-}
-#[cfg(not(unix))]
-fn is_socket(_path: &Path) -> bool {
-    false
-}
-
 /// Posts `text` into the inbox of the Claude Code session `session` at
 /// `socket`, named as SI Future HUD's (never as the session's own child: no
 /// token), so its inbound rules decide; a session that has since become
 /// another (/clear) drops it.
-#[cfg(unix)]
 pub fn post_to_inbox(socket: &Path, session: &str, text: &str) -> Result<(), String> {
-    use std::os::unix::net::UnixStream;
-    let mut stream = UnixStream::connect(socket).map_err(|error| error.to_string())?;
-    let _ = stream.set_write_timeout(Some(Duration::from_secs(5)));
     let mut line = json!({
         "type": "user",
         "message": {"content": text},
@@ -602,16 +589,7 @@ pub fn post_to_inbox(socket: &Path, session: &str, text: &str) -> Result<(), Str
     })
     .to_string();
     line.push('\n');
-    stream
-        .write_all(line.as_bytes())
-        .and_then(|()| stream.flush())
-        .map_err(|error| error.to_string())?;
-    let _ = stream.shutdown(std::net::Shutdown::Write);
-    Ok(())
-}
-#[cfg(not(unix))]
-pub fn post_to_inbox(_socket: &Path, _session: &str, _text: &str) -> Result<(), String> {
-    Err("Claude Code's session inbox is not reachable here".into())
+    write_line(socket, &line)
 }
 
 /// The HUD's answers to the Claude desktop app's questions, through the plugin.
@@ -861,3 +839,5 @@ fn write_json(file: &Path, value: &Value) -> Result<(), Refusal> {
 
 #[cfg(test)]
 mod tests;
+#[cfg(all(test, unix))]
+mod tests_unix;

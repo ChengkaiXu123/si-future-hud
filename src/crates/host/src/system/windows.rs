@@ -184,3 +184,8 @@ mod tests {
         );
     }
 }
+
+/// No Unix sockets to reach here.
+pub(super) fn socket_answers(_path: &Path) -> bool {
+    false
+}

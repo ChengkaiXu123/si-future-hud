@@ -12,3 +12,7 @@ pub(super) fn stop_client(child: &mut std::process::Child) {
     let _ = child.kill();
     let _ = child.wait();
 }
+
+pub(super) fn socket_answers(path: &std::path::Path) -> bool {
+    std::os::unix::net::UnixStream::connect(path).is_ok()
+}
