@@ -3,3 +3,232 @@
 @import "@agent-hud/ui/global.css";
 @source "../../hud/src";
 @source ".";
+
+/* Local build: Get started, the first-launch guide. */
+.guide {
+  display: grid;
+  gap: 14px;
+  max-width: 640px;
+}
+.guide-progress {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.guide-dot {
+  width: 22px;
+  height: 5px;
+  border: 0;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--muted);
+  cursor: pointer;
+  transition:
+    width 0.25s ease,
+    background-color 0.25s ease;
+}
+.guide-dot[data-state="seen"] {
+  background: color-mix(in srgb, var(--primary) 45%, transparent);
+}
+.guide-dot[data-state="current"] {
+  width: 38px;
+  background: var(--primary);
+}
+.guide-card {
+  /* As tall as a step with a picture, so Next stays put from step to step. */
+  min-height: 420px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--settings-card, var(--card));
+  border: 1px solid var(--settings-card-border, var(--border));
+  /* No fill: a window that doesn't run the animation still shows the card. */
+  animation: guide-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes guide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-card {
+    animation: none;
+  }
+}
+.guide-media {
+  background: #0b0b0d;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.guide-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.guide-body {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px 18px;
+}
+.guide-step {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  letter-spacing: 0.02em;
+}
+.guide-body h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 24px;
+  font-weight: 650;
+}
+.guide-body > p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--foreground);
+  opacity: 0.86;
+}
+.guide-agents {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.guide-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px 0 6px;
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--foreground);
+  font-size: 12px;
+}
+.guide-checks {
+  display: grid;
+  gap: 2px;
+  margin-top: 6px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.guide-check {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 10px;
+  padding: 10px 12px;
+  background: var(--settings-card, var(--card));
+}
+.guide-check + .guide-check {
+  border-top: 1px solid var(--border);
+}
+.guide-check-mark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-top: 1px;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+.guide-check[data-mark="done"] .guide-check-mark {
+  color: white;
+  background: #30c158;
+  animation: guide-pop 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.guide-check[data-mark="todo"] .guide-check-mark {
+  color: white;
+  background: #ff9f0a;
+}
+@keyframes guide-pop {
+  from {
+    transform: scale(0.6);
+  }
+  to {
+    transform: none;
+  }
+}
+.guide-check-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.guide-check-text strong {
+  font-size: 13px;
+  font-weight: 550;
+}
+.guide-check-text > span {
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--muted-foreground);
+}
+.guide-check-state {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  white-space: nowrap;
+}
+.guide-check[data-mark="done"] .guide-check-state {
+  color: var(--plugin-working, #30c158);
+  background: var(--plugin-working-fill, #30c15822);
+}
+.guide-check[data-mark="todo"] .guide-check-state {
+  color: var(--plugin-attention, #ff9f0a);
+  background: var(--plugin-attention-fill, #ff9f0a22);
+}
+.guide-howto {
+  margin: 6px 0 4px;
+  padding-left: 18px;
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 17px;
+}
+.guide-open[data-slot="button"] {
+  justify-self: start;
+  margin-top: 4px;
+  height: 28px;
+  gap: 6px;
+}
+.guide-link[data-slot="button"] {
+  justify-self: start;
+  margin: 4px 6px 4px;
+  height: 26px;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--primary);
+}
+.guide-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.guide-actions-main {
+  display: flex;
+  gap: 8px;
+}
+.guide-actions [data-slot="button"] {
+  gap: 5px;
+}

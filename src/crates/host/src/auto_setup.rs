@@ -55,6 +55,12 @@ pub(crate) fn on_launch(app: &tauri::AppHandle) {
                 eprintln!("SI Future HUD setup (skills): {error}");
             }
         }
+        // Once on each Mac: Settings opens on Get started, the guide that
+        // shows what was set up and the step left for the person.
+        if !done.contains_key("guide") {
+            super::show_settings_page(&app, "get-started".into());
+            done.insert("guide".into(), json!(now));
+        }
         // Every launch: a login item left at a moved or renamed app is bound to
         // this one (macOS keeps launching the bundle it was registered from).
         if let Some(bundle) = app

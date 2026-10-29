@@ -26,6 +26,7 @@ import {
   type HUDUpdateNotice,
 } from "./model";
 import { usePanelServices } from "./PanelContext";
+import { inUse } from "./resting-agents";
 import { useGround } from "./ground";
 import { FittingName } from "./panel/FittingName";
 import { SourceBalances, SourceProviderBlock } from "./panel/QuotaSection";
@@ -113,8 +114,7 @@ export const SourceHoverPanel = memo(function SourceHoverPanel({
           ...snapshot.providers
             .filter(
               (provider) =>
-                provider.detected &&
-                provider.enabled &&
+                inUse(provider) &&
                 (!focusVendor ||
                   vendorKey(provider.id) === vendorKey(focusVendor)) &&
                 !snapshot.billing.some(

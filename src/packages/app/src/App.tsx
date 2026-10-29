@@ -23,6 +23,7 @@ import {
   Puzzle,
   RefreshCw,
   Settings2,
+  Sparkles,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { Button } from "@agent-hud/ui/components/button";
@@ -112,6 +113,15 @@ class ViewErrorBoundary extends Component<
 type Page = string;
 const pages = [
   {
+    // Local build: the guide the app opens on its first launch.
+    id: "get-started",
+    label: "Get started",
+    icon: Sparkles,
+    color: "#ff9f0a",
+    description:
+      "A one-minute tour of SI Future HUD, and the one step it may need from you.",
+  },
+  {
     id: "general",
     label: "General",
     icon: Settings2,
@@ -151,6 +161,10 @@ const pages = [
   },
 ] as const;
 const chinesePages: Record<string, [string, string]> = {
+  "get-started": [
+    "开始使用",
+    "一分钟认识 SI Future HUD，并完成还差你的那一步。",
+  ],
   general: ["通用", "设置外观、语言、启动方式和客户端回调。"],
   agents: ["智能体", "管理实时状态、套餐与显示窗口。"],
   "agent-plugins": [
@@ -806,7 +820,8 @@ function AppContent({
                       {extensionPages
                         .find((item) => item.id === page)
                         ?.render({ snapshot, request: extensionRequest })}
-                      {(page === "general" ||
+                      {(page === "get-started" ||
+                        page === "general" ||
                         page === "display" ||
                         page === "agents" ||
                         page === "agent-plugins") && (

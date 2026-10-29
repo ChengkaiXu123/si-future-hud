@@ -45,8 +45,14 @@ const snapshot = {
     },
   ],
   providers: [
-    { id: "kimi", name: "Kimi", enabled: true, detected: true },
-    { id: "cursor", name: "Cursor", enabled: true, detected: true },
+    { id: "kimi", name: "Kimi", enabled: true, detected: true, sessions: 4 },
+    {
+      id: "cursor",
+      name: "Cursor",
+      enabled: true,
+      detected: true,
+      sessions: 2,
+    },
   ],
   sessions: [
     session("kimi", hoursAgo(30)),
@@ -88,19 +94,49 @@ test("the notch glow shows windows with a level, then balances", () => {
 });
 
 for (const mode of ["notch", "logos", "simple"] as const) {
-  test(`${mode} keeps detected clients without quotas or sessions, but not disabled or absent clients`, () => {
+  test(`${mode} keeps clients in use without quotas or sessions today, but not ones merely installed, disabled or absent`, () => {
     const onlyInstalled = {
       quotas: [],
       billing: [],
       sessions: [],
       providers: [
-        { id: "codex", name: "Codex", enabled: true, detected: true },
-        { id: "chatgpt", name: "ChatGPT", enabled: true, detected: true },
-        { id: "claude", name: "Claude", enabled: false, detected: true },
+        {
+          id: "codex",
+          name: "Codex",
+          enabled: true,
+          detected: true,
+          sessions: 3,
+        },
+        {
+          id: "kimi",
+          name: "Kimi",
+          enabled: true,
+          detected: true,
+          sessions: 0,
+          accountStatus: { status: "ready", checkedAt: null, notice: null },
+        },
+        // Files left behind (a config, an executable), never used here.
+        {
+          id: "copilot",
+          name: "Copilot",
+          enabled: true,
+          detected: true,
+          sessions: 0,
+        },
+        {
+          id: "claude",
+          name: "Claude",
+          enabled: false,
+          detected: true,
+          sessions: 9,
+        },
         { id: "cursor", name: "Cursor", enabled: true, detected: false },
       ],
     } as never;
-    assert.deepEqual(restingAgents(onlyInstalled, mode, now).order, ["codex"]);
+    assert.deepEqual(restingAgents(onlyInstalled, mode, now).order, [
+      "codex",
+      "kimi",
+    ]);
     assert.equal(restingAgents(onlyInstalled, mode, now).expiresAt, Infinity);
   });
 }

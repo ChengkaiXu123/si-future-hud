@@ -2,6 +2,10 @@
 
 ## Unreleased / 未发布
 
+**A first-run guide, and only your agents / 新手引导，只显示你在用的智能体**
+- **Get started**: on its first launch the HUD opens Settings on a six-step guide with the product's own pictures: where the HUD is, how its panel and bots read, how agents message each other, what was set up by itself (checked live), and the one step left for you, enabling the plugin in 程小帮, which ticks itself once done. It stays in Settings → Get started. / 新增「开始使用」：第一次启动时自动打开 6 步引导，配产品图示，讲清 HUD 在哪、面板和小机器人怎么看、怎么互相传话、哪些已自动配好（实时检查），以及还差你的一步：在程小帮里启用插件，启用后自动打勾；以后在「设置 → 开始使用」随时重看。
+- **The HUD shows the agents you use**: a client that left only files behind (an old config, a stray executable) no longer gets a bot; one needs sessions, usage or an account that answers. / HUD 只显示你在用的智能体：只剩残留配置或程序、从没用过的客户端不再显示，需要有会话、用量或能读的账号。
+
 **Messaging works from every window / 任何窗口都能传话**
 - **`agent-hud-next send`**: any agent window that can run a command can send, including ones opened before the HUD was installed. It finds its own conversation from the agent process it runs under, and `--wait` prints the reply. / 新增 `agent-hud-next send` 命令行：能跑命令的窗口都能发，包括 HUD 装好之前就开着的；它自己认出发件对话，加 `--wait` 会把回信直接打印出来。
 - **The `si-future-hud` skill** is written for Claude Code (`~/.claude/skills`) and Codex (`~/.agents/skills`) on launch; open windows pick it up at once. / 启动时给 Claude Code 和 Codex 写入 `si-future-hud` 技能，已开着的窗口立刻能用。

@@ -18,6 +18,21 @@ export function sourceID(snapshot: Snapshot, source: string): string {
   );
 }
 
+/** Local build: a client the HUD shows without a reading is one in use here:
+ * its sessions were read, its calls used something, or its account answers.
+ * Files a client left behind (an old config, a stray executable) don't make
+ * it show, so a HUD lists only the agents its person actually uses. */
+export function inUse(provider: Snapshot["providers"][number]): boolean {
+  return (
+    provider.detected &&
+    provider.enabled &&
+    ((provider.sessions ?? 0) > 0 ||
+      provider.discovery?.usage === true ||
+      provider.recent != null ||
+      provider.accountStatus?.status === "ready")
+  );
+}
+
 /** How long after its last event an agent still belongs on a Dynamic dock
  * (Open's ReportView.queueRecency). */
 const queueRecency = 86_400_000;
@@ -31,7 +46,7 @@ const queueRecency = 86_400_000;
  *   (ReportView.queueVendors);
  * - Simple: every window's agent in row order, then the agents billed by
  *   balance alone (SimpleMeterItem.items).
- * Each mode also includes detected, enabled clients without a reading.
+ * Each mode also includes clients in use without a reading (`inUse`).
  * Also returns when a recent session ages out of the day. */
 export function restingAgents(snapshot: Snapshot, mode: HUDMode, now: number) {
   const order: string[] = [];
@@ -66,8 +81,6 @@ export function restingAgents(snapshot: Snapshot, mode: HUDMode, now: number) {
         .forEach(({ source }) => add(source));
     }
   }
-  snapshot.providers
-    .filter((provider) => provider.detected && provider.enabled)
-    .forEach((provider) => add(provider.id));
+  snapshot.providers.filter(inUse).forEach((provider) => add(provider.id));
   return { order, expiresAt };
 }
