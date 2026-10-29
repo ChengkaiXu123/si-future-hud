@@ -1,0 +1,23 @@
+src/packages/app/src/styles.css
+  s_d48b3b8d3c26d0::t_05e6f660b3dd1f 339-351
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_05e6f660b3dd1f 7
+src/packages/app/src/settings/GetStartedPane.tsx
+  s_d48b3b8d3c26d0::t_05e6f660b3dd1f 170-189,373-383,406
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "d26f0329c84d7b54d82b11bf59aff044fa6a9ea2",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
