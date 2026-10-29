@@ -43,9 +43,9 @@ SI Future HUD is a customized build of the open‑source [Agent HUD](https://git
 
 <p align="center">
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
-    <img src="docs/si-future-hud/media/poster.jpg" alt="Still from the product film: the opened notch panel" width="72%">
+    <img src="docs/si-future-hud/media/poster.jpg" alt="The product film's opening title: the notch glowing over a dark horizon" width="72%">
   </a><br>
-  <sub>▶ <b>Watch the 3‑minute film</b> (1080p60, MP4, 46 MB) · sample data throughout</sub>
+  <sub>▶ <b>Watch the 3‑minute film</b> (1080p60, MP4, 46 MB) · outside the company network, <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.5/SI-Future-HUD-film-1080p60.mp4">download it from GitHub</a> · sample data throughout</sub>
 </p>
 
 ## Hover the notch. See everything.
