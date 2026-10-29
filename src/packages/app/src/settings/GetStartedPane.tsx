@@ -167,6 +167,26 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
           : "wait"
         : "todo";
 
+  // The plugin's card as 程小帮's plugin market shows it: its switch pulses
+  // while it is off, and stands on once it is enabled.
+  const pluginCard = (on: boolean) => (
+    <div className="guide-plugin" data-on={on ? "" : undefined} aria-hidden>
+      <span className="guide-plugin-icon">SI</span>
+      <span className="guide-plugin-text">
+        <strong>
+          SI Future HUD <em>V1.1.0</em>
+        </strong>
+        <span>
+          {t([
+            "Brings messages from other agents into this conversation…",
+            "把其他智能体经 SI Future HUD 发来的消息送进这个对话…",
+          ])}
+        </span>
+      </span>
+      <span className="guide-plugin-switch" />
+    </div>
+  );
+
   const steps: {
     title: Words;
     text: Words;
@@ -350,6 +370,17 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
                       : t(["Not enabled yet.", "还没启用。"])
             }
           >
+            {cxb?.found && cxbMark === "done" && (
+              <>
+                <span className="guide-where">
+                  {t([
+                    "You'll find it in 程小帮 under Plugins → Manage → Enabled.",
+                    "在程小帮的「插件 → 管理 → 已开启」里能看到它。",
+                  ])}
+                </span>
+                {pluginCard(true)}
+              </>
+            )}
             {cxb?.found && cxbMark !== "done" && (
               <>
                 <ol className="guide-howto">
@@ -372,21 +403,7 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
                     ])}
                   </li>
                 </ol>
-                <div className="guide-plugin" aria-hidden>
-                  <span className="guide-plugin-icon">SI</span>
-                  <span className="guide-plugin-text">
-                    <strong>
-                      SI Future HUD <em>V1.1.0</em>
-                    </strong>
-                    <span>
-                      {t([
-                        "Brings messages from other agents into this conversation…",
-                        "把其他智能体经 SI Future HUD 发来的消息送进这个对话…",
-                      ])}
-                    </span>
-                  </span>
-                  <span className="guide-plugin-switch" />
-                </div>
+                {pluginCard(false)}
                 <Button
                   size="sm"
                   className="guide-open"

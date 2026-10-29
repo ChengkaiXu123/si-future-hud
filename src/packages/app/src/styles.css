@@ -336,3 +336,16 @@
     animation: none;
   }
 }
+.guide-plugin[data-on] .guide-plugin-switch {
+  animation: none;
+  background: #1f1f1f;
+}
+.guide-plugin[data-on] .guide-plugin-switch::after {
+  animation: none;
+  transform: translateX(18px);
+}
+.guide-where {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
