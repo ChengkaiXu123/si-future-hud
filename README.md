@@ -23,7 +23,7 @@
   &nbsp;|&nbsp;
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/"><b>Website</b></a> ·
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">Watch the film</a> ·
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">Download</a> ·
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">Download</a> (<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest">GitHub</a>) ·
   <a href="docs/si-future-hud/INSTALL.md">Install</a> ·
   <a href="docs/si-future-hud/GUIDE.md">Guide</a> ·
   <a href="docs/si-future-hud/MESSAGING.md">Messaging</a> ·
@@ -188,7 +188,7 @@ Everything else Agent HUD supports comes along too, for example DeepSeek, GitHub
 
 ## Get started
 
-1. **Download** [SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg) (47 MB, no sign‑in), or from the [release page](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest) with its checksums. You need an Apple silicon Mac with macOS 12 or newer.
+1. **Download** [SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg) (47 MB, no sign‑in), or from the [release page](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest) with its checksums. Outside the company network, use the [GitHub release](https://github.com/ChengkaiXu123/si-future-hud/releases/latest) (no sign‑in). You need an Apple silicon Mac with macOS 12 or newer.
 2. **Drag** SI Future HUD into **Applications**, then open it from there.
 3. **Allow it once.** In **System Settings → Privacy & Security**, click **Open Anyway**. The build is ad‑hoc signed, not notarized.
 

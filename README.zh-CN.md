@@ -23,7 +23,7 @@
   &nbsp;|&nbsp;
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/"><b>产品网页</b></a> ·
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">看宣传片</a> ·
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">下载</a> ·
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">下载</a>（<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest">GitHub</a>）·
   <a href="docs/si-future-hud/INSTALL.zh-CN.md">安装</a> ·
   <a href="docs/si-future-hud/GUIDE.zh-CN.md">使用指南</a> ·
   <a href="docs/si-future-hud/MESSAGING.zh-CN.md">互相传话</a> ·
@@ -188,7 +188,7 @@ Agent HUD 支持的其他助手也都保留，比如 DeepSeek、GitHub Copilot C
 
 ## 开始使用
 
-1. **下载**：直接下载 [SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg)（47 MB，免登录），或者到[发布页](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)下载（带校验文件）。需要 Apple 芯片的 Mac，macOS 12 或更新。
+1. **下载**：直接下载 [SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg)（47 MB，免登录），或者到[发布页](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)下载（带校验文件）。不在公司网络里，就到 [GitHub 发布页](https://github.com/ChengkaiXu123/si-future-hud/releases/latest)下载（免登录）。需要 Apple 芯片的 Mac，macOS 12 或更新。
 2. **拖进「应用程序」**，再从「应用程序」里打开。
 3. **放行一次**：在「系统设置 → 隐私与安全性」里点「仍要打开」。这是临时签名的内部版本，没有经过苹果公证。
 

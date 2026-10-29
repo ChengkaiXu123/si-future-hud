@@ -25,7 +25,7 @@ HUD 会在这些位置找它们：`~/.local/bin`、`~/.bun/bin`、`~/.npm-global
 
 ## 1 · 下载
 
-最快的方式：直接下载 **[SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg)**（47 MB，免登录）。也可以到[发布页](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)（需登录公司 GitLab）下载：
+最快的方式：直接下载 **[SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg)**（47 MB，免登录，只限公司网络）。也可以到发布页下载下面的文件：[公司 GitLab 发布页](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest)（需登录），或 [GitHub 发布页](https://github.com/ChengkaiXu123/si-future-hud/releases/latest)（免登录，公司网络外也能用）：
 
 - `SI-Future-HUD_0.1.5_aarch64.dmg`：安装包
 - `SHA256SUMS.txt`：校验值（想确认下载完整时用）
