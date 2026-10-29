@@ -39,6 +39,10 @@ fn reword(source: &str, session: &str, ask: &DesktopAsk, now: i64) -> Option<Des
 #[derive(Default)]
 pub(crate) struct WindowAsks {
     asks: HashMap<String, crate::requests::Ticket>,
+    /// Local build: questions worded again from their files after a restart,
+    /// by session and question (None: the files had no words for it), kept
+    /// while the question stands so the files are read once.
+    worded: HashMap<String, Option<DesktopAsk>>,
 }
 
 fn view(
@@ -118,25 +122,46 @@ impl crate::AgentHudCore {
                 {
                     return None;
                 }
-                let ask = if standing.is_worded() {
-                    standing.clone()
-                } else {
-                    reword(source, &log.id, standing, now)?
-                };
-                let ask = &ask;
-                let key = crate::grok_cache::hash(&[&log.id, &ask.id]);
                 Some((
-                    format!("window-ask:{key}"),
                     source,
                     vendor,
                     window,
                     log.id.clone(),
                     log.cwd.clone(),
-                    ask.clone(),
+                    standing.clone(),
                 ))
             })
             .collect::<Vec<_>>();
-        for (req_id, source, vendor, window, session, cwd, ask) in candidates {
+        let mut worded = HashMap::new();
+        let mut cards = Vec::new();
+        for (source, vendor, window, session, cwd, standing) in candidates {
+            let key = crate::grok_cache::hash(&[&session, &standing.id]);
+            let ask = if standing.is_worded() {
+                standing
+            } else {
+                let fresh = self
+                    .window_asks
+                    .worded
+                    .remove(&key)
+                    .unwrap_or_else(|| reword(source, &session, &standing, now));
+                worded.insert(key.clone(), fresh.clone());
+                match fresh {
+                    Some(ask) => ask,
+                    None => continue,
+                }
+            };
+            cards.push((
+                format!("window-ask:{key}"),
+                source,
+                vendor,
+                window,
+                session,
+                cwd,
+                ask,
+            ));
+        }
+        self.window_asks.worded = worded;
+        for (req_id, source, vendor, window, session, cwd, ask) in cards {
             let view = view(
                 &req_id,
                 source,

@@ -79,7 +79,7 @@ claude auth status
 
 **原因：** 这个对话是在 HUD 装好插件之前打开的。
 
-**解决：** 在那个对话里输入 `/reload-plugins`，或者新开一个对话。新对话会自动加载插件。在那之前，它照样能用命令行发消息、拿到自己问题的回信（见下一条）。
+**解决：** 消息照样能通过 Claude Code 自带的收件箱送进去（需要 Claude Code 2.1.224 及以上）。如果这个对话开着「跳过权限确认」，收件箱会把消息扣下等批准，桌面版弹不出批准框：在那个对话里输入 `/reload-plugins`，或者新开一个对话。在 HUD 上回答它的提问，始终需要插件。
 </details>
 
 <details>
@@ -107,9 +107,9 @@ HUD 通过 `~/.codex/ipc/ipc.sock` 和 Codex 桌面版通信，这个通道只�
 </details>
 
 <details>
-<summary><b>「已拒收：对话正忙」</b></summary>
+<summary><b>发给正在忙的 Codex 对话的消息还没到</b></summary>
 
-Codex 的对话正在进行一轮工作时会拒收新消息，HUD 不会中途插话。等它这一轮做完，再让助手重发。
+Codex 的对话正在进行一轮工作时收不了新消息，HUD 也不会中途插话：你点「发送」后，消息会等这一轮结束再送进去。半小时还在忙就作废。
 </details>
 
 <details>

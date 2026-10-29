@@ -652,9 +652,9 @@ fn an_agent_message_waits_for_send_then_reaches_the_session_and_flies() {
     assert!(sent[0]
         .2
         .contains("<<<relayed-message>>>\nPlease check the totals.\n<<</relayed-message>>>"));
-    // The sender's thread isn't a Codex Desktop thread HUD lists: no reply route.
-    assert!(!sent[0].2.contains("thread-1"));
-    assert!(!sent[0].2.contains("to \"codex\""));
+    // The sender's thread isn't one the HUD has read yet (a new conversation):
+    // the reply is still routed to it, and refused then if it can't take it.
+    assert!(sent[0].2.contains("thread-1"), "{}", sent[0].2);
     // No Codex Desktop thread here: nothing takes the words.
     assert!(backend
         .request(
@@ -1007,4 +1007,89 @@ fn a_command_line_sender_waits_for_the_reply_and_hears_a_denial() {
             json!({"to":"chengxiaobang","text":"a2","caller":{"client":"claude","sessionId":"a"}}),
         )
         .is_err());
+}
+
+#[test]
+fn words_for_a_codex_thread_mid_turn_wait_for_the_turn_to_end() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<(String, String)>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, source: &str, session: &str, _: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push((source.into(), session.into()));
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let sessions = root.path().join("sessions");
+    std::fs::create_dir_all(&sessions).unwrap();
+    let thread = "01aaaaaa-0000-7000-8000-0000000000aa";
+    let file = sessions.join(format!("rollout-{thread}.jsonl"));
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    let line = |value: Value| value.to_string() + "\n";
+    let mut text = String::new();
+    for value in [
+        json!({"timestamp":at,"type":"session_meta","payload":{"id":thread,"timestamp":at,"cwd":"/tmp","originator":"Codex Desktop","cli_version":"0.1.0","source":"vscode"}}),
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"user_message","message":"build it"}}),
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_started"}}),
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":100,"cached_input_tokens":0,"output_tokens":10,"reasoning_output_tokens":0,"total_tokens":110},"last_token_usage":{"input_tokens":100,"cached_input_tokens":0,"output_tokens":10,"reasoning_output_tokens":0,"total_tokens":110}}}}),
+    ] {
+        text.push_str(&line(value));
+    }
+    std::fs::write(&file, &text).unwrap();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path: sessions.clone(),
+            provider: "codex",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+    let proposed = backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","text":"Totals are in.","caller":{"client":"claude","sessionId":"c1"}}),
+        )
+        .unwrap();
+    assert_eq!(proposed["to"]["session"], thread);
+    backend
+        .request(
+            "answer_request",
+            json!({"id":proposed["id"],"decision":{"kind":"allow"}}),
+        )
+        .unwrap();
+    assert!(
+        fake.0.lock().unwrap().is_empty(),
+        "nothing goes in while the turn runs"
+    );
+    // The turn ends: the next pass sends the words.
+    text.push_str(&line(
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_complete"}}),
+    ));
+    std::fs::write(&file, &text).unwrap();
+    refresh(&mut backend);
+    backend.request("snapshot", json!({})).unwrap();
+    assert_eq!(
+        fake.0.lock().unwrap().clone(),
+        vec![("codex".to_owned(), thread.to_owned())]
+    );
+    // The same words asked twice wait on one card.
+    let caller = json!({"client":"claude","sessionId":"c1"});
+    let first = backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","text":"again","caller":caller}),
+        )
+        .unwrap();
+    let second = backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","text":"again","caller":caller}),
+        )
+        .unwrap();
+    assert_eq!(first["id"], second["id"]);
 }

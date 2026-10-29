@@ -70,7 +70,10 @@ pub fn account(home: &Path) -> Option<String> {
             return account.clone();
         }
     }
-    let account = read_account(home);
+    // A read that fails (Cursor writing its database, a moment signed out)
+    // keeps the account read before, so a conversation keeps one id.
+    let account =
+        read_account(home).or_else(|| cache.as_ref().and_then(|(_, before)| before.clone()));
     *cache = Some((Instant::now(), account.clone()));
     account
 }
@@ -82,6 +85,7 @@ fn read_account(home: &Path) -> Option<String> {
         rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
     )
     .ok()?;
+    connection.busy_timeout(Duration::from_millis(250)).ok()?;
     let token: String = connection
         .query_row(
             "SELECT value FROM ItemTable WHERE key = 'cursorAuth/accessToken'",
@@ -258,6 +262,10 @@ fn work(name: &str) -> Option<Work> {
 pub fn stand(path: &Path, now: i64) -> Option<CursorRun> {
     let id = conversation(path)?.to_owned();
     let at = modified_ms(path)?;
+    // Local build: an old conversation stands nowhere; its tail isn't read.
+    if now - at >= RECENT_MS {
+        return None;
+    }
     let (lines, ended, turn_at) = last_turn(path)?;
     let running = ended.is_none() && !lines.is_empty() && now - at < OPEN_MS;
     let last_tool = lines

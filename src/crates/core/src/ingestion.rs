@@ -34,6 +34,11 @@ pub(crate) struct Reads {
     /// Logs a client's hook pointed at: read even when their size and time
     /// look unchanged.
     pub(crate) forced: HashSet<PathBuf>,
+    /// Local build: databases whose live state (程小帮's runs and the words
+    /// of its questions, which no checkpoint keeps) was read in this run.
+    pub(crate) live_read: HashSet<PathBuf>,
+    /// Local build: the print of the run last laid on each 程小帮 session.
+    pub(crate) run_prints: HashMap<PathBuf, String>,
 }
 
 #[derive(Default)]

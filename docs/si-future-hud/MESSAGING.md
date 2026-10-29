@@ -42,15 +42,15 @@ sequenceDiagram
 3. **The HUD shows a card** with who sends to whom, the target conversation and the whole text. You can scroll through it.
 4. **You choose:**
    - **Send**: a paper plane flies between their rings, and the text arrives as that conversation's next message.
-   - **Deny**: the plane falls, and the sender learns the message was refused.
+   - **Deny**: the plane falls. A sender waiting on the command line learns it was refused; one that used the tool hears nothing.
 5. **Replies work the same way.** A delivered message names its sender and session, so the receiver replies with that `to` and `session`. The answer lands in the conversation that asked, not just anywhere.
 
 ## Who can send, who can receive
 
 | | Sends | Receives | How it is delivered |
 | --- | :---: | :---: | --- |
-| **Claude Code** | ✓ | ✓ | Through the HUD's Claude Code plugin, into the open conversation |
-| **Codex desktop** | ✓ | ✓ | Over Codex desktop's local IPC socket (`~/.codex/ipc/ipc.sock`), as a new turn in that conversation |
+| **Claude Code** | ✓ | ✓ | Through the HUD's Claude Code plugin, into the open conversation; a conversation opened before the plugin gets it through its own inbox (Claude Code's cross-session messaging) |
+| **Codex desktop** | ✓ | ✓ | Over Codex desktop's local IPC socket (`~/.codex/ipc/ipc.sock`), as a new turn in that conversation; a conversation in the middle of a turn gets it when the turn ends |
 | **Codex CLI** | ✓ | – | It can send, but it can't receive, so it gets no replies |
 | **Chengxiaobang 程小帮** | ✓ | ✓ | Through its HUD plugin, to the exact conversation that asked |
 | Cursor, Grok Bot, others | – | – | Not supported |
@@ -61,8 +61,8 @@ Nothing, for new windows: the HUD sets everything up on its first launch. Window
 
 | Agent | To send | To receive |
 | --- | --- | --- |
-| **Claude Code** | New conversations get the HUD tools (`agent-hud` MCP). Conversations opened earlier use the command line, which the `si-future-hud` skill teaches them; a new skill reaches open conversations at once. | The HUD's Claude Code plugin, set up automatically. A conversation opened before it needs `/reload-plugins` (or a new conversation) — but it still gets the answer to its own question by waiting on the command line. |
-| **Codex** | The same: HUD tools in new conversations, the skill and the command line in older ones. In Codex's sandbox, allow the command to leave it when asked. | The conversation must be in the **Codex desktop app** and **not in the middle of a turn**. A command line that waits gets the reply anyway. |
+| **Claude Code** | New conversations get the HUD tools (`agent-hud` MCP). Conversations opened earlier use the command line, which the `si-future-hud` skill teaches them; a new skill reaches open conversations at once. | The HUD's Claude Code plugin, set up automatically. A conversation opened before it takes messages through Claude Code's own inbox (version 2.1.224 or later); one that skips permission prompts holds them for approval, which the desktop app can't show, so use `/reload-plugins` there. |
+| **Codex** | The same: HUD tools in new conversations, the skill and the command line in older ones. In Codex's sandbox, allow the command to leave it when asked. | The conversation must be in the **Codex desktop app**. One in the middle of a turn gets the message when the turn ends (within half an hour). |
 | **Chengxiaobang** | Nothing: its HUD tools are written into `~/.chengxiaobang/mcp.json` on launch. | Enable the **SI Future HUD** plugin once in Chengxiaobang → Plugins (no restart needed). Settings → Agent plugins shows whether it is enabled, with a button that opens Chengxiaobang. |
 
 Messaging doesn't depend on **Let agents arrange the HUD** or on **Answer questions**: those switches only cover the HUD tools and answering questions.
@@ -97,17 +97,16 @@ The agent writes the message itself, so you see exactly what will be sent before
 - **It never pretends to be you.** A delivered message is wrapped and marked as coming from another agent, so the receiver can't take it for your words. Chengxiaobang's plugin never treats it as your answer to a question.
 - **It doesn't jump into a question.** A conversation that is waiting for *your* answer to a question can't receive messages.
 - **Nothing piles up.** Each sending conversation can have at most **2** messages waiting for your decision.
-- **Codex isn't interrupted.** A Codex conversation in the middle of a turn refuses the message. There is no "steering". Try again when it is idle.
+- **Codex isn't interrupted.** A message for a Codex conversation in the middle of a turn waits until the turn ends; there is no "steering". It is dropped if the conversation stays busy for half an hour.
 - **No duplicates.** If Codex's receipt is unclear after the write, the message counts as delivered and is not sent again.
 - **Chengxiaobang to Chengxiaobang** must name a target session.
 - **The command line's identity is checked.** It takes the calling conversation from the agent process it runs under, never from its arguments; a conversation the HUD doesn't list shows as unverified on the card.
 
 ## Limits
 
-- **Chengxiaobang conversations queue; others don't.** A Chengxiaobang conversation that took messages before but isn't open now (Chengxiaobang restarted, say) gets the message once you open it, within an hour; the card says so. Other conversations that can't take a message now refuse it:
-  - it is closed;
-  - it is busy (Codex);
-  - it never ran the HUD's plugin.
+- **Some messages wait, others are refused.** A Chengxiaobang conversation that took messages before but isn't open now (Chengxiaobang restarted, say) gets the message once you open it, within an hour; a busy Codex conversation gets it when its turn ends, within half an hour. The card says so. A message is refused when:
+  - the conversation is closed;
+  - a Chengxiaobang conversation never ran the HUD's plugin.
 - **Only Claude Code, Codex (desktop) and Chengxiaobang** take part. Cursor and Grok Bot do not.
 - **The receiving agent processes the text like any prompt.** That means its model provider sees the text, just as if you had typed it there.
 

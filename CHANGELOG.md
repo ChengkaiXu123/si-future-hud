@@ -7,6 +7,9 @@
 - **The `si-future-hud` skill** is written for Claude Code (`~/.claude/skills`) and Codex (`~/.agents/skills`) on launch; open windows pick it up at once. / 启动时给 Claude Code 和 Codex 写入 `si-future-hud` 技能，已开着的窗口立刻能用。
 - **Chengxiaobang**: messages for a conversation that took messages before but isn't open now wait in a queue until it opens (an hour), instead of being refused; errors now say exactly what is missing (plugin not enabled, stopped, Chengxiaobang not running, no conversation open), and Settings shows it with a button that opens Chengxiaobang. / 程小帮：以前收过消息、现在没开着的对话改为排队送达；报错会准确说明缺哪一步，设置页也会显示，并能一键打开程小帮。
 - A Chengxiaobang installed after the HUD works without restarting the HUD. / 先装 HUD、后装程小帮，不用重启 HUD 也能传话。
+- **Claude Code conversations opened before the plugin take messages** through Claude Code's own inbox (cross-session messaging, 2.1.224+), under their own inbound rules. / 插件装好之前就开着的 Claude Code 对话，也能通过 Claude Code 自带的收件箱收消息（按它自己的入站规则）。
+- **A busy Codex conversation gets the message when its turn ends** (within half an hour) instead of refusing it. / 发给正在忙的 Codex 对话的消息，等这一轮结束自动送进去，不再拒收。
+- The same message sent twice (a retry after a timeout) waits on one card; a Codex sender in a brand-new conversation gets its reply. / 同一条消息重发只出一张卡；全新的 Codex 对话发出的消息也能收到回信。
 
 **Fixes / 修复**
 - Messaging no longer depends on **Let agents arrange the HUD** or **Answer questions**. / 传话不再受「让智能体排版 HUD」和「回答提问」开关影响。
@@ -20,6 +23,11 @@
 - The MCP relay answers the client's handshake within two seconds, and accepts `null` for optional ids. / MCP 中继两秒内完成握手，可选参数传 `null` 也不报错。
 - A Codex Desktop channel that fails to start no longer stops the app. / Codex 桌面版通道启动失败不再导致整个应用起不来。
 - Chengxiaobang databases without a `kind` column no longer break its reading. / 程小帮数据库缺 `kind` 列时不再整体读取失败。
+- An MCP entry left at a deleted build is replaced instead of counting as set up; the automatic set-up and Settings no longer run Claude's or Codex's command at the same time; a plugin disabled in Claude Code is named as such. / 指向已删除程序的 MCP 条目会被修正，不再算"已配好"；自动配置和设置页不再同时调用命令；插件在 Claude Code 里被停用时会如实提示。
+- Chengxiaobang's questions keep their words after a HUD restart; a Chengxiaobang run that hasn't changed no longer rewrites its session's record on every database write. / HUD 重启后程小帮的提问卡片不再丢字；程小帮的运行状态没变时不再反复重写会话记录。
+- Cursor: a conversation the dashboard lists no longer flickers away when its transcript is deleted, a busy state database no longer splits a conversation in two, and old transcripts aren't read on the first scan. / Cursor：仪表盘列出的对话不再因删掉聊天记录而来回消失；数据库忙时不再把一个对话拆成两个；首次扫描不再读很旧的记录。
+- Questions worded again after a restart are read from their files once, not on every refresh; a question left by a run that never ended stops blocking messages after 30 minutes. / 重启后补回的提问文字只读一次；没结束的旧提问 30 分钟后不再挡住传话。
+- The MCP relay counts the 4000 characters as the app does (emoji included), says that `hud_session` returns conversation messages, and survives the engine stopping mid-call. / MCP 中继按"字"计 4000 字（含表情），说明 `hud_session` 会返回对话内容，引擎中途退出时不再整个崩掉。
 
 ## v0.1.4 · 2026‑10‑26
 

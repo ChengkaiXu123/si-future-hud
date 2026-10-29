@@ -48,7 +48,13 @@ pub(crate) fn executable(client: &str, home: &std::path::Path) -> Option<PathBuf
         .into_iter()
         .find(|path| path.is_file())
 }
+/// Local build: whether `client` lists Agent HUD's MCP server at a program
+/// that is there (an entry left at a deleted build doesn't count).
 fn installed(client: &str, home: &std::path::Path) -> bool {
+    listed_command(client, home).is_some_and(|command| std::path::Path::new(&command).is_file())
+        && listed(client, home)
+}
+fn listed(client: &str, home: &std::path::Path) -> bool {
     let path = if client == "claudeCode" {
         std::env::var_os("CLAUDE_CONFIG_DIR")
             .map(PathBuf::from)
@@ -154,6 +160,10 @@ fn listed_command(client: &str, home: &std::path::Path) -> Option<String> {
 /// HUD tools still names the old place; it is pointed at this app again.
 /// Only an entry that names this app's own executable elsewhere is touched.
 pub(crate) fn repoint(app: &tauri::AppHandle, client: &str) -> Result<bool, String> {
+    let Some(owner) = app.try_state::<Clients>() else {
+        return Ok(false);
+    };
+    let _guard = owner.0.lock().map_err(|_| "MCP client owner unavailable")?;
     let home = home()?;
     let Some(path) = app
         .state::<super::HostOptions>()
@@ -178,8 +188,11 @@ pub(crate) fn repoint(app: &tauri::AppHandle, client: &str) -> Result<bool, Stri
         .file_name()
         .and_then(|name| name.to_str())
         .unwrap_or("agent-hud-next");
+    // Ours moved or renamed, or any entry whose program is gone (a deleted
+    // build): pointed here. A developer's own build that is there stays.
+    let gone = !std::path::Path::new(&listed).is_file();
     if std::path::Path::new(&listed) == path
-        || !listed.ends_with(&format!(".app/Contents/MacOS/{ours}"))
+        || !(gone || listed.ends_with(&format!(".app/Contents/MacOS/{ours}")))
         || executable(client, &home).is_none()
     {
         return Ok(false);
@@ -194,6 +207,11 @@ pub(crate) fn repoint(app: &tauri::AppHandle, client: &str) -> Result<bool, Stri
 /// Local build: adds Agent HUD's MCP server to `client` when its command line
 /// is here and it lists none. Ok(false) while the client is not here.
 pub(crate) fn add_once(app: &tauri::AppHandle, client: &str) -> Result<bool, String> {
+    // As Settings does: one client command at a time.
+    let Some(owner) = app.try_state::<Clients>() else {
+        return Ok(false);
+    };
+    let _guard = owner.0.lock().map_err(|_| "MCP client owner unavailable")?;
     let home = home()?;
     if executable(client, &home).is_none() {
         return Ok(false);
@@ -218,12 +236,24 @@ fn run(app: &tauri::AppHandle, client: &str, install: bool) -> Result<Value, Str
     }
     let executable =
         executable(client, &home).ok_or("The client's command line is not installed")?;
-    run_client(
+    // An entry left at a program that is gone is replaced, not refused.
+    if install && listed(client, &home) && !installed(client, &home) {
+        let _ = run_client(
+            &executable,
+            &args(client, false, path),
+            &home,
+            Duration::from_secs(15),
+        );
+    }
+    match run_client(
         &executable,
         &args(client, install, path),
         &home,
         Duration::from_secs(15),
-    )?;
+    ) {
+        Err(error) if install && error.contains("already exists") => {}
+        other => other?,
+    }
     status(app)
 }
 /// Runs a client's command line in `home` and waits up to `timeout`; Err with

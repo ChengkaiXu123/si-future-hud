@@ -400,7 +400,7 @@ serveStdio(() => {
     "hud_session",
     {
       description:
-        "Read a known session’s recorded usage entries, parent and children by exact ID. Discover recent or historical sessions with hud_sessions; this query does not start ingestion.",
+        "Read a known session’s recorded usage entries, parent and children by exact ID, and its conversation messages (100 at a time; page with messageCursor). Discover recent or historical sessions with hud_sessions; this query does not start ingestion.",
       inputSchema: z.object({
         id: z.string().min(1),
         messageCursor: z.number().int().nonnegative().optional(),
@@ -542,11 +542,11 @@ serveStdio(() => {
         session: optionalId().describe(
           "The receiving session's id (as hud_sessions lists it, or as a message you received names it). Omitted: the agent's most recently active session that can receive.",
         ),
+        // The app counts the 4000 characters (zod would count UTF-16 units).
         text: z
           .string()
           .min(1)
-          .max(4000)
-          .describe("What to tell the other agent."),
+          .describe("What to tell the other agent, up to 4000 characters."),
         from_session: optionalId(200).describe(
           "Set by 程小帮's SI Future HUD plugin; leave it out.",
         ),

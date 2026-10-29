@@ -27,6 +27,19 @@ pub(crate) struct Pending {
     ticket: crate::requests::Ticket,
 }
 
+/// Local build: words the user sent to a Codex thread in the middle of a
+/// turn, which Codex refuses: they go in once the turn has ended.
+struct Deferred {
+    to: String,
+    to_session: String,
+    words: String,
+    from: String,
+    from_raw: Option<String>,
+    /// When the next try may go, and when they are given up.
+    next_try: i64,
+    until: i64,
+}
+
 /// Local build: a sender waiting for words on the command line (`send --wait`).
 struct Waiter {
     until: i64,
@@ -38,6 +51,7 @@ pub(crate) struct AgentMessages {
     pending: HashMap<String, Pending>,
     /// By (agent, session as the HUD names it).
     waiters: HashMap<(String, String), Waiter>,
+    deferred: Vec<Deferred>,
 }
 
 /// The agents that take words now, and how the user knows them.
@@ -90,6 +104,9 @@ const RECENT_MS: i64 = 7 * 86_400_000;
 const MAX_CANDIDATES: usize = 30;
 /// How long a command-line sender may wait for a reply, at most.
 const MAX_WAIT_MS: i64 = 3_600_000;
+/// How long sent words wait for a busy Codex thread, and how often they try.
+const DEFER_MS: i64 = 30 * 60_000;
+const DEFER_RETRY_MS: i64 = 15_000;
 /// What marks the relayed words; a message holding them is refused.
 const OPEN: &str = "<<<relayed-message>>>";
 const CLOSE: &str = "<<</relayed-message>>>";
@@ -121,7 +138,10 @@ impl crate::AgentHudCore {
                         .live
                         .activity
                         .as_ref()
-                        .is_some_and(|activity| activity.desktop_ask.is_some()))
+                        .and_then(|activity| activity.desktop_ask.as_ref())
+                        // A question left behind by a run that never ended
+                        // stops counting, as its card does.
+                        .is_some_and(|ask| now - ask.at < 1_800_000))
         })
     }
 
@@ -131,6 +151,56 @@ impl crate::AgentHudCore {
             .waiters
             .get(&(source.to_owned(), session.to_owned()))
             .is_some_and(|waiter| waiter.until > now)
+    }
+
+    /// Whether `session` of `source` is in the middle of a turn.
+    fn session_running(&self, source: &str, session: &str, now: i64) -> bool {
+        let presentation = self.presentation(now);
+        self.logs.values().any(|log| {
+            log.source == source
+                && log.id == session
+                && presentation.session_state(log, None) == "running"
+        })
+    }
+
+    /// Local build: tries again the words held for busy Codex threads, once
+    /// each turn has ended; given up after half an hour (a sender waiting on
+    /// the command line hears so). Called on every pass.
+    pub(crate) fn deliver_deferred_messages(&mut self, now: i64) {
+        if self.agent_messages.deferred.is_empty() {
+            return;
+        }
+        let mut keep = Vec::new();
+        for mut item in std::mem::take(&mut self.agent_messages.deferred) {
+            if item.until <= now {
+                self.tell_waiting_sender(
+                    &item.from,
+                    item.from_raw.as_deref(),
+                    crate::l10n::text(
+                        "【SI Future HUD】对方一直在忙，消息半小时内没能送进去，已经作废。",
+                        "[SI Future HUD] The receiver stayed busy for half an hour; the message was dropped.",
+                    ),
+                );
+                continue;
+            }
+            if item.next_try > now
+                || self.session_running(&item.to, &item.to_session, now)
+                || self.session_waits(&item.to, &item.to_session, now)
+            {
+                keep.push(item);
+                continue;
+            }
+            let sent = self.session_replies.as_ref().is_some_and(|replies| {
+                replies
+                    .relay(&item.to, &item.to_session, &item.words)
+                    .is_ok()
+            });
+            if !sent {
+                item.next_try = now + DEFER_RETRY_MS;
+                keep.push(item);
+            }
+        }
+        self.agent_messages.deferred.extend(keep);
     }
 
     fn session_title(&self, source: &str, session: &str) -> Option<String> {
@@ -206,7 +276,7 @@ impl crate::AgentHudCore {
                 waiting = true;
                 continue;
             }
-            match replies.reaches(source, &log.id) {
+            match replies.relays_to(source, &log.id) {
                 Ok(()) => {
                     let title = if log.title.trim().is_empty() {
                         name(source).to_owned()
@@ -393,6 +463,25 @@ impl crate::AgentHudCore {
                     .filter(|id| !id.is_empty())
             })
             .map(|id| listed_id(from, id));
+        // The same words asked again (a call that timed out and was tried
+        // again) get the card already waiting, not a second one.
+        if let Some((id, message)) = self.agent_messages.pending.iter().find(|(_, message)| {
+            message.from == from
+                && message.from_raw == named
+                && message.text == text
+                && params["to"].as_str().and_then(receiver).map(|(to, _)| to)
+                    == Some(message.to.as_str())
+        }) {
+            return Ok(json!({
+                "status": "pending",
+                "id": id,
+                "to": {"agent": message.to, "session": message.to_session},
+                "note": crate::l10n::text(
+                    "这条消息已经在等用户确认了，不用再发。",
+                    "This message already waits for the user; no need to send it again.",
+                ),
+            }));
+        }
         let waiting = self
             .agent_messages
             .pending
@@ -463,8 +552,15 @@ impl crate::AgentHudCore {
             }
         );
         let to_title = &target.title;
-        let queued_note = match (target.queued, chinese()) {
+        let busy = to == "codex" && self.session_running(to, &target.session, now);
+        let queued_note = match (target.queued || busy, chinese()) {
             (false, _) => String::new(),
+            (true, true) if busy => format!(
+                "\n\n（{to_name}的这个对话正在跑一轮：点发送后，消息会等它这一轮结束再送进去，半小时内有效。）"
+            ),
+            (true, false) if busy => format!(
+                "\n\n({to_name}'s conversation is mid-turn: once sent, the message goes in when that turn ends, within half an hour.)"
+            ),
             (true, true) => format!(
                 "\n\n（{to_name}的这个会话现在没开着：消息会排队，在{to_name}里打开「{to_title}」就会送达，一小时内有效。）"
             ),
@@ -519,20 +615,15 @@ impl crate::AgentHudCore {
             "allowLabel": crate::l10n::text("发送", "Send"),
             "badge": null,
         });
-        let replyable = cli_waits
-            || from != "codex"
-            || from_session.as_deref().is_some_and(|id| {
-                self.logs.values().any(|log| {
-                    log.source == "codex"
-                        && log.id == id
-                        && log.client.as_deref() == Some("Desktop")
-                })
-            });
-        let reply_session = if cli_waits {
-            named.clone()
+        // A Codex thread the HUD hasn't read yet (a new conversation) still
+        // names itself: the reply goes there, and is refused at that point if
+        // it is no Desktop thread after all.
+        let reply_session = if cli_waits || (from == "codex" && !command_line) {
+            from_session.clone().or_else(|| named.clone())
         } else {
             from_session.clone()
         };
+        let replyable = cli_waits || from != "codex" || reply_session.is_some();
         let ticket = self
             .requests
             .register_native(id.clone(), view, now)
@@ -634,6 +725,20 @@ impl crate::AgentHudCore {
                 "对方会话正在等你回答问题，先回答它，再发送这条消息。",
                 "That session waits for your answer; answer it, then send this message.",
             ));
+        }
+        // Codex refuses words in the middle of a turn: they wait for its end.
+        if to == "codex" && self.session_running(&to, &to_session, now) {
+            let (from, from_raw) = (message.from.clone(), message.from_raw.clone());
+            self.agent_messages.deferred.push(Deferred {
+                to,
+                to_session,
+                words,
+                from,
+                from_raw,
+                next_try: now,
+                until: now + DEFER_MS,
+            });
+            return Ok(Some(flight));
         }
         let replies = self.session_replies.as_ref().ok_or_else(|| {
             crate::l10n::text(

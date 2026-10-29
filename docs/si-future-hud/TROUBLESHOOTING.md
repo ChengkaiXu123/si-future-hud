@@ -79,7 +79,7 @@ The terminal `claude` is signed in with an API key or through a cloud provider, 
 
 **Why:** the conversation was opened before the HUD installed its plugin.
 
-**Fix:** type `/reload-plugins` in that conversation, or start a new one. New conversations load the plugin by themselves. Until then it can still send, and get the answer to its own question, through the command line (next entry).
+**Fix:** messages still reach it through Claude Code's own inbox (Claude Code 2.1.224 or later). If it skips permission prompts, that inbox holds them for an approval the desktop app can't show: type `/reload-plugins` there, or start a new conversation. Answering its questions on the HUD always needs the plugin.
 </details>
 
 <details>
@@ -107,9 +107,9 @@ The HUD talks to Codex desktop over `~/.codex/ipc/ipc.sock`. That channel only c
 </details>
 
 <details>
-<summary><b>"Refused: the conversation is busy"</b></summary>
+<summary><b>A message for a busy Codex conversation hasn't arrived yet</b></summary>
 
-A Codex conversation in the middle of a turn refuses new messages. The HUD doesn't "steer" a running turn. Wait until it finishes, then ask your agent to send again.
+A Codex conversation in the middle of a turn takes no new messages, and the HUD doesn't "steer" a running turn: after you press Send, the message waits and goes in when the turn ends. It is dropped if the conversation stays busy for half an hour.
 </details>
 
 <details>

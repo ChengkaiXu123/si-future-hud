@@ -335,17 +335,24 @@ impl ChengxiaobangReplies {
 }
 
 impl SessionReplies for ChengxiaobangReplies {
+    /// An answer needs the session running the plugin now.
     fn reaches(&self, _source: &str, session: &str) -> Result<(), Unreachable> {
         if self
             .channel()
             .loaded(SystemTime::now())
             .contains(own(session))
-            || self.queueable(session)
         {
             Ok(())
         } else {
             Err(self.unreachable_for(session))
         }
+    }
+    /// A message may also wait for a session that ran the plugin before.
+    fn relays_to(&self, source: &str, session: &str) -> Result<(), Unreachable> {
+        if self.queueable(session) {
+            return Ok(());
+        }
+        self.reaches(source, session)
     }
     fn live_sessions(&self, _source: &str) -> Option<HashSet<String>> {
         Some(
@@ -429,6 +436,12 @@ impl SessionReplies for RepliesBySource {
     fn live_sessions(&self, source: &str) -> Option<HashSet<String>> {
         self.carrier(source)?.live_sessions(source)
     }
+    fn relays_to(&self, source: &str, session: &str) -> Result<(), Unreachable> {
+        match self.carrier(source) {
+            Some(replies) => replies.relays_to(source, session),
+            None => self.reaches(source, session),
+        }
+    }
     fn reply(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
         match self.carrier(source) {
             Some(replies) => replies.reply(source, session, words),
@@ -500,9 +513,13 @@ mod tests {
             .live_sessions("chengxiaobang")
             .unwrap()
             .contains("chengxiaobang:s_2"));
+        // A message may wait for it; an answer may not.
         replies
-            .reaches("chengxiaobang", "chengxiaobang:s_2")
+            .relays_to("chengxiaobang", "chengxiaobang:s_2")
             .unwrap();
+        assert!(replies
+            .reaches("chengxiaobang", "chengxiaobang:s_2")
+            .is_err());
         replies
             .relay("chengxiaobang", "chengxiaobang:s_2", "hello later")
             .unwrap();
@@ -514,7 +531,7 @@ mod tests {
         assert!(left[0].contains("\"kind\":\"message\""), "{}", left[0]);
         // A session that never ran the plugin is not queued for.
         assert!(replies
-            .reaches("chengxiaobang", "chengxiaobang:s_9")
+            .relays_to("chengxiaobang", "chengxiaobang:s_9")
             .is_err());
     }
 

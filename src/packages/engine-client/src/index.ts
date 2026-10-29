@@ -54,6 +54,12 @@ export class EngineClient {
     child.stderr.on("data", () => {
       /* Engine output is never mixed into MCP stdout or UI responses. */
     });
+    // A write racing the engine's exit fails here (EPIPE), not as an uncaught
+    // error that would end the relay and every tool of its session.
+    child.stdin.on("error", () => {
+      if (this.child === child) this.child = undefined;
+      this.fail("The engine stopped; the call was not completed.");
+    });
     child.stdout.on("data", (chunk: Buffer) => {
       this.buffer += chunk.toString("utf8");
       if (this.buffer.length > 16 * 1024 * 1024) {

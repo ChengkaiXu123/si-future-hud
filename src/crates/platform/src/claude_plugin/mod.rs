@@ -106,6 +106,15 @@ pub fn installed(claude_config: &Path) -> bool {
     listed(claude_config).is_some()
 }
 
+/// Local build: whether the user turned the plugin off in Claude Code
+/// (`enabledPlugins` in its user settings says false).
+pub fn disabled(claude_config: &Path) -> bool {
+    fs::read(claude_config.join("settings.json"))
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
+        .is_some_and(|settings| settings["enabledPlugins"][PLUGIN_ID] == false)
+}
+
 /// The folder Claude Code added the plugin's marketplace from: its source
 /// path, else where it keeps it. None when it has no record of it.
 pub fn marketplace_folder(claude_config: &Path) -> Option<PathBuf> {
@@ -478,14 +487,16 @@ impl ClaudeChannel {
         }
     }
 
-    /// Removes check-ins older than a day, and words taken a minute ago or
-    /// older than an hour.
+    /// Removes check-ins and answers older than a day, and words taken a
+    /// minute ago or older than an hour.
     pub fn sweep(&self, now: SystemTime) {
-        if let Ok(files) = fs::read_dir(self.directory.join("sessions")) {
-            for entry in files.flatten() {
-                let path = entry.path();
-                if file_age(&path, now) > Duration::from_secs(86_400) {
-                    let _ = fs::remove_file(path);
+        for folder in ["sessions", "answers"] {
+            if let Ok(files) = fs::read_dir(self.directory.join(folder)) {
+                for entry in files.flatten() {
+                    let path = entry.path();
+                    if file_age(&path, now) > Duration::from_secs(86_400) {
+                        let _ = fs::remove_file(path);
+                    }
                 }
             }
         }
@@ -525,6 +536,84 @@ impl ClaudeChannel {
     }
 }
 
+/// Local build: the running Claude Code sessions with their own inbox
+/// (cross-session messaging, Claude Code 2.1.224 and later), by session id:
+/// the socket each session's process binds, from its record in
+/// `<config>/sessions/<pid>.json`. A script may post a message there, which
+/// the session takes through its own inbound rules, as one from another
+/// session; it starts a turn when the session is idle.
+pub fn native_inboxes(claude_config: &Path) -> Vec<(String, PathBuf)> {
+    let Ok(records) = fs::read_dir(claude_config.join("sessions")) else {
+        return Vec::new();
+    };
+    records
+        .flatten()
+        .filter_map(|entry| {
+            let path = entry.path();
+            if path.extension()?.to_str()? != "json" {
+                return None;
+            }
+            let pid: u32 = path.file_stem()?.to_str()?.parse().ok()?;
+            let record: Value = serde_json::from_slice(&fs::read(&path).ok()?).ok()?;
+            if record["pid"].as_u64() != Some(pid as u64) || !process_runs(pid) {
+                return None;
+            }
+            let session = record["sessionId"].as_str().filter(|id| valid_name(id))?;
+            let socket = PathBuf::from(record["messagingSocketPath"].as_str()?);
+            is_socket(&socket).then(|| (session.to_owned(), socket))
+        })
+        .collect()
+}
+
+#[cfg(unix)]
+fn process_runs(pid: u32) -> bool {
+    pid > 1 && unsafe { libc::kill(pid as libc::pid_t, 0) } == 0
+}
+#[cfg(not(unix))]
+fn process_runs(_pid: u32) -> bool {
+    false
+}
+
+#[cfg(unix)]
+fn is_socket(path: &Path) -> bool {
+    use std::os::unix::fs::FileTypeExt;
+    fs::symlink_metadata(path).is_ok_and(|meta| meta.file_type().is_socket())
+}
+#[cfg(not(unix))]
+fn is_socket(_path: &Path) -> bool {
+    false
+}
+
+/// Posts `text` into the inbox of the Claude Code session `session` at
+/// `socket`, named as SI Future HUD's (never as the session's own child: no
+/// token), so its inbound rules decide; a session that has since become
+/// another (/clear) drops it.
+#[cfg(unix)]
+pub fn post_to_inbox(socket: &Path, session: &str, text: &str) -> Result<(), String> {
+    use std::os::unix::net::UnixStream;
+    let mut stream = UnixStream::connect(socket).map_err(|error| error.to_string())?;
+    let _ = stream.set_write_timeout(Some(Duration::from_secs(5)));
+    let mut line = json!({
+        "type": "user",
+        "message": {"content": text},
+        "from": "SI Future HUD",
+        "session_id": session,
+        "uuid": identity(SystemTime::now()),
+    })
+    .to_string();
+    line.push('\n');
+    stream
+        .write_all(line.as_bytes())
+        .and_then(|()| stream.flush())
+        .map_err(|error| error.to_string())?;
+    let _ = stream.shutdown(std::net::Shutdown::Write);
+    Ok(())
+}
+#[cfg(not(unix))]
+pub fn post_to_inbox(_socket: &Path, _session: &str, _text: &str) -> Result<(), String> {
+    Err("Claude Code's session inbox is not reachable here".into())
+}
+
 /// The HUD's answers to the Claude desktop app's questions, through the plugin.
 pub struct ClaudeReplies {
     channel: ClaudeChannel,
@@ -540,6 +629,14 @@ impl ClaudeReplies {
         }
     }
 
+    /// Local build: the session's own inbox, while its process runs.
+    fn inbox(&self, session: &str) -> Option<PathBuf> {
+        native_inboxes(&self.claude_config)
+            .into_iter()
+            .find(|(id, _)| id == session)
+            .map(|(_, socket)| socket)
+    }
+
     /// Why words would not reach `session`, which has not checked in lately,
     /// and what would change it: the plugin is not installed; the session
     /// ran it since it was installed, so the app has paused the session; or
@@ -550,6 +647,15 @@ impl ClaudeReplies {
                 l10n::text(
                     "Claude Code 还没装 SI Future HUD 插件，装好后就能在 SI Future HUD 里回答 Claude 的提问（设置 → 智能体插件）。",
                     "Claude Code doesn't have SI Future HUD's plugin yet. Install it to answer Claude's questions in SI Future HUD (Settings → Agent plugins).",
+                ),
+                Some(AnswerFix::InstallPlugin),
+            );
+        }
+        if disabled(&self.claude_config) {
+            return Unreachable::new(
+                l10n::text(
+                    "SI Future HUD 插件在 Claude Code 里被停用了：在 Claude Code 的 /plugin 里启用 agent-hud，或者在设置 → 智能体插件里重新安装。",
+                    "SI Future HUD's plugin is disabled in Claude Code: enable agent-hud in Claude Code's /plugin, or reinstall it in Settings → Agent plugins.",
                 ),
                 Some(AnswerFix::InstallPlugin),
             );
@@ -605,13 +711,47 @@ impl SessionReplies for ClaudeReplies {
         }
     }
     fn live_sessions(&self, source: &str) -> Option<HashSet<String>> {
-        (source == agent_hud_agents::claude::AGENT.id)
-            .then(|| self.channel.loaded(SystemTime::now()))
+        (source == agent_hud_agents::claude::AGENT.id).then(|| {
+            let mut live = self.channel.loaded(SystemTime::now());
+            live.extend(
+                native_inboxes(&self.claude_config)
+                    .into_iter()
+                    .map(|(id, _)| id),
+            );
+            live
+        })
     }
-    /// Local build: another agent's words, marked as a message (never an answer).
+    /// Local build: a message also reaches a running session that never
+    /// loaded the plugin (opened before it was installed), through the
+    /// session's own inbox.
+    fn relays_to(&self, source: &str, session: &str) -> Result<(), Unreachable> {
+        match self.reaches(source, session) {
+            Err(_)
+                if source == agent_hud_agents::claude::AGENT.id
+                    && self.inbox(session).is_some() =>
+            {
+                Ok(())
+            }
+            reached => reached,
+        }
+    }
+    /// Local build: another agent's words, marked as a message (never an
+    /// answer): through the plugin where the session runs it, else into the
+    /// session's own inbox.
     fn relay(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
         if source != agent_hud_agents::claude::AGENT.id {
             return Err(not_claude());
+        }
+        if !self.channel.loaded(SystemTime::now()).contains(session) {
+            if let Some(socket) = self.inbox(session) {
+                return post_to_inbox(&socket, session, words).map_err(|error| {
+                    if l10n::chinese() {
+                        format!("消息没能送进这个 Claude 会话的收件箱：{error}")
+                    } else {
+                        format!("The message could not be posted to this Claude session's inbox: {error}")
+                    }
+                });
+            }
         }
         self.channel
             .hand_message(session, words, SystemTime::now())

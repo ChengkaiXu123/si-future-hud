@@ -193,7 +193,12 @@ impl AgentHudCore {
         } else {
             stored.unwrap()
         };
-        if !changed && !restart && !continuing && checkpoint.offset >= stamp.length {
+        // Local build: 程小帮's live state is read once in each run even when
+        // its database looks unchanged, or a question it holds would stand
+        // without words after a restart.
+        let live_unread = stamp.source == "chengxiaobang" && !self.reads.live_read.contains(path);
+        if !changed && !restart && !continuing && !live_unread && checkpoint.offset >= stamp.length
+        {
             self.reads.pending.remove(path);
             self.reads.forced.remove(path);
             return Ok(());
@@ -298,7 +303,15 @@ impl AgentHudCore {
             }
             let log = logs.get_mut(&key).unwrap();
             let is_virtual = key.to_string_lossy().contains("#hud-session-");
-            if is_virtual {
+            // Local build: a Cursor conversation the dashboard also lists keeps
+            // the dashboard as its origin, so it never reads as gone when its
+            // transcript is deleted.
+            let dashboard = stamp.source == "cursor"
+                && log
+                    .origin_path
+                    .as_ref()
+                    .is_some_and(|origin| origin.to_string_lossy().contains("/account/cursor"));
+            if is_virtual && !dashboard {
                 log.origin_path = Some(path.into());
             }
             // OpenCode updates existing messages and may replace the legacy
@@ -382,14 +395,20 @@ impl AgentHudCore {
             .map_err(|_| {
                 "chengxiaobang session source has an unsupported or inconsistent schema"
             })?;
+            self.reads.live_read.insert(path.to_path_buf());
             for run in &runs {
                 let Some(key) =
                     self.resolve_session_path(stamp.source, &run.session, path, &mut superseded)
                 else {
                     continue;
                 };
+                // Local build: a run unchanged since it was laid on its log
+                // isn't laid again (each lay rewrites the log's checkpoint).
+                let print = run.print();
                 if !logs.contains_key(&key) {
-                    if !self.logs.contains_key(&key) {
+                    if !self.logs.contains_key(&key)
+                        || self.reads.run_prints.get(&key) == Some(&print)
+                    {
                         continue;
                     }
                     let log = self.load_parser(&key)?.0;
@@ -397,6 +416,7 @@ impl AgentHudCore {
                 }
                 let log = logs.get_mut(&key).unwrap();
                 agent_hud_agents::chengxiaobang::transcript::apply(&mut log.live, run);
+                self.reads.run_prints.insert(key.clone(), print);
                 live_heads.push(key);
             }
         }
@@ -608,7 +628,11 @@ impl AgentHudCore {
                 logs.insert(key.clone(), log);
             }
             let log = logs.get_mut(&key).unwrap();
-            if key.to_string_lossy().contains("#hud-session-") && log.origin_path.is_none() {
+            // Local build: a Cursor conversation the dashboard lists takes the
+            // dashboard as its origin even when its transcript was read first.
+            if key.to_string_lossy().contains("#hud-session-")
+                && (log.origin_path.is_none() || source == "cursor")
+            {
                 log.origin_path = Some(origin.into());
             }
             if let Some(parent) = row["parent"].as_str() {

@@ -144,6 +144,29 @@ pub struct Run {
     pub compacting: Option<i64>,
 }
 
+impl Run {
+    /// Local build: what the HUD shows of the run, as one string. A run whose
+    /// print is unchanged needs no new state laid on its session's log.
+    pub fn print(&self) -> String {
+        let open = self
+            .open
+            .iter()
+            .map(|call| format!("{}:{}:{}:{}", call.id, call.name, call.waits, call.held))
+            .collect::<Vec<_>>()
+            .join(",");
+        format!(
+            "{}|{}|{}|{}|[{open}]|{:?}|{}|{:?}",
+            self.id,
+            self.status,
+            self.started,
+            self.updated,
+            self.last_tool,
+            self.answer.as_deref().map_or(0, str::len),
+            self.compacting
+        )
+    }
+}
+
 pub struct OpenCall {
     pub id: String,
     pub name: String,

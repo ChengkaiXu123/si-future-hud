@@ -30,4 +30,10 @@ pub trait SessionReplies: Send + Sync {
     fn live_sessions(&self, _source: &str) -> Option<std::collections::HashSet<String>> {
         None
     }
+    /// Local build: whether another agent's words (`relay`) would reach the
+    /// session, which a carrier may do in more ways than an answer (a queue
+    /// the session takes when it opens, the client's own inbox).
+    fn relays_to(&self, source: &str, session: &str) -> Result<(), Unreachable> {
+        self.reaches(source, session)
+    }
 }
