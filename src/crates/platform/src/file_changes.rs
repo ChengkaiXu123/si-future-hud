@@ -112,20 +112,34 @@ impl FileChanges {
         }
         self.working = false;
         if let Some(watcher) = &mut self.watcher {
-            for path in self.watched.difference(&existing) {
-                let _ = watcher.unwatch(path);
-            }
-            self.watched.retain(|path| existing.contains(path));
-            for path in existing
+            // Local build: one change for every root. macOS's watcher stops and
+            // restarts its event stream for each path watched one at a time,
+            // which took seven seconds for a few dozen roots at launch.
+            let removed = self
+                .watched
+                .difference(&existing)
+                .cloned()
+                .collect::<Vec<_>>();
+            let added = existing
                 .difference(&self.watched)
                 .cloned()
-                .collect::<Vec<_>>()
-            {
-                if watcher.watch(&path, RecursiveMode::Recursive).is_ok() {
-                    self.watched.insert(path);
+                .collect::<Vec<_>>();
+            let mut paths = watcher.paths_mut();
+            for path in &removed {
+                let _ = paths.remove(path);
+            }
+            let mut watching = Vec::new();
+            for path in added {
+                if paths.add(&path, RecursiveMode::Recursive).is_ok() {
+                    watching.push(path);
                 }
             }
-            self.working = self.watched == existing && !existing.is_empty();
+            let committed = paths.commit().is_ok();
+            self.watched.retain(|path| existing.contains(path));
+            if committed {
+                self.watched.extend(watching);
+            }
+            self.working = committed && self.watched == existing && !existing.is_empty();
         }
         if let Ok(mut paths) = self.changes.lock() {
             *paths = None;

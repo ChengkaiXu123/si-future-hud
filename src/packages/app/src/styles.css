@@ -232,3 +232,107 @@
 .guide-actions [data-slot="button"] {
   gap: 5px;
 }
+/* A picture of the plugin's card in 程小帮's plugin market, its switch pulsing. */
+.guide-plugin {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--background);
+}
+.guide-plugin-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d4f5c;
+  background: linear-gradient(135deg, #b9e3ee 0%, #d9f1f7 55%, #a9d6e3 100%);
+}
+.guide-plugin-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.guide-plugin-text strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+.guide-plugin-text em {
+  font-style: normal;
+  font-weight: 400;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-foreground);
+  margin-left: 4px;
+}
+.guide-plugin-text > span {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.guide-plugin-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--muted);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 55%, transparent);
+  animation: guide-switch 2.4s ease-in-out infinite;
+}
+.guide-plugin-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  animation: guide-knob 2.4s ease-in-out infinite;
+}
+@keyframes guide-switch {
+  0%,
+  35% {
+    background: var(--muted);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 55%, transparent);
+  }
+  45% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+  55%,
+  90% {
+    background: #1f1f1f;
+  }
+  100% {
+    background: var(--muted);
+  }
+}
+@keyframes guide-knob {
+  0%,
+  45% {
+    transform: none;
+  }
+  55%,
+  90% {
+    transform: translateX(18px);
+  }
+  100% {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-plugin-switch,
+  .guide-plugin-switch::after {
+    animation: none;
+  }
+}

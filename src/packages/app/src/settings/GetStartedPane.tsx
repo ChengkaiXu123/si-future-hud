@@ -312,8 +312,8 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
     {
       title: ["One step for you: 程小帮", "还差你一步：程小帮"],
       text: [
-        "程小帮 runs another app's plugins only after you enable them, so this one is yours: the HUD already put its plugin in place.",
-        "程小帮只有在你启用之后，才会运行别的应用放进来的插件，所以这一步得你来：HUD 已经把插件放好了，只差启用。",
+        "The HUD already installed its plugin in 程小帮; 程小帮 runs another app's plugin only once you turn it on in its plugin market, so this switch is yours.",
+        "HUD 已经把插件装进了程小帮，只差在程小帮的插件市场里把它打开：程小帮只有在你亲手开启之后，才会运行别的应用装进来的插件，所以这个开关得你来按。",
       ],
       extra: (
         <div className="guide-checks">
@@ -353,17 +353,40 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
             {cxb?.found && cxbMark !== "done" && (
               <>
                 <ol className="guide-howto">
-                  <li>{t(["Open 程小帮.", "打开程小帮。"])}</li>
                   <li>
-                    {t(["Go to Plugins in its sidebar.", "点左侧的「插件」。"])}
+                    {t([
+                      "Open 程小帮 and go to Plugins in its sidebar.",
+                      "打开程小帮，点左侧的「插件」。",
+                    ])}
                   </li>
                   <li>
                     {t([
-                      "Find SI Future HUD and turn it on. No restart needed.",
-                      "找到 SI Future HUD，打开开关。不用重启。",
+                      "Choose Manage at the top. SI Future HUD is already installed: find it under My plugins (or under My creations while it is off).",
+                      "点上方的「管理」。SI Future HUD 已经替你装好了：在「我的插件」里找到它（还没开启时，可能在「我的创建」里）。",
+                    ])}
+                  </li>
+                  <li>
+                    {t([
+                      "Turn on the switch on its right. Once it is on, it shows under Enabled. No restart needed.",
+                      "打开它右边的开关。开关变成开启、它出现在「已开启」里，就好了，不用重启。",
                     ])}
                   </li>
                 </ol>
+                <div className="guide-plugin" aria-hidden>
+                  <span className="guide-plugin-icon">SI</span>
+                  <span className="guide-plugin-text">
+                    <strong>
+                      SI Future HUD <em>V1.1.0</em>
+                    </strong>
+                    <span>
+                      {t([
+                        "Brings messages from other agents into this conversation…",
+                        "把其他智能体经 SI Future HUD 发来的消息送进这个对话…",
+                      ])}
+                    </span>
+                  </span>
+                  <span className="guide-plugin-switch" />
+                </div>
                 <Button
                   size="sm"
                   className="guide-open"

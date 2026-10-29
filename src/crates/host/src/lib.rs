@@ -242,6 +242,10 @@ impl Service {
             Arc::downgrade(&backend),
             tools_directory,
         ));
+        // Local build: the channel listens at once, so agents can message
+        // while the first collection pass still runs (HUD tools that need
+        // its data say it is loading).
+        let _ = tools.configure(tools::channel_wanted(true, extension.as_deref()));
         backend
             .lock()
             .map_err(|_| "Runtime lock is unavailable")?

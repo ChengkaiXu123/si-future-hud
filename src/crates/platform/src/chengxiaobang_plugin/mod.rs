@@ -128,7 +128,7 @@ impl ChengxiaobangPlugin {
         let files = [
             (
                 ".claude-plugin/plugin.json",
-                json!({"name":PLUGIN_NAME,"displayName":"SI Future HUD","version":"1.0.0","description":"Shows this session's questions in SI Future HUD and takes the answers given there.","author":{"name":"SI Future HUD"}}).to_string(),
+                json!({"name":PLUGIN_NAME,"displayName":"SI Future HUD","version":"1.1.0","description":"把其他智能体经 SI Future HUD 发来的消息送进这个对话，并让你在 HUD 上回答它的提问。","author":{"name":"SI Future HUD"}}).to_string(),
             ),
             ("hooks/hooks.json", json!({"modules":["./register.ts"]}).to_string()),
             ("hooks/register.ts", SCRIPT.replace("__AGENT_HUD_CHANNEL_JSON__", &channel)),
