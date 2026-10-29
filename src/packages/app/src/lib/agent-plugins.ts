@@ -278,6 +278,11 @@ export function chengxiaobangPluginRow(input: {
   installed: boolean | null;
   sessions: number;
   running: boolean;
+  /** What 程小帮 says of the plugin, when SI Future HUD can read it. */
+  enabled?: boolean | null;
+  stopped?: boolean;
+  /** Whether 程小帮 itself runs now. */
+  appRunning?: boolean;
 }): RowState {
   const base: Pick<RowState, "menu" | "next"> = { menu: [], next: null };
   const busy: Words | null = input.running
@@ -301,6 +306,35 @@ export function chengxiaobangPluginRow(input: {
       action: { id: "install", label: ["Install", "安装"] },
       busy,
     };
+  const open = { id: "open", label: ["Open 程小帮", "打开程小帮"] as Words };
+  if (input.enabled === false)
+    return {
+      ...base,
+      tone: "attention",
+      status: ["Enable it in 程小帮", "等你在程小帮里启用"],
+      action: open,
+      busy,
+      next: {
+        words: [
+          "In 程小帮 → Plugins, turn on SI Future HUD once (no restart needed), then open the conversations that should take messages.",
+          "在程小帮 → 插件里启用 SI Future HUD（只需一次，不用重启），再点开要收消息的对话。",
+        ],
+      },
+    };
+  if (input.stopped)
+    return {
+      ...base,
+      tone: "attention",
+      status: ["Stopped in 程小帮", "程小帮停止加载了它"],
+      action: open,
+      busy,
+      next: {
+        words: [
+          "程小帮 stopped loading SI Future HUD: load it again in 程小帮 → Plugins.",
+          "程小帮停止加载了 SI Future HUD：在程小帮 → 插件里重新加载它。",
+        ],
+      },
+    };
   if (input.sessions > 0)
     return {
       ...base,
@@ -309,16 +343,30 @@ export function chengxiaobangPluginRow(input: {
       action: null,
       busy,
     };
+  if (input.appRunning === false)
+    return {
+      ...base,
+      tone: "off",
+      status: ["程小帮 isn't running", "程小帮没在运行"],
+      action: open,
+      busy,
+      next: {
+        words: [
+          "Messages for 程小帮 wait until you open it and the conversation they go to.",
+          "发给程小帮的消息会排队，等你打开程小帮和对应的对话时送达。",
+        ],
+      },
+    };
   return {
     ...base,
     tone: "attention",
-    status: ["Enable it in 程小帮", "等你在程小帮里启用"],
-    action: null,
+    status: ["Open a conversation in 程小帮", "在程小帮里点开一个对话"],
+    action: open,
     busy,
     next: {
       words: [
-        "Enable SI Future HUD on 程小帮's Plugins page once; open sessions load it when you switch to them.",
-        "在程小帮的「插件」页启用 SI Future HUD（只需一次）；已打开的会话切换一下就会加载。",
+        "Conversations take messages once 程小帮 opens them; ones it opened before wait in a queue until you open them again.",
+        "程小帮里点开过的对话才能收消息；以前收过消息的对话会先排队，等你再点开时送达。",
       ],
     },
   };

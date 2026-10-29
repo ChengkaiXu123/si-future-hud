@@ -859,3 +859,152 @@ fn a_codex_desktop_thread_can_take_a_message() {
         )]
     );
 }
+
+#[test]
+fn a_command_line_sender_waits_for_the_reply_and_hears_a_denial() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<(String, String, String)>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, source: &str, session: &str) -> Result<(), crate::replies::Unreachable> {
+            if source == "chengxiaobang" && session == "chengxiaobang:s1" {
+                Ok(())
+            } else {
+                Err(crate::replies::Unreachable::new("not loaded".into(), None))
+            }
+        }
+        fn reply(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
+            self.0
+                .lock()
+                .unwrap()
+                .push((source.into(), session.into(), words.into()));
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("chengxiaobang.sqlite");
+    let db = Connection::open(&path).unwrap();
+    db.execute_batch(
+        "CREATE TABLE sessions(id TEXT,title TEXT);
+         CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
+         INSERT INTO sessions VALUES('s1','Meetings');",
+    )
+    .unwrap();
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    db.execute(
+        "INSERT INTO usage_cost_entries VALUES('u1','s1','auto(free)',100,10,40,?1)",
+        [at],
+    )
+    .unwrap();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path: path.clone(),
+            provider: "chengxiaobang",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+
+    // An old Codex thread the HUD doesn't list asks from its shell, and waits.
+    let cli = json!({"client":"codex","sessionId":"t-cli","via":"cli","waits":true});
+    let inbox = backend
+        .request("agent_inbox", json!({"caller":cli,"waitMs":60_000}))
+        .unwrap();
+    assert_eq!(inbox["messages"], json!([]));
+    let asked = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"Any meetings today?","caller":cli}),
+        )
+        .unwrap();
+    let card = backend.request("snapshot", json!({})).unwrap()["approvals"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|a| a["id"] == asked["id"])
+        .cloned()
+        .unwrap();
+    // Not a thread the HUD lists: unverified, and marked as the command line's.
+    assert!(card["title"].as_str().unwrap().contains("Codex"));
+    backend
+        .request(
+            "answer_request",
+            json!({"id":asked["id"],"decision":{"kind":"allow"}}),
+        )
+        .unwrap();
+    let words = fake.0.lock().unwrap()[0].2.clone();
+    // The receiver is told where the reply goes: the waiting thread.
+    assert!(words.contains("t-cli"), "{words}");
+
+    // 程小帮 replies to that thread: the waiting command line takes it, no carrier.
+    let reply = backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","session":"t-cli","text":"Two: 13:00 and 17:30.","from_session":"s1","caller":{"client":"chengxiaobang"}}),
+        )
+        .unwrap();
+    assert_eq!(reply["to"]["session"], "t-cli");
+    backend
+        .request(
+            "answer_request",
+            json!({"id":reply["id"],"decision":{"kind":"allow"}}),
+        )
+        .unwrap();
+    assert_eq!(fake.0.lock().unwrap().len(), 1, "the carrier is not used");
+    let inbox = backend
+        .request("agent_inbox", json!({"caller":cli,"waitMs":60_000}))
+        .unwrap();
+    let messages = inbox["messages"].as_array().unwrap();
+    assert_eq!(messages.len(), 1);
+    assert!(messages[0]
+        .as_str()
+        .unwrap()
+        .contains("Two: 13:00 and 17:30."));
+
+    // A denied message tells the waiting command line.
+    let denied = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"One more","caller":cli}),
+        )
+        .unwrap();
+    backend
+        .request(
+            "answer_request",
+            json!({"id":denied["id"],"decision":{"kind":"deny"}}),
+        )
+        .unwrap();
+    let inbox = backend
+        .request("agent_inbox", json!({"caller":cli,"waitMs":0}))
+        .unwrap();
+    assert!(inbox["messages"][0]
+        .as_str()
+        .unwrap()
+        .contains("SI Future HUD"));
+    // Once it stops waiting, a reply to that thread has nowhere to go.
+    assert!(backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","session":"t-cli","text":"late","from_session":"s1","caller":{"client":"chengxiaobang"}}),
+        )
+        .is_err());
+
+    // Two cards may wait per sender session, not per agent.
+    for session in ["a", "b"] {
+        for n in 0..2 {
+            backend
+                .request(
+                    "agent_message",
+                    json!({"to":"chengxiaobang","text":format!("{session}{n}"),"caller":{"client":"claude","sessionId":session}}),
+                )
+                .unwrap();
+        }
+    }
+    assert!(backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"a2","caller":{"client":"claude","sessionId":"a"}}),
+        )
+        .is_err());
+}

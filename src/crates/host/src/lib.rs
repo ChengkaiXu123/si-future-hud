@@ -11,6 +11,7 @@ use tauri::{Emitter, Manager};
 use agent_hud_hud::{bots, presentation, vendors};
 
 mod activity;
+mod agent_skills;
 mod auto_setup;
 mod capture;
 mod chengxiaobang;
@@ -49,10 +50,11 @@ impl Backend {
             system.project(&mut value);
         }
         if let Some(tools) = &self.tools {
-            value["connection"]["localTools"] = tools.configure(tools::channel_wanted(
-                value["settings"]["hudTools"].as_bool().unwrap_or(false),
-                self.extension.as_deref(),
-            ));
+            // Local build: messages between agents use the channel whatever
+            // "Let agents arrange the HUD" says; that switch still guards the
+            // HUD tools themselves (`tools::handle`).
+            value["connection"]["localTools"] =
+                tools.configure(tools::channel_wanted(true, self.extension.as_deref()));
         }
         let recovered = self.error.take().is_some();
         let changed = self
@@ -105,12 +107,8 @@ impl Backend {
         let Some(tools) = &self.tools else {
             return;
         };
-        let wanted = tools::channel_wanted(
-            self.snapshot
-                .as_ref()
-                .is_some_and(|snapshot| snapshot["settings"]["hudTools"] == true),
-            self.extension.as_deref(),
-        );
+        // Local build: always wanted, for messages between agents.
+        let wanted = tools::channel_wanted(true, self.extension.as_deref());
         let channel = tools.configure(wanted);
         if let Some(snapshot) = &mut self.snapshot {
             if snapshot["connection"]["localTools"] != channel {
@@ -316,19 +314,24 @@ impl Service {
                 agent_hud_runtime::local_tools_directory(),
                 agent_hud_runtime::home_directory(),
             ) {
+                let plugin = ChengxiaobangPlugin::new(
+                    data.join("chengxiaobang-channel"),
+                    &chengxiaobang_directory(&home),
+                );
+                // Installed with the app: the plugin and the HUD tools are in
+                // place on every launch, as Claude Code's integration is. A
+                // 程小帮 installed later gets them from its carrier, which is
+                // always there, at the first message for it.
                 if chengxiaobang_directory(&home).is_dir() {
-                    let plugin = ChengxiaobangPlugin::new(
-                        data.join("chengxiaobang-channel"),
-                        &chengxiaobang_directory(&home),
-                    );
-                    // Installed with the app: the plugin and the HUD tools are in
-                    // place on every launch, as Claude Code's integration is.
                     if let Err(error) = chengxiaobang::set_up(&app, &plugin) {
                         eprintln!("SI Future HUD 程小帮 setup: {error}");
                     }
-                    carriers.push(("chengxiaobang", Arc::new(plugin.replies())));
-                    app.manage(chengxiaobang::Chengxiaobang { plugin });
                 }
+                carriers.push((
+                    "chengxiaobang",
+                    Arc::new(plugin.replies(chengxiaobang::fixed_executable(&app))),
+                ));
+                app.manage(chengxiaobang::Chengxiaobang { plugin });
             }
             if let Some(claude) = replies {
                 carriers.push(("claude", claude));

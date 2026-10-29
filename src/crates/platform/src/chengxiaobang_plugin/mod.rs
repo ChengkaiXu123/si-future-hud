@@ -7,10 +7,11 @@ use agent_hud_core::l10n;
 use agent_hud_core::replies::{AnswerFix, SessionReplies, Unreachable};
 use serde_json::json;
 use std::{
+    collections::HashSet,
     fs,
     path::{Path, PathBuf},
-    sync::Arc,
-    time::SystemTime,
+    sync::{Arc, Mutex},
+    time::{Duration, Instant, SystemTime},
 };
 
 const SCRIPT: &str = include_str!("register.ts");
@@ -21,10 +22,60 @@ pub fn chengxiaobang_directory(home: &Path) -> PathBuf {
     home.join(".chengxiaobang")
 }
 
+#[derive(Clone)]
 pub struct ChengxiaobangPlugin {
     channel: ClaudeChannel,
     /// `~/.chengxiaobang/plugins/agent-hud`.
     folder: PathBuf,
+}
+
+/// Local build: what 程小帮 says of the plugin, as far as SI Future HUD can read it.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct PluginState {
+    /// `~/.chengxiaobang` is on this Mac.
+    pub found: bool,
+    /// The plugin's files are in 程小帮's plugins folder.
+    pub installed: bool,
+    /// Enabled on 程小帮's Plugins page; None when its settings can't be read.
+    pub enabled: Option<bool>,
+    /// The user stopped loading it in 程小帮.
+    pub stopped: bool,
+    /// 程小帮 runs now.
+    pub running: bool,
+}
+
+/// 程小帮's own record of its plugins (read-only): whether ours is enabled,
+/// and whether loading it was stopped.
+fn plugin_settings(home: &Path) -> Option<(bool, bool)> {
+    let rows = agent_hud_agents::sqlite::rows(
+        &home.join("data/chengxiaobang.sqlite"),
+        "SELECT key, value FROM settings WHERE key IN ('plugins.enabled', 'mods.stopped')",
+        &[],
+        Duration::from_millis(250),
+    )
+    .ok()?;
+    let value = |key: &str| {
+        rows.iter()
+            .find(|row| row.first().and_then(serde_json::Value::as_str) == Some(key))
+            .and_then(|row| row.get(1)?.as_str())
+            .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())
+    };
+    let enabled = value("plugins.enabled")?
+        .as_array()?
+        .iter()
+        .any(|name| name.as_str() == Some(PLUGIN_NAME));
+    let stopped = value("mods.stopped").is_some_and(|stopped| stopped.get(PLUGIN_NAME).is_some());
+    Some((enabled, stopped))
+}
+
+/// Whether 程小帮's app runs now.
+fn chengxiaobang_running() -> bool {
+    std::process::Command::new("/usr/bin/pgrep")
+        .args(["-f", "/程小帮.app/Contents/MacOS/"])
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .is_ok_and(|status| status.success())
 }
 
 impl ChengxiaobangPlugin {
@@ -37,6 +88,25 @@ impl ChengxiaobangPlugin {
 
     pub fn folder(&self) -> &Path {
         &self.folder
+    }
+
+    /// `~/.chengxiaobang`.
+    fn home(&self) -> Option<&Path> {
+        self.folder.parent().and_then(Path::parent)
+    }
+
+    /// Local build: what 程小帮 says of the plugin now. Reads 程小帮's
+    /// settings and its process list: not for every collection pass.
+    pub fn state(&self) -> PluginState {
+        let found = self.home().is_some_and(Path::is_dir);
+        let settings = self.home().filter(|_| found).and_then(plugin_settings);
+        PluginState {
+            found,
+            installed: self.installed(),
+            enabled: settings.map(|(enabled, _)| enabled),
+            stopped: settings.is_some_and(|(_, stopped)| stopped),
+            running: found && chengxiaobang_running(),
+        }
     }
 
     /// Writes the plugin into 程小帮's plugins folder, pointing it at the
@@ -138,17 +208,23 @@ impl ChengxiaobangPlugin {
         self.channel.loaded(now).len()
     }
 
-    pub fn replies(&self) -> ChengxiaobangReplies {
+    /// The carrier for 程小帮's sessions. `executable` is the fixed installed
+    /// app, which a plugin written later lists as 程小帮's HUD tools.
+    pub fn replies(&self, executable: Option<PathBuf>) -> ChengxiaobangReplies {
         ChengxiaobangReplies {
-            channel: self.channel.clone(),
-            folder: self.folder.clone(),
+            plugin: self.clone(),
+            executable,
+            state: Mutex::new(None),
         }
     }
 }
 
 pub struct ChengxiaobangReplies {
-    channel: ClaudeChannel,
-    folder: PathBuf,
+    plugin: ChengxiaobangPlugin,
+    executable: Option<PathBuf>,
+    /// The last read of 程小帮's plugin state, kept a few seconds: the
+    /// reasons are asked of every collection pass.
+    state: Mutex<Option<(Instant, PluginState)>>,
 }
 
 /// A 程小帮 session's name in the channel: its own id, without the HUD's prefix.
@@ -156,22 +232,53 @@ fn own(session: &str) -> &str {
     session.strip_prefix("chengxiaobang:").unwrap_or(session)
 }
 
+const STATE_LIFETIME: Duration = Duration::from_secs(5);
+
 impl ChengxiaobangReplies {
+    fn channel(&self) -> &ClaudeChannel {
+        &self.plugin.channel
+    }
+
+    /// 程小帮's plugin state, read at most every few seconds. A plugin missing
+    /// from a 程小帮 installed after SI Future HUD started is written now.
+    fn state(&self) -> PluginState {
+        let mut cached = self.state.lock().unwrap_or_else(|p| p.into_inner());
+        if let Some((at, state)) = *cached {
+            if at.elapsed() < STATE_LIFETIME {
+                return state;
+            }
+        }
+        let mut state = self.plugin.state();
+        if state.found && !state.installed && self.plugin.prepare().is_ok() {
+            if let Some(executable) = &self.executable {
+                let _ = self.plugin.ensure_mcp(executable);
+            }
+            state.installed = self.plugin.installed();
+        }
+        *cached = Some((Instant::now(), state));
+        state
+    }
+
+    /// Whether words for `session`, which isn't running the plugin now, may
+    /// wait for it: it ran the plugin before, and 程小帮 still loads it.
+    fn queueable(&self, session: &str) -> bool {
+        if !self.channel().checked_in_before(own(session)) {
+            return false;
+        }
+        let state = self.state();
+        state.installed && state.enabled != Some(false) && !state.stopped
+    }
+
+    /// Why words don't reach `session`, and what the user does about it.
     fn unreachable_for(&self, session: &str) -> Unreachable {
-        if self.folder.join("hooks/register.ts").is_file() && self.channel.ended(own(session)) {
+        let state = self.state();
+        if !state.found {
             return Unreachable::new(
-                l10n::text(
-                    "这个程小帮会话已经关掉了（程小帮重启或会话被关）：在程小帮里重新点开它，再发一次。",
-                    "This 程小帮 session was closed (程小帮 restarted or the session closed): open it again in 程小帮, then send again.",
-                ),
+                l10n::text("这台 Mac 上没有程小帮。", "程小帮 isn't on this Mac."),
                 None,
             );
         }
-        self.unreachable()
-    }
-
-    fn unreachable(&self) -> Unreachable {
-        if !self.folder.join("hooks/register.ts").is_file() {
+        if !state.installed {
             return Unreachable::new(
                 l10n::text(
                     "程小帮还没有 SI Future HUD 插件。",
@@ -180,10 +287,47 @@ impl ChengxiaobangReplies {
                 Some(AnswerFix::InstallPlugin),
             );
         }
+        if state.enabled == Some(false) {
+            return Unreachable::new(
+                l10n::text(
+                    "程小帮里还没启用 SI Future HUD 插件：打开程小帮 → 插件 → SI Future HUD → 启用（不用重启），再点开要收消息的对话。",
+                    "SI Future HUD's plugin isn't enabled in 程小帮: open 程小帮 → Plugins → SI Future HUD → Enable (no restart needed), then open the conversation that should take the message.",
+                ),
+                None,
+            );
+        }
+        if state.stopped {
+            return Unreachable::new(
+                l10n::text(
+                    "程小帮停止加载了 SI Future HUD 插件：在程小帮 → 插件里重新加载它。",
+                    "程小帮 stopped loading SI Future HUD's plugin: load it again in 程小帮 → Plugins.",
+                ),
+                None,
+            );
+        }
+        if !state.running {
+            return Unreachable::new(
+                l10n::text(
+                    "程小帮现在没在运行：打开程小帮，再点开要收消息的对话。",
+                    "程小帮 isn't running: open it, then open the conversation that should take the message.",
+                ),
+                None,
+            );
+        }
+        if self.channel().loaded(SystemTime::now()).is_empty() {
+            return Unreachable::new(
+                l10n::text(
+                    "程小帮还没加载 SI Future HUD 插件的任何对话：在程小帮里点开要收消息的对话（刚启用插件或刚升级 HUD 时，重启一次程小帮）。",
+                    "No 程小帮 conversation runs SI Future HUD's plugin yet: open the conversation that should take the message in 程小帮 (right after enabling the plugin or updating the HUD, restart 程小帮 once).",
+                ),
+                None,
+            );
+        }
+        let _ = session;
         Unreachable::new(
             l10n::text(
-                "程小帮这次启动后还没打开过这个会话：在程小帮里点开它一次就能收（插件不用再设置）。",
-                "程小帮 hasn't opened this session since it started: open it once in 程小帮 and it can receive (nothing else to set up).",
+                "程小帮这次启动后还没打开过这个对话：在程小帮里点开它一次就能收。",
+                "程小帮 hasn't opened this conversation since it started: open it once in 程小帮 and it can take messages.",
             ),
             None,
         )
@@ -193,29 +337,44 @@ impl ChengxiaobangReplies {
 impl SessionReplies for ChengxiaobangReplies {
     fn reaches(&self, _source: &str, session: &str) -> Result<(), Unreachable> {
         if self
-            .channel
+            .channel()
             .loaded(SystemTime::now())
             .contains(own(session))
+            || self.queueable(session)
         {
             Ok(())
         } else {
             Err(self.unreachable_for(session))
         }
     }
+    fn live_sessions(&self, _source: &str) -> Option<HashSet<String>> {
+        Some(
+            self.channel()
+                .loaded(SystemTime::now())
+                .into_iter()
+                .map(|id| format!("chengxiaobang:{id}"))
+                .collect(),
+        )
+    }
     fn relay(&self, _source: &str, session: &str, words: &str) -> Result<(), String> {
-        self.channel
-            .hand_message(own(session), words, SystemTime::now())
-            .map(drop)
-            .map_err(|refusal| match refusal {
-                Refusal::NotLoaded => self.unreachable_for(session).note,
-                _ => l10n::text(
-                    "消息没能交给程小帮插件。",
-                    "The message could not be left for 程小帮's plugin.",
-                ),
-            })
+        let now = SystemTime::now();
+        let left = if self.channel().loaded(now).contains(own(session)) {
+            self.channel().hand_message(own(session), words, now)
+        } else if self.queueable(session) {
+            self.channel().queue_message(own(session), words, now)
+        } else {
+            Err(Refusal::NotLoaded)
+        };
+        left.map(drop).map_err(|refusal| match refusal {
+            Refusal::NotLoaded => self.unreachable_for(session).note,
+            _ => l10n::text(
+                "消息没能交给程小帮插件。",
+                "The message could not be left for 程小帮's plugin.",
+            ),
+        })
     }
     fn reply(&self, _source: &str, session: &str, words: &str) -> Result<(), String> {
-        self.channel
+        self.channel()
             .hand(own(session), words, SystemTime::now())
             .map(drop)
             .map_err(|refusal| match refusal {
@@ -267,6 +426,9 @@ impl SessionReplies for RepliesBySource {
             )),
         }
     }
+    fn live_sessions(&self, source: &str) -> Option<HashSet<String>> {
+        self.carrier(source)?.live_sessions(source)
+    }
     fn reply(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
         match self.carrier(source) {
             Some(replies) => replies.reply(source, session, words),
@@ -293,7 +455,7 @@ mod tests {
         let script = fs::read_to_string(plugin.folder().join("hooks/register.ts")).unwrap();
         assert!(script.contains(&*root.path().join("channel").to_string_lossy()));
         assert!(!script.contains("__AGENT_HUD_CHANNEL_JSON__"));
-        let replies = plugin.replies();
+        let replies = plugin.replies(None);
         let refused = replies
             .reaches("chengxiaobang", "chengxiaobang:s_1")
             .unwrap_err();
@@ -315,6 +477,45 @@ mod tests {
             .collect::<Vec<_>>();
         assert_eq!(left.len(), 1);
         assert!(left[0].contains("\"text\":\"Monday\""));
+    }
+
+    #[test]
+    fn queues_a_message_for_a_session_that_checked_in_before() {
+        let root = tempfile::tempdir().unwrap();
+        let home = root.path().join("cxb");
+        fs::create_dir_all(home.join("plugins")).unwrap();
+        let plugin = ChengxiaobangPlugin::new(root.path().join("channel"), &home);
+        plugin.prepare().unwrap();
+        let replies = plugin.replies(None);
+        // s_2 ran the plugin an hour ago, then 程小帮 restarted.
+        let file = root.path().join("channel/sessions/s_2.json");
+        fs::write(&file, json!({"ended":1}).to_string()).unwrap();
+        fs::File::options()
+            .write(true)
+            .open(&file)
+            .unwrap()
+            .set_modified(SystemTime::now() - Duration::from_secs(3600))
+            .unwrap();
+        assert!(!replies
+            .live_sessions("chengxiaobang")
+            .unwrap()
+            .contains("chengxiaobang:s_2"));
+        replies
+            .reaches("chengxiaobang", "chengxiaobang:s_2")
+            .unwrap();
+        replies
+            .relay("chengxiaobang", "chengxiaobang:s_2", "hello later")
+            .unwrap();
+        let left = fs::read_dir(root.path().join("channel/prompts/s_2"))
+            .unwrap()
+            .filter_map(|entry| fs::read_to_string(entry.ok()?.path()).ok())
+            .collect::<Vec<_>>();
+        assert_eq!(left.len(), 1);
+        assert!(left[0].contains("\"kind\":\"message\""), "{}", left[0]);
+        // A session that never ran the plugin is not queued for.
+        assert!(replies
+            .reaches("chengxiaobang", "chengxiaobang:s_9")
+            .is_err());
     }
 
     #[test]

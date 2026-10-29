@@ -1,6 +1,7 @@
 //! Local build: what Agent HUD sets up by itself on its first launch, as
 //! 程小帮's integration is, so no click in Settings is needed: SI Future HUD's
-//! Claude Code plugin, the HUD tools in Claude Code and Codex, and the
+//! Claude Code plugin, the HUD tools in Claude Code and Codex, the message
+//! skill (`agent_skills`), and the
 //! switches they need (the HUD tools, client hooks for HUD approvals). Each is done once and recorded in `auto-setup.json`:
 //! one the user removes later in Settings is not put back, and one whose
 //! client is not here yet is tried again on a later launch.
@@ -44,6 +45,16 @@ pub(crate) fn on_launch(app: &tauri::AppHandle) {
         });
         step("codexMcp", &|| super::mcp_clients::add_once(&app, "codex"));
         step("clientHooks", &|| turn_on(&app, "clientHooks"));
+        // Every launch: the message skill for Claude Code and Codex, which
+        // reaches windows already open (written once, then kept current).
+        if let (Some(executable), Ok(home)) = (
+            super::chengxiaobang::fixed_executable(&app),
+            agent_hud_runtime::home_directory(),
+        ) {
+            if let Err(error) = super::agent_skills::ensure(&home, &executable, &mut done, &now) {
+                eprintln!("SI Future HUD setup (skills): {error}");
+            }
+        }
         // Every launch: a login item left at a moved or renamed app is bound to
         // this one (macOS keeps launching the bundle it was registered from).
         if let Some(bundle) = app

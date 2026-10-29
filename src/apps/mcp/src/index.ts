@@ -6,6 +6,9 @@ import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import * as z from "zod/v4";
 import { EngineClient } from "@agent-hud/engine-client";
 import type { Snapshot } from "@agent-hud/protocol";
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { isAbsolute, join } from "node:path";
 
 const engine = new EngineClient(undefined, "app");
 const readOnly = {
@@ -87,12 +90,15 @@ type HostTool = {
   readOnly: boolean;
 };
 /** Asked once at start: a session started while a group was off gets it from its next session. */
-const hostTools = await engine
-  .request<{ tools?: HostTool[] }>("host_tools")
-  .then(
+const hostTools = await Promise.race([
+  engine.request<{ tools?: HostTool[] }>("host_tools").then(
     (found) => found.tools ?? [],
     () => [],
-  );
+  ),
+  // A busy app must not hold the handshake past the client's start timeout
+  // (Codex waits 10 seconds): without an answer by then there are none.
+  new Promise<HostTool[]>((done) => setTimeout(() => done([]), 2_000)),
+]);
 /** A host tool's schema as the host wrote it; the host checks the arguments itself. */
 const hostSchema = (
   schema: Record<string, unknown>,
@@ -111,9 +117,22 @@ const hostSchema = (
  * agent writes: Codex in each call's `_meta`, Claude Code in the environment it starts
  * this relay with. */
 const caller = (meta: Record<string, unknown> | undefined) => {
-  const turn = meta?.["x-codex-turn-metadata"] as
-    Record<string, unknown> | undefined;
-  const thread = meta?.threadId ?? turn?.thread_id;
+  const raw = meta?.["x-codex-turn-metadata"];
+  let turn: Record<string, unknown> | undefined;
+  if (typeof raw === "string") {
+    try {
+      turn = JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+      turn = undefined;
+    }
+  } else if (raw && typeof raw === "object") {
+    turn = raw as Record<string, unknown>;
+  }
+  const thread =
+    meta?.threadId ??
+    turn?.thread_id ??
+    // Codex names its session beside its turn metadata.
+    (turn ? meta?.sessionId : undefined);
   if (typeof thread === "string" && thread)
     return {
       client: "codex",
@@ -125,11 +144,39 @@ const caller = (meta: Record<string, unknown> | undefined) => {
   // environment it inherited.
   const named = process.env.AGENT_HUD_CLIENT;
   if (named) return { client: named, sessionId: null, turnId: null };
-  const session = process.env.CLAUDE_CODE_SESSION_ID;
+  const session = claudeSession() ?? process.env.CLAUDE_CODE_SESSION_ID;
   return session
     ? { client: "claude", sessionId: session, turnId: null }
     : null;
 };
+/** Local build: the session Claude Code's process (this relay's parent) runs
+ * now, from its own record, which follows /clear and /resume; the
+ * environment keeps the one this relay started with. */
+const claudeSession = (): string | undefined => {
+  const configured = process.env.CLAUDE_CONFIG_DIR;
+  const folder =
+    configured && isAbsolute(configured)
+      ? configured
+      : join(homedir(), ".claude");
+  try {
+    const record = JSON.parse(
+      readFileSync(join(folder, "sessions", `${process.ppid}.json`), "utf8"),
+    ) as { pid?: unknown; sessionId?: unknown };
+    return record.pid === process.ppid &&
+      typeof record.sessionId === "string" &&
+      record.sessionId
+      ? record.sessionId
+      : undefined;
+  } catch {
+    return undefined;
+  }
+};
+/** An optional id: null and "" read as not given (some models send them). */
+const optionalId = (max?: number) =>
+  z.preprocess(
+    (value) => (value === null || value === "" ? undefined : value),
+    (max ? z.string().min(1).max(max) : z.string().min(1)).optional(),
+  );
 const keys = z.array(z.string().min(1));
 const period = z.enum(["day", "week", "month"]);
 const measures = z.array(
@@ -484,7 +531,7 @@ serveStdio(() => {
     "hud_send_message",
     {
       description:
-        "Send a message to another coding agent's open session through SI Future HUD (Claude Code, Codex Desktop, 程小帮). The user confirms each message on the HUD before it is delivered as that session's next message, and a paper plane flies between the agents. Returns at once with status pending: the reply, if any, arrives later as a new message in your own session. To reply to a message you received, use the `to` and `session` it names.",
+        "Send a message to another coding agent's open session through SI Future HUD (Claude Code, Codex Desktop, 程小帮). The user confirms each message on the HUD before it is delivered as that session's next message, and a paper plane flies between the agents. Returns at once with status pending: the reply, if any, arrives later as a new message in your own session. To reply to a message you received, use the `to` and `session` it names. A Codex conversation takes the reply only once its current turn has ended.",
       inputSchema: z.object({
         to: z
           .string()
@@ -492,24 +539,17 @@ serveStdio(() => {
           .describe(
             'The receiving agent: "claude" (Claude Code), "codex" (a Codex Desktop conversation) or "chengxiaobang" (程小帮).',
           ),
-        session: z
-          .string()
-          .min(1)
-          .optional()
-          .describe(
-            "The receiving session's id (as hud_sessions lists it, or as a message you received names it). Omitted: the agent's most recently active session that can receive.",
-          ),
+        session: optionalId().describe(
+          "The receiving session's id (as hud_sessions lists it, or as a message you received names it). Omitted: the agent's most recently active session that can receive.",
+        ),
         text: z
           .string()
           .min(1)
           .max(4000)
           .describe("What to tell the other agent."),
-        from_session: z
-          .string()
-          .min(1)
-          .max(200)
-          .optional()
-          .describe("Set by 程小帮's SI Future HUD plugin; leave it out."),
+        from_session: optionalId(200).describe(
+          "Set by 程小帮's SI Future HUD plugin; leave it out.",
+        ),
       }),
       annotations: { ...localWrite, idempotentHint: false },
     },

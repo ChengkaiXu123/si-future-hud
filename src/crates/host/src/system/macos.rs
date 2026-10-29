@@ -100,7 +100,43 @@ pub(super) fn cli_candidates(home: &Path, command: &str, dirs: Vec<PathBuf>) -> 
         }
     }
     candidates.extend(dirs.into_iter().map(|dir| dir.join(command)));
+    if command == "claude" {
+        // Local build: users of the Claude desktop app alone have no claude on
+        // PATH; its Code tab runs the copy it keeps, the newest version last.
+        candidates.extend(
+            [home.join(".claude/local/claude")]
+                .into_iter()
+                .chain(claude_desktop_cli(home))
+                .filter(|path| path.is_file()),
+        );
+    }
     candidates
+}
+
+/// The newest claude the Claude desktop app keeps for its Code tab:
+/// `~/Library/Application Support/Claude/claude-code/<version>/<build>/claude.app/Contents/MacOS/claude`.
+fn claude_desktop_cli(home: &Path) -> Option<PathBuf> {
+    let root = home.join("Library/Application Support/Claude/claude-code");
+    let mut versions = std::fs::read_dir(&root)
+        .ok()?
+        .flatten()
+        .filter_map(|entry| {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            let parts = name
+                .split('.')
+                .map(|part| part.parse::<u64>().ok())
+                .collect::<Option<Vec<_>>>()?;
+            Some((parts, entry.path()))
+        })
+        .collect::<Vec<_>>();
+    versions.sort();
+    versions.into_iter().rev().find_map(|(_, folder)| {
+        std::fs::read_dir(folder)
+            .ok()?
+            .flatten()
+            .map(|build| build.path().join("claude.app/Contents/MacOS/claude"))
+            .find(|path| path.is_file())
+    })
 }
 
 pub(super) fn private_output(options: &mut std::fs::OpenOptions) {

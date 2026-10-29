@@ -23,7 +23,9 @@ const asking = new Map<string, { question: string, header?: string, options: { l
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const started = await next(e)
-    const { version } = await $.session.version()
+    // A client without this call still checks in.
+    let version = ''
+    try { ({ version } = await $.session.version()) } catch {}
     let checking = false
     let ticks = 0
     let last = ''
@@ -43,7 +45,9 @@ export const register: Register = on => {
           const pending: { path: string, cancel: string, prompt: Record<string, unknown> }[] = []
           for (const entry of entries) {
             const path = `${folder}/${entry.name}`
-            const prompt = JSON.parse(await $.fs.read(path))
+            // One unreadable file (half written, say) never holds the others back.
+            let prompt: Record<string, unknown>
+            try { prompt = JSON.parse(await $.fs.read(path)) } catch { continue }
             if (typeof prompt.text !== 'string' || prompt.takenAt !== undefined || prompt.cancelledAt !== undefined || prompt.expiredAt !== undefined) continue
             pending.push({ path, cancel: path.slice(0, -5) + '.cancel', prompt })
           }

@@ -607,9 +607,13 @@ interface ChengxiaobangStatus {
   installed: boolean;
   sessions: number;
   mcp: boolean;
+  /** What 程小帮 says of the plugin (null when unreadable), and whether it runs. */
+  enabled?: boolean | null;
+  stopped?: boolean;
+  running?: boolean;
 }
 const nativeChengxiaobang = async (
-  action: "status" | "install",
+  action: "status" | "install" | "open",
 ): Promise<ChengxiaobangStatus> => {
   if (!isTauri())
     return { found: false, installed: false, sessions: 0, mcp: false };
@@ -696,12 +700,19 @@ function ChengxiaobangCard({
           installed,
           sessions: status?.sessions ?? 0,
           running: running === "plugin",
+          enabled: status?.enabled,
+          stopped: status?.stopped,
+          appRunning: status?.running,
         })}
         error={error}
         zh={zh}
         controlsOpen={installed === true}
         onAction={(id) => {
           if (id === "install") void install("plugin");
+          if (id === "open")
+            void nativeChengxiaobang("open")
+              .then(apply)
+              .catch((failed) => setError(String(failed)));
         }}
       >
         <PluginControl

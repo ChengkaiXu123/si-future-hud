@@ -79,7 +79,15 @@ The terminal `claude` is signed in with an API key or through a cloud provider, 
 
 **Why:** the conversation was opened before the HUD installed its plugin.
 
-**Fix:** type `/reload-plugins` in that conversation, or start a new one. New conversations load the plugin by themselves.
+**Fix:** type `/reload-plugins` in that conversation, or start a new one. New conversations load the plugin by themselves. Until then it can still send, and get the answer to its own question, through the command line (next entry).
+</details>
+
+<details>
+<summary><b>"I don't have a HUD tool" in a window that was already open</b></summary>
+
+**Why:** the HUD tools reach only conversations started after the HUD added them.
+
+**Fix:** nothing to restart. The HUD writes an `si-future-hud` skill that open Claude Code and Codex windows pick up at once; ask again and the agent uses the HUD's command line instead (`agent-hud-next send … --wait 600`), which prints the reply. See [Messaging → From any window](MESSAGING.md#from-any-window).
 </details>
 
 <details>
@@ -121,8 +129,9 @@ The HUD tools weren't added to Codex, because no `codex` command was found. The 
 <details open>
 <summary><b>Chengxiaobang doesn't appear, or never receives messages</b></summary>
 
-- Enable the **SI Future HUD** plugin once on Chengxiaobang's **Plugins** page. The HUD wrote it into `~/.chengxiaobang/plugins/agent-hud/`.
-- **After every restart of Chengxiaobang,** click into a conversation once. Its plugin API works per conversation, so a conversation you haven't opened since the restart can't receive.
+- **Settings → Agent plugins → Chengxiaobang** says what is missing: not enabled, stopped, Chengxiaobang not running, or no conversation open yet. Its button opens Chengxiaobang.
+- Enable the **SI Future HUD** plugin once on Chengxiaobang's **Plugins** page (no restart needed). The HUD wrote it into `~/.chengxiaobang/plugins/agent-hud/`.
+- **After a restart of Chengxiaobang,** a conversation takes messages once you open it. Messages for a conversation that took messages before wait in a queue until then (an hour).
 - **After you update the HUD,** restart Chengxiaobang once. Its running MCP relay keeps the old tool definitions until then.
 </details>
 
@@ -164,11 +173,10 @@ The HUD reads Grok Bot's quota from Grok Bot's own cache. Refresh it in Grok Bot
 2. **Can the receiver take it right now?** It can't if:
    - it is a closed conversation;
    - it is a busy Codex conversation;
-   - it is a Chengxiaobang conversation not opened since a restart;
    - it is a conversation waiting for your answer to a question.
 
-   Messages are refused, not queued.
-3. **Too many waiting?** Each sender can have at most 2 messages waiting for your decision.
+   A Chengxiaobang conversation not opened since a restart gets the message once you open it (the card says it is queued). Other messages are refused, not queued; the refusal says why and what to do.
+3. **Too many waiting?** Each sending conversation can have at most 2 messages waiting for your decision.
 
 More detail: [Messaging → Rules](MESSAGING.md#rules-that-keep-it-safe).
 </details>

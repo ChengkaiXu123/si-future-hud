@@ -106,10 +106,15 @@ impl Runtime {
             .lock()
             .unwrap_or_else(|p| p.into_inner())
             .observe_local_clients()?;
-        hooks
+        // Local build: Codex Desktop's channel is one client's; a failure to
+        // start it (an unusual CODEX_HOME, say) must not stop the app.
+        if let Err(error) = hooks
             .lock()
             .unwrap_or_else(|p| p.into_inner())
-            .start_codex_desktop()?;
+            .start_codex_desktop()
+        {
+            eprintln!("SI Future HUD: Codex Desktop channel unavailable: {error}");
+        }
         core.set_platform(platform.name());
         core.set_provider_discovery(platform.discover_providers());
         let legacy_database = platform.legacy_quota_database();

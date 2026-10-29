@@ -313,15 +313,30 @@ impl ClaudeChannel {
         as_user: bool,
         now: SystemTime,
     ) -> Result<(), Refusal> {
+        self.leave_kind(session, id, text, as_user, None, now)
+    }
+
+    /// Leaves words with their kind in the one write, so a plugin polling the
+    /// folder never reads them without it.
+    fn leave_kind(
+        &self,
+        session: &str,
+        id: &str,
+        text: &str,
+        as_user: bool,
+        kind: Option<&str>,
+        now: SystemTime,
+    ) -> Result<(), Refusal> {
         let file = self.prompt(session, id)?;
         if file.exists() {
             return Err(Refusal::IdentityConflict);
         }
         let at = millis(now);
-        write_json(
-            &file,
-            &json!({"id":id,"text":text,"at":at,"expiresAt":at.saturating_add(PROMPT_LIFETIME.as_millis() as u64),"asUser":as_user}),
-        )
+        let mut value = json!({"id":id,"text":text,"at":at,"expiresAt":at.saturating_add(PROMPT_LIFETIME.as_millis() as u64),"asUser":as_user});
+        if let Some(kind) = kind {
+            value["kind"] = json!(kind);
+        }
+        write_json(&file, &value)
     }
 
     /// Local build: leaves words another agent sent (relayed by Agent HUD) for
@@ -333,13 +348,29 @@ impl ClaudeChannel {
         text: &str,
         now: SystemTime,
     ) -> Result<String, Refusal> {
-        let id = self.hand(session, text, now)?;
-        let file = self.prompt(session, &id)?;
-        let mut value: Value =
-            serde_json::from_slice(&fs::read(&file)?).map_err(|_| Refusal::IdentityConflict)?;
-        value["kind"] = json!("message");
-        write_json(&file, &value)?;
-        Ok(id)
+        self.hand_kind(session, text, Some("message"), true, now)
+    }
+
+    /// Local build: leaves a relayed message for a session that ran the
+    /// plugin before but isn't running it now; its plugin takes it once the
+    /// session opens again, within the prompt's hour.
+    pub fn queue_message(
+        &self,
+        session: &str,
+        text: &str,
+        now: SystemTime,
+    ) -> Result<String, Refusal> {
+        self.hand_kind(session, text, Some("message"), false, now)
+    }
+
+    /// Local build: whether `session` ever checked in here (it may have ended).
+    pub fn checked_in_before(&self, session: &str) -> bool {
+        valid_name(session)
+            && self
+                .directory
+                .join("sessions")
+                .join(format!("{session}.json"))
+                .is_file()
     }
 
     /// Leaves `text` for `session` as the answer to its question: refused when
@@ -347,6 +378,17 @@ impl ClaudeChannel {
     /// user) or the session is not running the plugin. Returns its identity.
     /// Each answer clears what earlier ones left, so the folder does not grow.
     pub fn hand(&self, session: &str, text: &str, now: SystemTime) -> Result<String, Refusal> {
+        self.hand_kind(session, text, None, true, now)
+    }
+
+    fn hand_kind(
+        &self,
+        session: &str,
+        text: &str,
+        kind: Option<&str>,
+        loaded: bool,
+        now: SystemTime,
+    ) -> Result<String, Refusal> {
         if text.trim().is_empty() {
             return Err(Refusal::InvalidInput("Nothing to send".into()));
         }
@@ -358,12 +400,15 @@ impl ClaudeChannel {
         if !valid_name(session) {
             return Err(Refusal::InvalidInput("identity".into()));
         }
-        if !self.loaded(now).contains(session) {
+        if loaded && !self.loaded(now).contains(session) {
+            return Err(Refusal::NotLoaded);
+        }
+        if !loaded && !self.checked_in_before(session) {
             return Err(Refusal::NotLoaded);
         }
         self.sweep(now);
         let id = identity(now);
-        self.leave(session, &id, text, false, now)?;
+        self.leave_kind(session, &id, text, false, kind, now)?;
         Ok(id)
     }
 
@@ -532,8 +577,8 @@ impl ClaudeReplies {
         }
         Unreachable::new(
             l10n::text(
-                "这个会话还没加载 SI Future HUD 插件。在会话里执行 /reload-plugins 后，就能在 SI Future HUD 里回答。",
-                "This session hasn't loaded SI Future HUD's plugin. Run /reload-plugins in it to answer in SI Future HUD.",
+                "这个会话还没加载 SI Future HUD 插件（它在插件装好之前就开着）。在那个会话里执行 /reload-plugins，或者新开一个会话，就能收到 HUD 转来的消息、在 HUD 里回答它的提问。",
+                "This session hasn't loaded SI Future HUD's plugin (it was open before the plugin was installed). Run /reload-plugins in it, or start a new session, to take messages and answer its questions in SI Future HUD.",
             ),
             Some(AnswerFix::ReloadPlugins),
         )
@@ -558,6 +603,29 @@ impl SessionReplies for ClaudeReplies {
         } else {
             Err(self.unreachable(session))
         }
+    }
+    fn live_sessions(&self, source: &str) -> Option<HashSet<String>> {
+        (source == agent_hud_agents::claude::AGENT.id)
+            .then(|| self.channel.loaded(SystemTime::now()))
+    }
+    /// Local build: another agent's words, marked as a message (never an answer).
+    fn relay(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
+        if source != agent_hud_agents::claude::AGENT.id {
+            return Err(not_claude());
+        }
+        self.channel
+            .hand_message(session, words, SystemTime::now())
+            .map(drop)
+            .map_err(|refusal| match refusal {
+                Refusal::NotLoaded => self.unreachable(session).note,
+                Refusal::Rejected(_) => {
+                    l10n::text("消息不能以 / 开头。", "A message can't start with /.")
+                }
+                _ => l10n::text(
+                    "消息没能交给 Claude Code 插件。",
+                    "The message could not be left for the Claude Code plugin.",
+                ),
+            })
     }
     fn reply(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
         if source != agent_hud_agents::claude::AGENT.id {

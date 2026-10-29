@@ -13,7 +13,7 @@
 | **Apple 芯片的 Mac**（M1、M2、M3、M4…），**macOS 12 或更新** | 安装包只有 arm64 版本。查看方法：苹果菜单 →「关于本机」，「芯片」一栏是 Apple M 开头就行。Intel 芯片的 Mac 请[从源码构建](../../README.zh-CN.md#从源码构建)。 |
 | **`claude` 命令**（Claude Code 命令行版），如果你用 Claude Code | HUD 通过这个命令给 Claude Code 装插件和工具。**只装桌面版不够。** |
 | **Codex 桌面版**，如果你用 Codex | 不用另装别的。HUD 用桌面版自带的 `codex` 命令（Codex.app，或带 Codex 的 ChatGPT App）给 Codex 装工具，发**给** Codex 的消息也送到桌面版。**不用装 Codex 命令行版。** 只在终端里用 Codex 的，HUD 才需要在下面这些位置找到 `codex` 命令。 |
-| **程小帮**，如果你用它 | 不用准备，HUD 会自己放好插件。 |
+| **程小帮**，如果你用它 | 不用准备，HUD 会自己放好插件；装好后在程小帮里启用一次（见下文）。 |
 
 **怎么装命令行版**：按各家官方说明安装：
 - Claude Code：[docs.claude.com → Claude Code → Set up](https://docs.claude.com/en/docs/claude-code/setup)
@@ -86,7 +86,7 @@ xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"
 | --- | --- |
 | **Claude Code** | **终端里的 `claude` 要登录一次**：在终端运行 `claude`，按提示登录。额度是通过终端命令读的，和桌面 App 的登录不共用。装 HUD 之前就开着的对话，输入 `/reload-plugins` 或新开一个对话。 |
 | **Codex** | 要收传话的对话，请用 **Codex 桌面版**（命令行版只显示状态）。Codex 第一次询问是否信任 HUD 的回调时，选允许，不然审批弹不到 HUD 上。 |
-| **程小帮** | 打开它的「插件」页，启用一次 **SI Future HUD**。程小帮每次重启后，要点开某个对话一次，那个对话才能收传话。 |
+| **程小帮** | 打开它的「插件」页，启用一次 **SI Future HUD**（不用重启）。设置 → 智能体插件会显示它有没有启用。程小帮重启后，点开的对话才能收传话；以前收过消息的对话会先排队，点开时送达。 |
 | **Cursor** | 在 **Cursor 桌面版里**登录。只在网页登录读不到额度。 |
 | **Grok Bot** | 登录即可，额度和回复会自动显示。 |
 

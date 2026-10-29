@@ -13,7 +13,7 @@ About five minutes, most of it macOS asking whether you trust the app.
 | **A Mac with Apple silicon** (M1, M2, M3, M4…) and **macOS 12 or newer** | The release is built for arm64 only. Check: Apple menu → **About This Mac** → *Chip* says *Apple M…*. On an Intel Mac, [build it from source](../../README.md#build-from-source). |
 | **The `claude` command** (Claude Code CLI), if you use Claude Code | The HUD installs its plugin and tools into Claude Code through this command. **The desktop app alone is not enough.** |
 | **The Codex desktop app**, if you use Codex | Nothing to install on top. The HUD uses the `codex` command built into the app (Codex.app, or the ChatGPT app that carries Codex) to add its tools, and messages *to* Codex go to the app. **You don't need the Codex CLI.** Only if you use Codex purely from a terminal does the HUD need a `codex` command from the list below. |
-| **Chengxiaobang (程小帮)**, if you use it | Nothing to prepare. The HUD drops its plugin in by itself. |
+| **Chengxiaobang (程小帮)**, if you use it | Nothing to prepare. The HUD drops its plugin in by itself; enable it once in Chengxiaobang afterwards (below). |
 
 **Installing the command‑line tools.** Follow each vendor's official instructions:
 - Claude Code: [docs.claude.com → Claude Code → Set up](https://docs.claude.com/en/docs/claude-code/setup)
@@ -86,7 +86,7 @@ Each step runs once. **Nothing you remove later is put back.** If `claude` wasn'
 | --- | --- |
 | **Claude Code** | **Sign in to the terminal `claude` once:** run `claude` in Terminal and follow the sign‑in. The quota comes from the terminal command, and the desktop app's sign‑in is separate. In conversations that were already open before you installed the HUD, type `/reload-plugins`, or start a new conversation. |
 | **Codex** | Use the **Codex desktop app** for conversations that should receive messages (the CLI shows status only). The first time Codex asks whether to trust the HUD's hook, allow it, or approvals won't reach the HUD. |
-| **Chengxiaobang** | Open its **Plugins** page and enable **SI Future HUD** once. After every restart of Chengxiaobang, click into a conversation once, and that conversation can then receive messages. |
+| **Chengxiaobang** | Open its **Plugins** page and enable **SI Future HUD** once (no restart needed). Settings → Agent plugins shows whether it is enabled. After a restart of Chengxiaobang, a conversation takes messages once you open it; messages for one that took messages before wait in a queue until then. |
 | **Cursor** | Sign in **inside the Cursor desktop app**. A web sign‑in doesn't count. |
 | **Grok Bot** | Sign in. Quota and replies appear by themselves. |
 

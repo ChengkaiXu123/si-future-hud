@@ -446,6 +446,11 @@ impl AgentHudCore {
                 let now = Utc::now().timestamp_millis();
                 self.propose_agent_message(&params, now)
             }
+            // Local build: a command-line sender waits for words to its session.
+            "agent_inbox" => {
+                let now = Utc::now().timestamp_millis();
+                self.agent_inbox(&params, now)
+            }
             "refresh" => {
                 self.reads.listing.note_changes(None);
                 self.snapshot()

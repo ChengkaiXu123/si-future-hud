@@ -132,12 +132,20 @@ fn handle(
     if !active.load(Ordering::Acquire) {
         return Err("Local tools are disabled".into());
     }
+    // Local build: an agent asks to send words to another agent's session, or
+    // a command-line sender waits for the reply. Neither depends on "Let
+    // agents arrange the HUD"; registering a card wakes the collector.
+    match method {
+        "send_message" => return owner.runtime.request("agent_message", params),
+        "agent_inbox" => return owner.runtime.request("agent_inbox", params),
+        _ => {}
+    }
     let snapshot = owner
         .snapshot
         .as_ref()
         .ok_or("Application data is loading")?;
     if snapshot["settings"]["hudTools"] != true {
-        return Err("Local tools are disabled".into());
+        return Err("HUD tools are off: turn on Let agents arrange the HUD in SI Future HUD → Settings → Agent plugins. / HUD 工具关着：在 SI Future HUD → 设置 → 智能体插件里打开「让智能体排版 HUD」。".into());
     }
     match method {
         "snapshot" | "refresh" => Ok(snapshot.as_ref().clone()),
@@ -182,9 +190,6 @@ fn handle(
             drop(owner);
             super::picture::capture(app, params)
         }
-        // Local build: an agent asks to send words to another agent's session;
-        // registering its card wakes the collector, which publishes it.
-        "send_message" => owner.runtime.request("agent_message", params.clone()),
         _ => Err("Unknown local application tool".into()),
     }
 }

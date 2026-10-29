@@ -160,7 +160,14 @@ pub fn request(data: &Path, request: &Value) -> Result<Value, String> {
         return Err("Local tools request is too large".into());
     }
     let mut stream = UnixStream::connect(socket_path(data))
-        .map_err(|_| "Open SI Future HUD and turn on Let agents arrange the HUD in Settings → Agents → Agent plugins. MCP never starts a collector.".to_owned())?;
+        .map_err(|error| {
+            // A sandboxed shell (Codex's, by default) may not reach the socket.
+            if error.kind() == std::io::ErrorKind::PermissionDenied {
+                "Can't reach SI Future HUD from this sandbox: run the command again with permission to leave the sandbox. / 沙箱挡住了 SI Future HUD：用需要授权的方式重跑这个命令。".to_owned()
+            } else {
+                "SI Future HUD isn't running: open it, then try again. / SI Future HUD 没在运行：打开它再试。".to_owned()
+            }
+        })?;
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .map_err(|_| "Local tools timeout unavailable")?;

@@ -14,6 +14,10 @@ pub(super) fn resource(name: &str) -> Option<PathBuf> {
     .find(|path| path.is_file())
 }
 pub fn entry(arguments: &[String]) -> Option<i32> {
+    // Local build: the message tool for agent windows without the MCP tool.
+    if arguments.get(1).map(String::as_str) == Some("send") {
+        return Some(send::run(&arguments[2..]));
+    }
     if !arguments.iter().skip(1).any(|arg| arg == "--mcp") {
         return None;
     }
@@ -27,6 +31,8 @@ pub fn entry(arguments: &[String]) -> Option<i32> {
     }
     Some(serve(command))
 }
+#[path = "cli/send.rs"]
+mod send;
 // Each host runs the MCP server in the relay's place where it can.
 #[cfg(unix)]
 #[path = "cli/unix.rs"]

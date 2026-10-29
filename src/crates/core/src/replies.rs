@@ -24,4 +24,10 @@ pub trait SessionReplies: Send + Sync {
     fn relay(&self, source: &str, session: &str, words: &str) -> Result<(), String> {
         self.reply(source, session, words)
     }
+    /// Local build: the sessions of `source` running the carrier now, as the
+    /// HUD names them, for carriers that know (sessions check in); None when
+    /// the carrier can't tell. A message prefers these, however old.
+    fn live_sessions(&self, _source: &str) -> Option<std::collections::HashSet<String>> {
+        None
+    }
 }

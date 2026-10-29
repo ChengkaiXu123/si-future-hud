@@ -313,10 +313,16 @@ pub fn runs(db: &Connection, now: i64) -> rusqlite::Result<Vec<Run>> {
                     .and_then(|(_, at)| at.as_deref().and_then(metering::date_ms));
             }
         }
-        if run.status != "running" && messages.is_some() {
-            let mut statement = db.prepare(
-                "SELECT content FROM messages WHERE session_id=?1 AND role='assistant' AND COALESCE(kind,'')='' AND COALESCE(content,'')<>'' AND created_at>=?2 AND created_at<=?3 ORDER BY created_at DESC LIMIT 1",
-            )?;
+        if let Some(m) = messages.as_ref().filter(|_| run.status != "running") {
+            // A 程小帮 without the kind column has only plain messages.
+            let plain = if m.contains("kind") {
+                " AND COALESCE(kind,'')=''"
+            } else {
+                ""
+            };
+            let mut statement = db.prepare(&format!(
+                "SELECT content FROM messages WHERE session_id=?1 AND role='assistant'{plain} AND COALESCE(content,'')<>'' AND created_at>=?2 AND created_at<=?3 ORDER BY created_at DESC LIMIT 1",
+            ))?;
             let session = run.session.trim_start_matches("chengxiaobang:").to_owned();
             let from = iso_text(run.started);
             let to = iso_text(run.updated + 1_000);
