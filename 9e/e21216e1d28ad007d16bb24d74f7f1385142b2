@@ -1,0 +1,43 @@
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_7500c78124d268 5-8
+src/packages/app/src/styles.css
+  s_d48b3b8d3c26d0::t_25500bedb66dfd 38-39,44-45
+  s_d48b3b8d3c26d0::t_ec3a0922801a7d 6-37,40-43,46-234
+src/packages/app/src/SettingsPanes.tsx
+  s_d48b3b8d3c26d0::t_edf033f1720135 46-47
+  s_d48b3b8d3c26d0::t_ce553c9a522e91 10
+src/packages/hud/test/resting-agents.test.ts
+  s_d48b3b8d3c26d0::t_69d084c3ac0c89 48-55,97,103-132,136-139
+src/packages/hud/package.json
+  s_d48b3b8d3c26d0::t_edf033f1720135 19-20
+src/packages/app/src/App.tsx
+  s_d48b3b8d3c26d0::t_ec3a0922801a7d 26
+  s_d48b3b8d3c26d0::t_edf033f1720135 116-123,164-167,823-824
+src/packages/app/src/settings/GetStartedPane.tsx
+  s_d48b3b8d3c26d0::t_0d76059234544d 414
+  s_d48b3b8d3c26d0::t_ec3a0922801a7d 75-78,113,239-242,303-306,323-326,357-359,439-443
+  s_d48b3b8d3c26d0::t_ad61b728a419fd 1-74,79-112,114-238,243-302,307-322,327-356,360-413,415-438,444-463
+src/packages/hud/src/resting-agents.ts
+  s_d48b3b8d3c26d0::t_14e6770504127a 21-35,49,84
+src/crates/host/src/auto_setup.rs
+  s_d48b3b8d3c26d0::t_efc7d461ee2e11 58-63
+src/packages/hud/src/HoverPanel.tsx
+  s_d48b3b8d3c26d0::t_14e6770504127a 117
+  s_d48b3b8d3c26d0::t_69d084c3ac0c89 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "9ee21216e1d28ad007d16bb24d74f7f1385142b2",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
