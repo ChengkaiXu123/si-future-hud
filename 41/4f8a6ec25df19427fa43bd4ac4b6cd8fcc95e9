@@ -1,0 +1,69 @@
+src/crates/core/src/clients/agent_message.rs
+  s_d48b3b8d3c26d0::t_641e17c1dcd99c 274-277,287,289-308,312,315,318-319,325-326,333-334,338,340,343,346-347,722-725
+  s_d48b3b8d3c26d0::t_30cec2c9086688 41-44,51-53,114-117,187-192,196-201,212-215,217-218,369-380,402-411,418-420,446,485,487-493,562-566,656-659,813,824,844-845
+  s_d48b3b8d3c26d0::t_f920b106e28a10 648-655,677,685,771
+  s_d48b3b8d3c26d0::t_d44c98b529b0f8 773-776
+  s_d48b3b8d3c26d0::t_0f5c7379df982e 216,220
+src/crates/host/src/cli/send.rs
+  s_d48b3b8d3c26d0::t_e1679945e590b5 229-236
+  s_d48b3b8d3c26d0::t_1a9ae9626263f5 103-104,108-113
+src/crates/core/src/replies.rs
+  s_d48b3b8d3c26d0::t_f920b106e28a10 51-56
+  s_d48b3b8d3c26d0::t_641e17c1dcd99c 46-50
+src/crates/platform/src/chengxiaobang_plugin/mod.rs
+  s_d48b3b8d3c26d0::t_f920b106e28a10 418-427,513-514
+  s_d48b3b8d3c26d0::t_641e17c1dcd99c 408-417,515-517
+src/crates/host/src/system/mod.rs
+  s_d48b3b8d3c26d0::t_3b50f5b0583c1b 51-57
+src/crates/core/src/source_db/tests.rs
+  s_d48b3b8d3c26d0::t_1a9ae9626263f5 1342-1424
+  s_d48b3b8d3c26d0::t_dfa4223ccd125f 1230-1341
+src/crates/host/src/system/macos.rs
+  s_d48b3b8d3c26d0::t_3b50f5b0583c1b 4
+src/crates/host/src/auto_setup.rs
+  s_d48b3b8d3c26d0::t_9e320984c6a556 59-61,64-70
+src/crates/host/src/agent_skills.rs
+  s_d48b3b8d3c26d0::t_e1679945e590b5 40-41
+src/crates/platform/src/chengxiaobang_plugin/register.ts
+  s_d48b3b8d3c26d0::t_0ff1cecad494c8 39-40
+src/crates/host/src/system/linux.rs
+  s_d48b3b8d3c26d0::t_3b50f5b0583c1b 2
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_b6e99465f19c75 3-27,33,40,51,74,81,85
+Cargo.lock
+  s_d48b3b8d3c26d0::t_8495f6e24cfcfd 13,31,49,58,87,98,105,126,135,160
+src/apps/desktop/package.json
+  s_d48b3b8d3c26d0::t_1731151f6c5272 4
+package.json
+  s_d48b3b8d3c26d0::t_1731151f6c5272 4
+Cargo.toml
+  s_d48b3b8d3c26d0::t_1731151f6c5272 6
+src/crates/host/src/mcp_clients.rs
+  s_d48b3b8d3c26d0::t_3b50f5b0583c1b 40-42
+src/apps/desktop/src-tauri/tauri.conf.json
+  s_d48b3b8d3c26d0::t_1731151f6c5272 4
+src/crates/platform/src/claude_plugin/register.ts
+  s_d48b3b8d3c26d0::t_0ff1cecad494c8 26-27
+src/packages/app/src/settings/GetStartedPane.tsx
+  s_d48b3b8d3c26d0::t_9e320984c6a556 235-250
+src/crates/host/src/system/windows.rs
+  s_d48b3b8d3c26d0::t_3b50f5b0583c1b 192-196
+src/crates/host/src/system/unix.rs
+  s_d48b3b8d3c26d0::t_3b50f5b0583c1b 19-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "414f8a6ec25df19427fa43bd4ac4b6cd8fcc95e9",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
