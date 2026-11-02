@@ -1487,7 +1487,11 @@ fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
     let sent = send(&mut backend, "second".into(), verified.clone());
     assert_eq!(sent["status"], "sent");
     assert!(sent["flight"].is_object());
-    assert_eq!(fake.0.lock().unwrap().last().unwrap().0, "chengxiaobang:s2");
+    let (session, words) = fake.0.lock().unwrap().last().unwrap().clone();
+    assert_eq!(session, "chengxiaobang:s2");
+    // The receiver is told no one confirmed it, never that the user agreed.
+    assert!(words.contains("SuperRoot"), "{words}");
+    assert!(!words.contains("only agreed"), "{words}");
     // One it can't verify still waits, and the card says why.
     let unverified = backend
         .request(
