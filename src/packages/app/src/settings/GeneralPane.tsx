@@ -208,6 +208,17 @@ export function GeneralPane({ snapshot, action }: SettingsPaneProps) {
             </p>
           )}
         </Section>
+        <Section title={t("Messaging", "传话")}>
+          <ToggleRow
+            title={t("SuperRoot mode", "SuperRoot 模式")}
+            subtitle={t(
+              "Messages between agents go at once, without your Send on the HUD. Only from agent sessions the HUD can verify, and at most 10 from one session in 10 minutes, so two agents can't go on answering each other; past that, the HUD asks you again.",
+              "智能体之间的消息不用你在 HUD 上点「发送」，直接送出。只放行 HUD 能核实的智能体会话；同一个会话 10 分钟内最多自动发 10 条，防止两个智能体来回对话停不下来，超出后会重新请你确认。",
+            )}
+            checked={snapshot.settings.superRoot === true}
+            change={(value) => setting("superRoot", value)}
+          />
+        </Section>
       </div>
     </TooltipProvider>
   );

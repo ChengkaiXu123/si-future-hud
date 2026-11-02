@@ -118,6 +118,7 @@ impl crate::AgentHudCore {
             | "hudTools"
             | "claudeAnswers"
             | "chengxiaobangAnswers"
+            | "superRoot"
             | "readCopilotQuota"
             | "clientHooks"
             | "launchAtLogin"

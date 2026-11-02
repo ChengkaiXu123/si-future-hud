@@ -59,6 +59,9 @@ pub(crate) struct AgentMessages {
     /// By (agent, session as the HUD names it).
     waiters: HashMap<(String, String), Waiter>,
     deferred: Vec<Deferred>,
+    /// Local build: messages SuperRoot sent without a click, by (agent,
+    /// sending session) and when, for its limit.
+    auto_sent: Vec<(String, Option<String>, i64)>,
 }
 
 /// The agents that take words now, and how the user knows them.
@@ -104,7 +107,12 @@ fn caller_client(caller: &Value) -> Result<&'static str, String> {
 
 const MAX_TEXT: usize = 4000;
 /// Cards one sender session may have waiting at once.
-const MAX_WAITING: usize = 2;
+const MAX_WAITING: usize = 5;
+/// Local build: SuperRoot sends at most this many messages from one session
+/// within the window without a click, so two agents answering each other
+/// can't go on by themselves; past it, the user confirms again.
+const AUTO_LIMIT: usize = 10;
+const AUTO_WINDOW_MS: i64 = 600_000;
 /// How far back a receiving session may have been active, unless its carrier
 /// says it is running now, and how many are tried.
 const RECENT_MS: i64 = 7 * 86_400_000;
@@ -583,8 +591,8 @@ impl crate::AgentHudCore {
             .count();
         if waiting >= MAX_WAITING {
             return Err(crate::l10n::text(
-                "这个会话已经有两条消息在等用户确认了，等确认后再发。",
-                "This session already has two messages waiting for the user; send more once they are answered.",
+                &format!("这个会话已经有 {MAX_WAITING} 条消息在等用户确认了，等确认后再发。"),
+                &format!("This session already has {MAX_WAITING} messages waiting for the user; send more once they are answered."),
             ));
         }
         let (from_session, from_title) = named
@@ -672,9 +680,39 @@ impl crate::AgentHudCore {
                 "\n\n({to_name}'s session isn't open now: the message waits there and arrives once \"{to_title}\" is opened in {to_name}, within an hour.)"
             ),
         };
+        // Local build: SuperRoot sends words from an agent session the HUD
+        // lists without the user's click, a limited number at a time. A
+        // sender it can't verify (any program can run the command line), or
+        // one past the limit, still waits for the click, and the card says why.
+        let super_root = self.settings["superRoot"] == true;
+        self.agent_messages
+            .auto_sent
+            .retain(|(_, _, at)| now - at < AUTO_WINDOW_MS);
+        let sent_lately = self
+            .agent_messages
+            .auto_sent
+            .iter()
+            .filter(|(agent, session, _)| agent == from && *session == named)
+            .count();
+        let auto = super_root && from_session.is_some() && sent_lately < AUTO_LIMIT;
+        let auto_note = match (super_root && !auto, from_session.is_some(), chinese()) {
+            (false, _, _) => String::new(),
+            (true, false, true) => {
+                "\n\n（SuperRoot 模式开着，但没法核实是哪个会话发的，所以仍要你确认。）".into()
+            }
+            (true, false, false) => {
+                "\n\n(SuperRoot mode is on, but the sending session can't be verified, so this one waits for you.)".into()
+            }
+            (true, true, true) => format!(
+                "\n\n（SuperRoot 模式开着，但这个会话 10 分钟内已经自动发了 {AUTO_LIMIT} 条：为防止智能体来回对话停不下来，这条要你确认。）"
+            ),
+            (true, true, false) => format!(
+                "\n\n(SuperRoot mode is on, but this session has sent {AUTO_LIMIT} messages by itself in 10 minutes: so that agents can't go on answering each other, this one waits for you.)"
+            ),
+        };
         let detail = if chinese() {
             format!(
-                "从{}发到{to_name}的会话「{to_title}」：\n\n{text}{queued_note}{caution_note}",
+                "从{}发到{to_name}的会话「{to_title}」：\n\n{text}{queued_note}{caution_note}{auto_note}",
                 match &from_title {
                     Some(title) => format!("{from_name}的会话「{title}」"),
                     None => from_name.clone(),
@@ -682,7 +720,7 @@ impl crate::AgentHudCore {
             )
         } else {
             format!(
-                "From {} to {to_name}'s session \"{to_title}\":\n\n{text}{queued_note}{caution_note}",
+                "From {} to {to_name}'s session \"{to_title}\":\n\n{text}{queued_note}{caution_note}{auto_note}",
                 match &from_title {
                     Some(title) => format!("{from_name}'s session \"{title}\""),
                     None => from_name.clone(),
@@ -733,6 +771,7 @@ impl crate::AgentHudCore {
                     "This message already waits for confirmation.",
                 )
             })?;
+        let sender = named.clone();
         self.agent_messages.pending.insert(
             id.clone(),
             Pending {
@@ -763,6 +802,42 @@ impl crate::AgentHudCore {
             (true, true) => "对方会话现在没开着，消息会排队，等用户打开它才送达。",
             (true, false) => "That session isn't open; the message waits until the user opens it. ",
         };
+        if auto {
+            let decision = json!({"kind": "allow"});
+            match self.answer_agent_message(&id, &decision, now) {
+                Ok(flight) => {
+                    let _ = self.requests.answer(&id, &decision, now);
+                    self.settle_agent_message(&id);
+                    self.agent_messages
+                        .auto_sent
+                        .push((from.to_owned(), sender, now));
+                    let busy_note = match (busy, chinese()) {
+                        (false, _) => "",
+                        (true, true) => "对方正在跑一轮，消息会等这一轮结束再送进去。",
+                        (true, false) => {
+                            "The receiver is mid-turn; the words go in when that turn ends. "
+                        }
+                    };
+                    return Ok(json!({
+                        "status": "sent",
+                        "id": id,
+                        "to": {"agent": to, "session": target.session, "title": target.title, "queued": target.queued},
+                        "flight": flight,
+                        "note": if chinese() {
+                            format!("SuperRoot 模式开着：消息没等用户确认，已经直接送出。{busy_note}{queued}{reply}{}", caution.as_deref().unwrap_or_default())
+                        } else {
+                            format!(
+                                "SuperRoot mode is on: the message went without the user's confirmation. {busy_note}{queued}{reply}{}",
+                                caution.map(|caution| format!(" {caution}")).unwrap_or_default()
+                            )
+                        },
+                    }));
+                }
+                // Not sendable now (the receiver waits for the user's answer,
+                // say): the card waits for the click, as without SuperRoot.
+                Err(why) => eprintln!("SI Future HUD SuperRoot: {why}"),
+            }
+        }
         Ok(json!({
             "status": "pending",
             "id": id,

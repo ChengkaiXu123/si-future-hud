@@ -20,7 +20,7 @@ description: Message another AI agent's window — Claude Code, Codex or 程小�
 
 # Messaging other agents through SI Future HUD
 
-Every message waits for the user to press **Send** on the HUD before it is delivered; Deny drops it. Never say a message arrived before the tool or the command says so.
+Every message waits for the user to press **Send** on the HUD before it is delivered; Deny drops it. If the user turned on SuperRoot mode, a message from a verified agent session goes at once, and the tool or the command says it was sent. Never say a message arrived before the tool or the command says so.
 
 ## Send
 

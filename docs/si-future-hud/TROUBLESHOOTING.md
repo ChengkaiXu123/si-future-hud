@@ -176,7 +176,7 @@ The HUD reads Grok Bot's quota from Grok Bot's own cache. Refresh it in Grok Bot
    - it is a conversation waiting for your answer to a question.
 
    A Chengxiaobang conversation not opened since a restart gets the message once you open it (the card says it is queued). Other messages are refused, not queued; the refusal says why and what to do.
-3. **Too many waiting?** Each sending conversation can have at most 2 messages waiting for your decision.
+3. **Too many waiting?** Each sending conversation can have at most 5 messages waiting for your decision.
 
 More detail: [Messaging → Rules](MESSAGING.md#rules-that-keep-it-safe).
 </details>

@@ -136,7 +136,14 @@ fn handle(
     // a command-line sender waits for the reply. Neither depends on "Let
     // agents arrange the HUD"; registering a card wakes the collector.
     match method {
-        "send_message" => return owner.runtime.request("agent_message", params),
+        "send_message" => {
+            let sent = owner.runtime.request("agent_message", params)?;
+            // Local build: SuperRoot sent it at once; the plane flies now.
+            if sent["flight"].is_object() {
+                crate::activity::publish(app, "hud:flight", &sent["flight"]);
+            }
+            return Ok(sent);
+        }
         "agent_inbox" => return owner.runtime.request("agent_inbox", params),
         _ => {}
     }

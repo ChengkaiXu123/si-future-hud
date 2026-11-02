@@ -662,7 +662,7 @@ fn an_agent_message_waits_for_send_then_reaches_the_session_and_flies() {
             json!({"to":"codex","text":"hi","caller":{"client":"claude","sessionId":"x"}})
         )
         .is_err());
-    // Relay markers in a message are refused; two cards may wait per sender.
+    // Relay markers in a message are refused; five cards may wait per sender.
     assert!(backend
         .request(
             "agent_message",
@@ -677,20 +677,22 @@ fn an_agent_message_waits_for_send_then_reaches_the_session_and_flies() {
             json!({"to":"chengxiaobang","text":"Another one","caller":caller}),
         )
         .unwrap();
-    backend
-        .request(
-            "agent_message",
-            json!({"to":"chengxiaobang","text":"Third","caller":caller}),
-        )
-        .unwrap();
+    for text in ["Third", "Fourth", "Fifth", "Sixth"] {
+        backend
+            .request(
+                "agent_message",
+                json!({"to":"chengxiaobang","text":text,"caller":caller}),
+            )
+            .unwrap();
+    }
     assert!(
         backend
             .request(
                 "agent_message",
-                json!({"to":"chengxiaobang","text":"Fourth","caller":caller})
+                json!({"to":"chengxiaobang","text":"Seventh","caller":caller})
             )
             .is_err(),
-        "at most two cards wait per sender"
+        "at most five cards wait per sender"
     );
     let ack = backend
         .request(
@@ -990,9 +992,9 @@ fn a_command_line_sender_waits_for_the_reply_and_hears_a_denial() {
         )
         .is_err());
 
-    // Two cards may wait per sender session, not per agent.
+    // Five cards may wait per sender session, not per agent.
     for session in ["a", "b"] {
-        for n in 0..2 {
+        for n in 0..5 {
             backend
                 .request(
                     "agent_message",
@@ -1004,7 +1006,7 @@ fn a_command_line_sender_waits_for_the_reply_and_hears_a_denial() {
     assert!(backend
         .request(
             "agent_message",
-            json!({"to":"chengxiaobang","text":"a2","caller":{"client":"claude","sessionId":"a"}}),
+            json!({"to":"chengxiaobang","text":"a5","caller":{"client":"claude","sessionId":"a"}}),
         )
         .is_err());
 }
@@ -1421,4 +1423,96 @@ fn a_new_conversation_not_listed_yet_takes_words_and_a_new_sender_gets_its_reply
     // The reply is pointed at the sender itself, not at whichever Claude
     // session happens to be most recent.
     assert!(words.contains("c-new"), "{words}");
+}
+
+#[test]
+fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<(String, String)>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, session: &str, words: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push((session.into(), words.into()));
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("chengxiaobang.sqlite");
+    let db = Connection::open(&path).unwrap();
+    db.execute_batch(
+        "CREATE TABLE sessions(id TEXT,title TEXT);
+         CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
+         INSERT INTO sessions VALUES('s1','Meetings');
+         INSERT INTO sessions VALUES('s2','Reports');",
+    )
+    .unwrap();
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    for (entry, session) in [("u1", "s1"), ("u2", "s2")] {
+        db.execute(
+            "INSERT INTO usage_cost_entries VALUES(?1,?2,'auto(free)',100,10,40,?3)",
+            [entry, session, at.as_str()],
+        )
+        .unwrap();
+    }
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path,
+            provider: "chengxiaobang",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+    let send = |backend: &mut AgentHudCore, text: String, caller: Value| {
+        backend
+            .request(
+                "agent_message",
+                json!({"to":"chengxiaobang","session":"s2","text":text,"from_session":"s1","caller":caller}),
+            )
+            .unwrap()
+    };
+    let verified = json!({"client":"chengxiaobang"});
+    // Off by default: the card waits for the click.
+    assert_eq!(
+        send(&mut backend, "first".into(), verified.clone())["status"],
+        "pending"
+    );
+    backend
+        .request("set_setting", json!({"key":"superRoot","value":true}))
+        .unwrap();
+    // On: a session the HUD lists sends at once, and a plane flies.
+    let sent = send(&mut backend, "second".into(), verified.clone());
+    assert_eq!(sent["status"], "sent");
+    assert!(sent["flight"].is_object());
+    assert_eq!(fake.0.lock().unwrap().last().unwrap().0, "chengxiaobang:s2");
+    // One it can't verify still waits, and the card says why.
+    let unverified = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s2","text":"who am I","caller":{"client":"claude","sessionId":"not-listed"}}),
+        )
+        .unwrap();
+    assert_eq!(unverified["status"], "pending");
+    let card = backend.request("snapshot", json!({})).unwrap()["approvals"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|a| a["id"] == unverified["id"])
+        .cloned()
+        .unwrap();
+    assert!(card.to_string().contains("SuperRoot"), "{card}");
+    // Past ten in ten minutes from one session, the click is asked again.
+    for n in 0..9 {
+        assert_eq!(
+            send(&mut backend, format!("more {n}"), verified.clone())["status"],
+            "sent"
+        );
+    }
+    assert_eq!(
+        send(&mut backend, "eleventh".into(), verified)["status"],
+        "pending"
+    );
 }

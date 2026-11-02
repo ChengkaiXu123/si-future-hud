@@ -506,6 +506,8 @@ export interface AppSettings {
   /** Answer the Claude desktop app's questions on the HUD through SI Future HUD's Claude Code plugin; on unless turned off. */
   claudeAnswers?: boolean;
   chengxiaobangAnswers?: boolean;
+  /** Local build: messages between agents go without the user's click (verified senders, a limited number at a time). Off unless turned on. */
+  superRoot?: boolean;
 }
 /** Acquisition status belongs to the selected native adapter, not the UI. */
 export interface PlatformCapabilities {

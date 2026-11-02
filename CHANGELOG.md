@@ -4,6 +4,11 @@
 
 What changed since 0.1.5: fixes for what colleagues met in their first week: messages that seemed sent but never showed up, and setups that quietly didn't work. / 相对 0.1.5：修好同事第一周实际遇到的问题——显示已发送却没收到的消息，以及悄悄没配好的安装。
 
+**SuperRoot mode / SuperRoot 模式**
+
+- **New in Settings → General → Messaging**: with SuperRoot on, messages between agents go at once, without your Send on the HUD. Only from agent sessions the HUD can verify (any program could run the command line), and at most 10 from one session in 10 minutes, so two agents can't go on answering each other; past that, or for a sender it can't verify, the HUD asks you as before and the card says why. Off unless you turn it on. / **设置 → 通用 → 传话里新增 SuperRoot 模式**：打开后，智能体之间的消息不用你在 HUD 上点「发送」就直接送出。只放行 HUD 能核实的智能体会话（本机任何程序都能运行命令行），同一个会话 10 分钟内最多自动发 10 条，防止两个智能体来回对话停不下来；超出的、或者核实不了发件方的，照旧请你确认，卡片上会说明原因。默认关闭。
+- **Up to 5 messages per conversation can wait for you**, up from 2. / **每个对话最多可以有 5 条消息等你确认**，之前是 2 条。
+
 **Messages reach the conversation you're looking at / 消息送进你正在看的对话**
 
 - **程小帮: the conversation you opened last, not the busiest one.** A message that names no conversation used to go to the one updated last, and 程小帮's scheduled tasks update theirs every hour, so the words landed in a background conversation nobody reads. It now goes to the conversation you opened last (程小帮's own record), including a new one that hasn't answered yet. / **程小帮：发给你最近打开的对话，而不是最忙的那个。** 没指定对话时，以前会发给最近更新的那个；程小帮的定时任务每小时都在更新自己的对话，消息就进了没人看的后台对话。现在按程小帮自己记录的「最近打开」来挑，刚新建、还没回答过的对话也算。

@@ -531,7 +531,7 @@ serveStdio(() => {
     "hud_send_message",
     {
       description:
-        "Send a message to another coding agent's open session through SI Future HUD (Claude Code, Codex Desktop, 程小帮). The user confirms each message on the HUD before it is delivered as that session's next message, and a paper plane flies between the agents. Returns at once with status pending: the reply, if any, arrives later as a new message in your own session. To reply to a message you received, use the `to` and `session` it names. A Codex conversation takes the reply only once its current turn has ended.",
+        "Send a message to another coding agent's open session through SI Future HUD (Claude Code, Codex Desktop, 程小帮). The user confirms each message on the HUD before it is delivered as that session's next message (unless they turned on SuperRoot mode, which sends at once: status sent), and a paper plane flies between the agents. Returns at once with status pending: the reply, if any, arrives later as a new message in your own session. To reply to a message you received, use the `to` and `session` it names. A Codex conversation takes the reply only once its current turn has ended.",
       inputSchema: z.object({
         to: z
           .string()
