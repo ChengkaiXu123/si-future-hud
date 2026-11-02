@@ -6,6 +6,7 @@
   "edge": "top",
   "offset": 0.5,
   "monitorIndex": 0,
+  "hidden": false,
   "breathSeconds": 3,
   "idleBreathSeconds": 7,
   "breathAmplitude": 0.6,

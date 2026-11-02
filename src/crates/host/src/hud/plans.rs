@@ -217,7 +217,8 @@ fn plan(
         width: (f64::from(monitor.bounds.width) / scale).min((strip + card + 54.0).max(940.0)),
         height: f64::from(monitor.bounds.height) / scale,
         ignore_cursor: true,
-        visible,
+        // Local build: a display set to show no HUD keeps its window hidden.
+        visible: visible && !screen.flag("hidden"),
         monitor_index: monitor.index,
         screen_id: Some(monitor.screen_id.clone()),
     }
@@ -341,6 +342,15 @@ mod tests {
         assert_eq!(screen.number("offset"), 0.5);
         assert_eq!(screen.number("logoSize"), 30.0);
         assert_eq!(screen.layout(), &json!({"hud": {}}));
+    }
+
+    #[test]
+    fn a_display_set_to_show_no_hud_is_the_only_one_hidden() {
+        let view = json!({"store": {"screens": {"external": {"hidden": true}}, "screenDefaults": {}}, "layouts": {}, "sharedLayout": {}});
+        assert!(Screen::new(&view, "external", false).flag("hidden"));
+        assert!(!Screen::new(&view, "built-in", true).flag("hidden"));
+        // Off unless set: the checked-in defaults say so.
+        assert_eq!(defaults()["hidden"], false);
     }
 
     #[test]

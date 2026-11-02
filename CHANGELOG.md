@@ -23,6 +23,10 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 - After `/clear` or a resume, the conversation it was stops counting as open at once. / `/clear` 或恢复会话后，原来的会话立刻不再算作开着。
 - A message held for a busy Codex conversation that fails for another reason says why; a terminal Codex session is named as such. / Codex 忙时延后的消息因别的原因失败时，会说明真正原因；在终端里开的 Codex 会话会直接说明收不了。
 
+**Display / 显示**
+
+- **Choose which displays show the HUD.** Settings → Display → Screens has _Show the HUD on this display_ for each one, when more than one is connected. / **可以选哪块屏幕显示 HUD。** 接了不止一块屏幕时，设置 → 显示 → 屏幕里，每块屏幕都有「在这块屏幕显示 HUD」开关。
+
 **Setup / 安装与配置**
 
 - **Upgrading now updates the Claude Code plugin.** Claude Code runs its own copy of the plugin, made when it installed it, and earlier versions never refreshed that copy, so their plugin fixes didn't reach Claude Code. The plugin's version now follows the app's, and on launch the HUD has Claude Code update an older copy (new sessions use it; run `/reload-plugins` in open ones). / **升级时会一并更新 Claude Code 插件。** Claude Code 运行的是它安装插件时复制的那份，之前的版本从不刷新它，所以插件脚本的修复都没到达 Claude Code。现在插件版本跟随 App 版本，启动时发现旧的就让 Claude Code 更新（新会话直接用上，已开的会话运行一次 `/reload-plugins`）。

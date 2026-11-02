@@ -49,6 +49,8 @@ export interface HUDConfig {
   offset: number;
   /** Native runtime display index; this is not a persistent hardware identity. */
   monitorIndex: number;
+  /** Local build: no HUD on this display (the others keep theirs). */
+  hidden: boolean;
   logoSize: number;
   logoEdgeDistance: number;
   gapScale: number;

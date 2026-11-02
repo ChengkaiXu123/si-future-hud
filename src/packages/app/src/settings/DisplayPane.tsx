@@ -225,6 +225,16 @@ export function DisplayPane({
                   </SelectContent>
                 </Select>
               </Row>
+              {/* Local build: a display may go without the HUD. */}
+              <ToggleRow
+                title={t("Show the HUD on this display", "在这块屏幕显示 HUD")}
+                subtitle={t(
+                  "Off: no HUD on this display; the others keep theirs.",
+                  "关掉后，这块屏幕上不显示 HUD，其他屏幕照常。",
+                )}
+                checked={config.hidden !== true}
+                change={(value) => update({ hidden: !value })}
+              />
               <Divider />
             </>
           )}
