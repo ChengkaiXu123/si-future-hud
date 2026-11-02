@@ -1,0 +1,44 @@
+src/crates/core/src/lib.rs
+  s_d48b3b8d3c26d0::t_39ad5008708b0c 167
+src/crates/core/src/source_db/tests.rs
+  s_d48b3b8d3c26d0::t_fa16d950b335e1 681-687,695
+  s_d48b3b8d3c26d0::t_d366ca304c0e00 665,680,692
+  s_d48b3b8d3c26d0::t_2b1d94a19bffa4 995,997,1009,1427-1517
+src/crates/host/src/agent_skills.rs
+  s_d48b3b8d3c26d0::t_0937f9a84f35cb 23
+docs/si-future-hud/TROUBLESHOOTING.md
+  s_d48b3b8d3c26d0::t_67268ed6f7379d 179
+src/apps/mcp/src/index.ts
+  s_d48b3b8d3c26d0::t_0937f9a84f35cb 534
+src/packages/protocol/src/index.ts
+  s_d48b3b8d3c26d0::t_39ad5008708b0c 509-510
+docs/si-future-hud/TROUBLESHOOTING.zh-CN.md
+  s_d48b3b8d3c26d0::t_0937f9a84f35cb 179
+src/crates/core/src/settings.rs
+  s_d48b3b8d3c26d0::t_39ad5008708b0c 121
+src/crates/core/src/clients/agent_message.rs
+  s_d48b3b8d3c26d0::t_ac1dd52c7ffce5 817-819
+  s_d48b3b8d3c26d0::t_39ad5008708b0c 62-64,110-115,594-595,683-712,715,723,774,805-816,820-840
+src/crates/host/src/tools.rs
+  s_d48b3b8d3c26d0::t_39ad5008708b0c 139-146
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_b6b306552218ca 7-11
+src/packages/app/src/settings/GeneralPane.tsx
+  s_d48b3b8d3c26d0::t_e365b3040dbccc 211-221
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "b21b090dc45f50d2a75b9e77977ac7002be956b7",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
