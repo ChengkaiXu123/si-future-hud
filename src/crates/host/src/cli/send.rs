@@ -97,9 +97,6 @@ pub(super) fn run(arguments: &[String]) -> i32 {
     };
     let mut caller = caller;
     let waits = wait > 0 && caller["sessionId"].is_string();
-    // A reply printed before sending: the answer to this very message when
-    // the command is a retry of one already sent (below).
-    let mut replied_before = false;
     if waits {
         caller["waits"] = json!(true);
         // Waiting before the card exists: the reply can't come before it.
@@ -110,9 +107,7 @@ pub(super) fn run(arguments: &[String]) -> i32 {
         ) {
             Ok(inbox) => {
                 for message in inbox["messages"].as_array().into_iter().flatten() {
-                    let words = message.as_str().unwrap_or_default();
-                    replied_before |= !is_notice(words);
-                    println!("{words}\n");
+                    println!("{}\n", message.as_str().unwrap_or_default());
                 }
             }
             Err(error) => return fail(error),
@@ -140,10 +135,6 @@ pub(super) fn run(arguments: &[String]) -> i32 {
     );
     if !title.is_empty() {
         println!("收件 / to: {to} 「{title}」");
-    }
-    // Tried again after the message went: its reply, printed above, is the result.
-    if waits && sent["again"] == true && replied_before {
-        return 0;
     }
     if !waits {
         if wait > 0 {

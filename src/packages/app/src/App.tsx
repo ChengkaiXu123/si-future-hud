@@ -119,7 +119,7 @@ const pages = [
     icon: Sparkles,
     color: "#ff9f0a",
     description:
-      "A one-minute tour of SI Future HUD, and the one step it may need from you.",
+      "A short tour of SI Future HUD: how to use it, what to check when a message doesn't arrive, and the one step it may need from you.",
   },
   {
     id: "general",
@@ -163,7 +163,7 @@ const pages = [
 const chinesePages: Record<string, [string, string]> = {
   "get-started": [
     "开始使用",
-    "一分钟认识 SI Future HUD，并完成还差你的那一步。",
+    "几分钟认识 SI Future HUD：怎么用、消息没送到时怎么查，以及还差你的那一步。",
   ],
   general: ["通用", "设置外观、语言、启动方式和客户端回调。"],
   agents: ["智能体", "管理实时状态、套餐与显示窗口。"],

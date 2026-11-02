@@ -356,7 +356,12 @@ fn glow_misreadings(value: &Value) -> Vec<String> {
 /// The keys of a screen's settings that make up its look: every display setting but
 /// its hardware, the app's own settings and the panel's.
 fn look_key(key: &str) -> bool {
-    !HARDWARE.contains(&key) && !GLOBAL.contains(&key) && !super::tools::panel_key(key)
+    // Local build: whether a display shows the HUD at all is not its look:
+    // resetting or restoring a style leaves it as the user set it.
+    key != "hidden"
+        && !HARDWARE.contains(&key)
+        && !GLOBAL.contains(&key)
+        && !super::tools::panel_key(key)
 }
 
 /// The look a screen draws from `saved` (ui/use-hud-config.ts `getScreenHUDConfig`):
@@ -721,4 +726,13 @@ pub(super) fn gives_style_alone(arguments: &Map<String, Value>) -> bool {
         .map(|(k, _)| k.as_str())
         .collect();
     !given.is_empty() && given.iter().all(|k| style.contains(k))
+}
+
+#[cfg(test)]
+mod look_tests {
+    #[test]
+    fn whether_a_display_shows_the_hud_is_not_part_of_its_look() {
+        assert!(!super::look_key("hidden"));
+        assert!(super::look_key("glowStyle"));
+    }
 }

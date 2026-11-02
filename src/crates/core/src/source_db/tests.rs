@@ -1509,13 +1509,7 @@ fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
         .cloned()
         .unwrap();
     assert!(card.to_string().contains("SuperRoot"), "{card}");
-    // The same words again at once (a call tried again) aren't sent twice,
-    // but the same words for another session are another message.
-    let delivered = fake.0.lock().unwrap().len();
-    let again = send(&mut backend, "second".into(), verified.clone());
-    assert_eq!(again["id"], sent["id"]);
-    assert_eq!(again["again"], true, "a retried command line can tell");
-    assert_eq!(fake.0.lock().unwrap().len(), delivered);
+    // The same words for another session are another message.
     let elsewhere = backend
         .request(
             "agent_message",
@@ -1548,13 +1542,15 @@ fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
         send(&mut backend, "resumed".into(), verified.clone())["status"],
         "sent"
     );
-    // Resuming starts the count afresh but keeps the retry history.
+    // The same short words twice are two messages (agents answer "OK" often).
     let delivered = fake.0.lock().unwrap().len();
-    assert_eq!(
-        send(&mut backend, "second".into(), verified)["id"],
-        sent["id"]
-    );
-    assert_eq!(fake.0.lock().unwrap().len(), delivered);
+    let first_ok = send(&mut backend, "OK".into(), verified.clone());
+    // (A card's id carries the millisecond it was made.)
+    std::thread::sleep(std::time::Duration::from_millis(2));
+    let second_ok = send(&mut backend, "OK".into(), verified);
+    assert_eq!(second_ok["status"], "sent");
+    assert_ne!(first_ok["id"], second_ok["id"]);
+    assert_eq!(fake.0.lock().unwrap().len(), delivered + 2);
 }
 
 #[test]
@@ -1620,8 +1616,7 @@ fn a_reply_for_a_wait_that_was_stopped_goes_into_the_conversation() {
         "the waiting command takes it"
     );
     // Twenty seconds without a poll: the wait lapses and the reply goes into
-    // s2's conversation, as it would have with nobody waiting, once s2 isn't
-    // in the middle of a turn (the queue busy Codex threads use).
+    // s2's conversation, as it would have with nobody waiting.
     let later = chrono::Utc::now().timestamp_millis() + 20_000;
     backend
         .agent_inbox(
@@ -1629,7 +1624,7 @@ fn a_reply_for_a_wait_that_was_stopped_goes_into_the_conversation() {
             later,
         )
         .unwrap();
-    backend.deliver_deferred_messages(later + 600_000);
+    // (程小帮's plugin queues words itself: no turn holds them back.)
     let delivered = fake.0.lock().unwrap().clone();
     assert_eq!(delivered.len(), 1);
     assert_eq!(delivered[0].0, "chengxiaobang:s2");
@@ -1952,4 +1947,72 @@ fn a_wait_back_from_a_pause_takes_the_reply_that_came_meanwhile() {
         .unwrap()
         .contains("Two options."));
     assert!(fake.0.lock().unwrap().is_empty());
+}
+
+#[test]
+fn turning_super_root_off_stops_the_words_it_was_still_holding() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<String>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, _: &str, words: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push(words.into());
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let sessions = root.path().join("sessions");
+    std::fs::create_dir_all(&sessions).unwrap();
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    // Two Codex Desktop threads: the sender, and a receiver mid-turn.
+    let thread = |id: &str, ended: bool| {
+        let mut lines = vec![
+            json!({"timestamp":at,"type":"session_meta","payload":{"id":id,"timestamp":at,"cwd":"/tmp","originator":"Codex Desktop","cli_version":"0.1.0","source":"vscode"}}),
+            json!({"timestamp":at,"type":"event_msg","payload":{"type":"user_message","message":"work"}}),
+            json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_started"}}),
+        ];
+        if ended {
+            lines.push(
+                json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_complete"}}),
+            );
+        }
+        let text = lines
+            .iter()
+            .map(|v| v.to_string() + "\n")
+            .collect::<String>();
+        std::fs::write(sessions.join(format!("rollout-{id}.jsonl")), text).unwrap();
+    };
+    let sender = "01aaaaaa-0000-7000-8000-0000000000e1";
+    let receiver = "01aaaaaa-0000-7000-8000-0000000000e2";
+    thread(sender, true);
+    thread(receiver, false);
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path: sessions,
+            provider: "codex",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+    backend
+        .request("set_setting", json!({"key":"superRoot","value":true}))
+        .unwrap();
+    let sent = backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","session":receiver,"text":"Keep going.","caller":{"client":"codex","sessionId":sender}}),
+        )
+        .unwrap();
+    assert_eq!(sent["status"], "sent");
+    assert!(fake.0.lock().unwrap().is_empty(), "held for the turn");
+    // The user turns SuperRoot off to stop the agents, then the turn ends.
+    backend
+        .request("set_setting", json!({"key":"superRoot","value":false}))
+        .unwrap();
+    backend.deliver_deferred_messages(chrono::Utc::now().timestamp_millis() + 60_000);
+    assert!(fake.0.lock().unwrap().is_empty(), "nothing it held goes in");
 }

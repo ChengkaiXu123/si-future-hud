@@ -6,7 +6,7 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 
 **SuperRoot mode / SuperRoot 模式**
 
-- **New in Settings → General → Messaging**: with SuperRoot on, messages between agents go at once, without your Send on the HUD. Only from agent sessions the HUD knows, and at most 10 from one session in 10 minutes, so two agents can't go on answering each other; past that, or for a sender the HUD doesn't know, it asks you as before and the card says why. Your agents can then direct each other without you, so turn it on only when you trust their sessions. Off unless you turn it on. / **设置 → 通用 → 传话里新增 SuperRoot 模式**：打开后，智能体之间的消息不用你在 HUD 上点「发送」就直接送出。只放行 HUD 认得的智能体会话，同一个会话 10 分钟内最多自动发 10 条，防止两个智能体来回对话停不下来；超出的、或者 HUD 不认得发件方的，照旧请你确认，卡片上会说明原因。开启后你的智能体能不经你确认互相指挥，只在信任这些会话时打开。默认关闭。
+- **New in Settings → General → Messaging**: with SuperRoot on, messages between agents go at once, without your Send on the HUD. Only from agent sessions the HUD knows, and at most 10 from one session in 10 minutes, so two agents can't go on answering each other; past that, it pauses until you press Send on one of that conversation's messages, and a sender the HUD doesn't know always waits for you; the card says why. Turning SuperRoot off also stops the messages it was still holding for a busy receiver. Your agents can then direct each other without you, so turn it on only when you trust their sessions. Off unless you turn it on. / **设置 → 通用 → 传话里新增 SuperRoot 模式**：打开后，智能体之间的消息不用你在 HUD 上点「发送」就直接送出。只放行 HUD 认得的智能体会话，同一个会话 10 分钟内最多自动发 10 条，防止两个智能体来回对话停不下来；超出后会暂停，等你亲手点一次那个对话的消息「发送」才恢复；HUD 不认得的发件方始终要你确认；卡片上会说明原因。关掉 SuperRoot 时，还在排队等对方空下来的自动消息也不再送出。开启后你的智能体能不经你确认互相指挥，只在信任这些会话时打开。默认关闭。
 - **Up to 5 messages per conversation can wait for you**, up from 2. / **每个对话最多可以有 5 条消息等你确认**，之前是 2 条。
 
 **Messages reach the conversation you're looking at / 消息送进你正在看的对话**
@@ -22,6 +22,10 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 - **An earlier 程小帮 still running.** When an old 程小帮 backend didn't quit, conversations opened now can't take messages; Settings, the error and the message card say so and how to fix it. / **旧的程小帮没退干净。** 旧后台还在跑时，新打开的对话收不到消息；设置页、报错和消息卡片都会说明并给出处理办法。
 - After `/clear` or a resume, the conversation it was stops counting as open at once. / `/clear` 或恢复会话后，原来的会话立刻不再算作开着。
 - A message held for a busy Codex conversation that fails for another reason says why; a terminal Codex session is named as such. / Codex 忙时延后的消息因别的原因失败时，会说明真正原因；在终端里开的 Codex 会话会直接说明收不了。
+
+**Get started, in detail / 「开始使用」写得更详细**
+
+- The guide now has eight steps: what the panel and bots show, choosing displays, how messages are confirmed, which conversation they go to and when they wait, SuperRoot, what was set up and the Claude Code version it needs, the 程小帮 switch, and what to check when a message doesn't arrive. / 引导扩充为 8 步：面板和小机器人怎么看、选哪块屏幕显示、消息怎么确认、送进哪个对话、什么时候会排队、SuperRoot、自动配好了什么以及 Claude Code 的版本要求、程小帮的开关，以及消息没送到时怎么查。
 
 **Display / 显示**
 
