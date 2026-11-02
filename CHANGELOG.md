@@ -25,7 +25,7 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 
 **Display / 显示**
 
-- **Choose which displays show the HUD.** Settings → Display → Screens has _Show the HUD on this display_ for each one, when more than one is connected. / **可以选哪块屏幕显示 HUD。** 接了不止一块屏幕时，设置 → 显示 → 屏幕里，每块屏幕都有「在这块屏幕显示 HUD」开关。
+- **Choose which displays show the HUD.** Settings → Display → Screens has _Show the HUD on this display_ for each one. / **可以选哪块屏幕显示 HUD。** 设置 → 显示 → 屏幕里，每块屏幕都有「在这块屏幕显示 HUD」开关。
 
 **Setup / 安装与配置**
 
