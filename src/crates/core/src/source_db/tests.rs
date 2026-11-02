@@ -1986,11 +1986,13 @@ fn turning_super_root_off_stops_the_words_it_was_still_holding() {
     };
     let sender = "01aaaaaa-0000-7000-8000-0000000000e1";
     let receiver = "01aaaaaa-0000-7000-8000-0000000000e2";
+    let other = "01aaaaaa-0000-7000-8000-0000000000e3";
     thread(sender, true);
     thread(receiver, false);
+    thread(other, false);
     let mut backend = AgentHudCore::new(
         vec![SourceRoot {
-            path: sessions,
+            path: sessions.clone(),
             provider: "codex",
         }],
         root.path().join("hud"),
@@ -2013,6 +2015,43 @@ fn turning_super_root_off_stops_the_words_it_was_still_holding() {
     backend
         .request("set_setting", json!({"key":"superRoot","value":false}))
         .unwrap();
+    thread(receiver, true);
+    refresh(&mut backend);
     backend.deliver_deferred_messages(chrono::Utc::now().timestamp_millis() + 60_000);
     assert!(fake.0.lock().unwrap().is_empty(), "nothing it held goes in");
+
+    // The same through a command line that waited for it and was stopped:
+    // the words keep their mark on the way back to the queue.
+    backend
+        .request("set_setting", json!({"key":"superRoot","value":true}))
+        .unwrap();
+    let now = chrono::Utc::now().timestamp_millis();
+    let waiting = json!({"client":"codex","sessionId":other,"via":"cli","waits":true});
+    backend
+        .agent_inbox(&json!({"caller":waiting,"waitMs":600_000}), now)
+        .unwrap();
+    let reply = backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","session":other,"text":"Here you go.","caller":{"client":"codex","sessionId":sender}}),
+        )
+        .unwrap();
+    assert_eq!(reply["status"], "sent");
+    // The wait lapses while `other` is mid-turn: the words go back to the queue.
+    backend
+        .agent_inbox(
+            &json!({"caller":{"client":"claude","sessionId":"nobody"},"waitMs":0}),
+            now + 16_000,
+        )
+        .unwrap();
+    backend
+        .request("set_setting", json!({"key":"superRoot","value":false}))
+        .unwrap();
+    thread(other, true);
+    refresh(&mut backend);
+    backend.deliver_deferred_messages(now + 120_000);
+    assert!(
+        fake.0.lock().unwrap().is_empty(),
+        "nor what a stopped wait handed back"
+    );
 }

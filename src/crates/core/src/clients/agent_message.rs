@@ -63,7 +63,8 @@ struct Waiter {
     until: i64,
     /// What came for it, each with the card a notice is about (None for
     /// words to the session itself), sorted out once it knows its card.
-    words: Vec<(Option<String>, String)>,
+    /// Each with whether SuperRoot sent it, which it keeps on its way on.
+    words: Vec<(Option<String>, String, bool)>,
     /// The card it waits on, once sent: a notice about another card of the
     /// same session is not its answer.
     card: Option<String>,
@@ -253,7 +254,7 @@ impl crate::AgentHudCore {
             // A command line waiting there (again) takes the words itself.
             if self.waits_on_command_line(&item.to, &item.to_session, now) {
                 let (to, session) = (item.to.clone(), item.to_session.clone());
-                self.tell_waiting_sender(&to, Some(&session), None, item.words);
+                self.hand_to_waiting(&to, &session, item.words, item.auto);
                 continue;
             }
             // Words SuperRoot sent stop once it is turned off (to end two
@@ -511,9 +512,21 @@ impl crate::AgentHudCore {
                 .get_mut(&(from.to_owned(), session.to_owned()))
             {
                 if card.is_none() || waiter.card.is_none() || waiter.card.as_deref() == card {
-                    waiter.words.push((card.map(str::to_owned), note));
+                    waiter.words.push((card.map(str::to_owned), note, false));
                 }
             }
+        }
+    }
+
+    /// Hands words for `session` of `agent` to its waiting command line,
+    /// marked as SuperRoot's when it sent them.
+    fn hand_to_waiting(&mut self, agent: &str, session: &str, words: String, auto: bool) {
+        if let Some(waiter) = self
+            .agent_messages
+            .waiters
+            .get_mut(&(agent.to_owned(), session.to_owned()))
+        {
+            waiter.words.push((None, words, auto));
         }
     }
 
@@ -566,9 +579,9 @@ impl crate::AgentHudCore {
                 continue;
             };
             let mut notices = Vec::new();
-            for (card, words) in std::mem::take(&mut waiter.words) {
+            for (card, words, auto) in std::mem::take(&mut waiter.words) {
                 if card.is_some() {
-                    notices.push((card, words));
+                    notices.push((card, words, auto));
                     continue;
                 }
                 self.agent_messages.deferred.push(Deferred {
@@ -581,7 +594,7 @@ impl crate::AgentHudCore {
                     until: now + DEFER_MS,
                     card: String::new(),
                     failed: None,
-                    auto: false,
+                    auto,
                 });
             }
             if !notices.is_empty() && now - waiter.until < MAX_WAIT_MS {
@@ -658,8 +671,8 @@ impl crate::AgentHudCore {
             let waits_on = waiter.card.clone();
             std::mem::take(&mut waiter.words)
                 .into_iter()
-                .filter(|(card, _)| mine(card, &waits_on))
-                .map(|(_, words)| words)
+                .filter(|(card, _, _)| mine(card, &waits_on))
+                .map(|(_, words, _)| words)
                 .collect::<Vec<_>>()
         } else {
             self.agent_messages
@@ -670,8 +683,8 @@ impl crate::AgentHudCore {
                     waiter
                         .words
                         .into_iter()
-                        .filter(|(card, _)| mine(card, &waits_on))
-                        .map(|(_, words)| words)
+                        .filter(|(card, _, _)| mine(card, &waits_on))
+                        .map(|(_, words, _)| words)
                         .collect()
                 })
                 .unwrap_or_default()
@@ -1090,6 +1103,7 @@ impl crate::AgentHudCore {
         }
         let words = relayed_words(message);
         let (to, to_session) = (message.to.clone(), message.to_session.clone());
+        let auto = message.auto;
         // The user's own click on Send resumes SuperRoot for that sender,
         // with its count started afresh.
         if !message.auto {
@@ -1103,7 +1117,7 @@ impl crate::AgentHudCore {
             }
         }
         if self.waits_on_command_line(&to, &to_session, now) {
-            self.tell_waiting_sender(&to, Some(&to_session), None, words);
+            self.hand_to_waiting(&to, &to_session, words, auto);
             return Ok(Some(flight));
         }
         // A session waiting for the user's answer takes the words once it is
