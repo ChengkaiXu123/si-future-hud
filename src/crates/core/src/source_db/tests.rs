@@ -1514,6 +1514,7 @@ fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
     let delivered = fake.0.lock().unwrap().len();
     let again = send(&mut backend, "second".into(), verified.clone());
     assert_eq!(again["id"], sent["id"]);
+    assert_eq!(again["again"], true, "a retried command line can tell");
     assert_eq!(fake.0.lock().unwrap().len(), delivered);
     let elsewhere = backend
         .request(
@@ -1662,6 +1663,71 @@ fn a_reply_for_a_wait_that_was_stopped_goes_into_the_conversation() {
         .as_str()
         .unwrap()
         .contains("SI Future HUD"));
+
+    // That command never cleared its wait; a new one starts in the same
+    // session: it isn't held to the old card, and hears about its own.
+    let denied = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s1","text":"And this?","caller":waiting}),
+        )
+        .unwrap();
+    backend
+        .request(
+            "answer_request",
+            json!({"id":denied["id"],"decision":{"kind":"allow"}}),
+        )
+        .ok();
+    let stale = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s1","text":"Old card","caller":waiting}),
+        )
+        .unwrap();
+    backend
+        .agent_inbox(
+            &json!({"caller":waiting,"card":stale["id"],"waitMs":600_000}),
+            back,
+        )
+        .unwrap();
+    let later = back + 40_000;
+    backend
+        .request(
+            "answer_request",
+            json!({"id":stale["id"],"decision":{"kind":"deny"}}),
+        )
+        .unwrap();
+    // The new command registers (no card yet), proposes, and is denied
+    // before its first poll naming its card.
+    backend
+        .agent_inbox(&json!({"caller":waiting,"waitMs":600_000}), later)
+        .unwrap();
+    let fresh = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s1","text":"Fresh","caller":waiting}),
+        )
+        .unwrap();
+    backend
+        .request(
+            "answer_request",
+            json!({"id":fresh["id"],"decision":{"kind":"deny"}}),
+        )
+        .unwrap();
+    let inbox = backend
+        .agent_inbox(
+            &json!({"caller":waiting,"card":fresh["id"],"waitMs":600_000}),
+            later + 1_000,
+        )
+        .unwrap();
+    assert!(
+        inbox["messages"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|words| words.as_str().unwrap().contains("SI Future HUD")),
+        "{inbox}"
+    );
 }
 
 #[test]

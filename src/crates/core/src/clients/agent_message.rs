@@ -615,6 +615,12 @@ impl crate::AgentHudCore {
             waiter.until = now
                 .saturating_add(wait.min(WAITER_LEASE_MS))
                 .saturating_add(5_000);
+            // A poll naming no card is a new command's wait, before its card
+            // exists: an earlier command's card no longer decides which
+            // notices it hears.
+            if params["card"].as_str().is_none_or(str::is_empty) {
+                waiter.card = None;
+            }
         }
         self.forget_unanswered_messages(now);
         // A notice about another card than the one waited on isn't its answer.
@@ -755,6 +761,8 @@ impl crate::AgentHudCore {
                 "status": "sent",
                 "id": earlier.id,
                 "to": {"agent": earlier.to},
+                // A command line tried again knows its reply may have come already.
+                "again": true,
                 "note": crate::l10n::text(
                     "这条消息刚刚已经自动送出过了，没有再发一次。",
                     "This message was sent a moment ago; it wasn't sent again.",
