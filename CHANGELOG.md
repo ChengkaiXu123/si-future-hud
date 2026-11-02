@@ -6,7 +6,7 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 
 **SuperRoot mode / SuperRoot 模式**
 
-- **New in Settings → General → Messaging**: with SuperRoot on, messages between agents go at once, without your Send on the HUD. Only from agent sessions the HUD can verify (any program could run the command line), and at most 10 from one session in 10 minutes, so two agents can't go on answering each other; past that, or for a sender it can't verify, the HUD asks you as before and the card says why. Off unless you turn it on. / **设置 → 通用 → 传话里新增 SuperRoot 模式**：打开后，智能体之间的消息不用你在 HUD 上点「发送」就直接送出。只放行 HUD 能核实的智能体会话（本机任何程序都能运行命令行），同一个会话 10 分钟内最多自动发 10 条，防止两个智能体来回对话停不下来；超出的、或者核实不了发件方的，照旧请你确认，卡片上会说明原因。默认关闭。
+- **New in Settings → General → Messaging**: with SuperRoot on, messages between agents go at once, without your Send on the HUD. Only from agent sessions the HUD knows, and at most 10 from one session in 10 minutes, so two agents can't go on answering each other; past that, or for a sender the HUD doesn't know, it asks you as before and the card says why. Your agents can then direct each other without you, so turn it on only when you trust their sessions. Off unless you turn it on. / **设置 → 通用 → 传话里新增 SuperRoot 模式**：打开后，智能体之间的消息不用你在 HUD 上点「发送」就直接送出。只放行 HUD 认得的智能体会话，同一个会话 10 分钟内最多自动发 10 条，防止两个智能体来回对话停不下来；超出的、或者 HUD 不认得发件方的，照旧请你确认，卡片上会说明原因。开启后你的智能体能不经你确认互相指挥，只在信任这些会话时打开。默认关闭。
 - **Up to 5 messages per conversation can wait for you**, up from 2. / **每个对话最多可以有 5 条消息等你确认**，之前是 2 条。
 
 **Messages reach the conversation you're looking at / 消息送进你正在看的对话**
@@ -24,6 +24,10 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 - A message held for a busy Codex conversation that fails for another reason says why; a terminal Codex session is named as such. / Codex 忙时延后的消息因别的原因失败时，会说明真正原因；在终端里开的 Codex 会话会直接说明收不了。
 
 **Setup / 安装与配置**
+
+- **Upgrading now updates the Claude Code plugin.** Claude Code runs its own copy of the plugin, made when it installed it, and earlier versions never refreshed that copy, so their plugin fixes didn't reach Claude Code. The plugin's version now follows the app's, and on launch the HUD has Claude Code update an older copy (new sessions use it; run `/reload-plugins` in open ones). / **升级时会一并更新 Claude Code 插件。** Claude Code 运行的是它安装插件时复制的那份，之前的版本从不刷新它，所以插件脚本的修复都没到达 Claude Code。现在插件版本跟随 App 版本，启动时发现旧的就让 Claude Code 更新（新会话直接用上，已开的会话运行一次 `/reload-plugins`）。
+- A second message to a Codex conversation right after the first waits for the turn the first one started, instead of cutting into it. / 紧接着发给同一个 Codex 对话的第二条消息，会等第一条开启的那一轮结束，不会插进去。
+- A command-line wait keeps a reply that arrived while the Mac slept, and a stopped wait no longer hears about another card. / 命令行等待期间电脑睡着了，已到的回信不会丢；也不会收到别的卡片的通知。
 
 - **Clients installed with nvm, volta, fnm, asdf, mise or pnpm are found**: the HUD reads your login shell's PATH once, which an app opened from the Finder doesn't inherit. / **用 nvm、volta、fnm、asdf、mise 或 pnpm 装的客户端也能找到**：HUD 会读一次登录 shell 的 PATH（从访达打开的 App 拿不到它）。
 - **Run from the disk image or a temporary copy**, Get started says to move the app into Applications first, and opens again once it's there. / **从安装包或临时副本里运行时**，新手引导会提示先拖进「应用程序」，拖进去之后会再次打开。

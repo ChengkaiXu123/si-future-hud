@@ -49,11 +49,13 @@ impl ClaudePlugin {
             .as_deref()
             .map(plugin::claude_config_directory)
             .unwrap_or_default();
-        let command = home.and_then(|home| {
+        // Found when first needed, not while the app starts.
+        let find = move || {
+            let home = home.clone()?;
             let command = super::mcp_clients::executable("claudeCode", &home)?;
             Some((command, super::mcp_clients::search_path(&home)?))
-        });
-        Arc::new(ClaudeReplies::new(self.channel.clone(), claude_config).with_command(command))
+        };
+        Arc::new(ClaudeReplies::new(self.channel.clone(), claude_config).with_command(find))
     }
 }
 
@@ -191,8 +193,8 @@ pub(crate) fn repair_on_launch(app: &tauri::AppHandle) {
 /// Installs the plugin again from `folder` when Claude Code lists it from
 /// another folder and its command line is here. Returns whether it did.
 /// When Claude Code runs it from `folder` already, rewrites what this
-/// version of the app changed in its files, which sessions read when they
-/// start.
+/// version of the app changed in its files, and has Claude Code update its
+/// own copy (the one sessions run) when that is an older version.
 fn repair(
     channel: &ClaudeChannel,
     folder: &Path,
@@ -202,7 +204,22 @@ fn repair(
 ) -> Result<bool, String> {
     if plugin::installed_from(claude_config, folder) {
         channel.prepare_plugin(folder)?;
-        return Ok(false);
+        let Some(executable) = executable else {
+            return Ok(false);
+        };
+        // Only the user-scope copy is the HUD's to update.
+        match plugin::installed_version(claude_config) {
+            Some(version) if version != plugin::PLUGIN_VERSION => {}
+            _ => return Ok(false),
+        }
+        // Sessions started (or reloaded) after this run the new script.
+        let run = |arguments: &[&str]| {
+            let arguments = arguments.iter().map(|a| a.to_string()).collect::<Vec<_>>();
+            super::mcp_clients::run_client(executable, &arguments, home, Duration::from_secs(30))
+        };
+        run(&["plugin", "marketplace", "update", "agent-hud"])?;
+        run(&["plugin", "update", plugin::PLUGIN_ID, "--scope", "user"])?;
+        return Ok(true);
     }
     if executable.is_none() || !plugin::installed(claude_config) {
         return Ok(false);
@@ -318,11 +335,14 @@ mod tests {
         fs::write(
             &claude,
             format!(
-                "#!/bin/sh\n[ \"$1\" = --version ] && echo '2.1.311 (Claude Code)' && exit 0\necho \"$@\" >> '{log}'\ncase \"$1 $2 $3\" in\n\"plugin install agent-hud\") printf '%s' '{on}' > '{record}'; printf '{market}' \"$5\" \"$5\" > '{markets}' ;;\n\"plugin uninstall agent-hud@agent-hud\") printf '%s' '{off}' > '{record}' ;;\n\"plugin marketplace remove\") printf '%s' '{none}' > '{markets}' ;;\nesac\n",
+                "#!/bin/sh\n[ \"$1\" = --version ] && echo '2.1.311 (Claude Code)' && exit 0\necho \"$@\" >> '{log}'\ncase \"$1 $2 $3\" in\n\"plugin install agent-hud\") printf '%s' '{on}' > '{record}'; printf '{market}' \"$5\" \"$5\" > '{markets}' ;;\n\"plugin uninstall agent-hud@agent-hud\") printf '%s' '{off}' > '{record}' ;;\n\"plugin update agent-hud@agent-hud\") printf '%s' '{on}' > '{record}' ;;\n\"plugin marketplace remove\") printf '%s' '{none}' > '{markets}' ;;\nesac\n",
                 log = root.join("calls").display(),
                 record = record.display(),
                 markets = config.join("plugins/known_marketplaces.json").display(),
-                on = r#"{"plugins":{"agent-hud@agent-hud":[]}}"#,
+                on = format!(
+                    r#"{{"plugins":{{"agent-hud@agent-hud":[{{"scope":"user","version":"{}"}}]}}}}"#,
+                    plugin::PLUGIN_VERSION
+                ),
                 off = r#"{"plugins":{}}"#,
                 market = r#"{"agent-hud":{"source":{"source":"directory","path":"%s"},"installLocation":"%s"}}"#,
                 none = "{}",
@@ -333,12 +353,15 @@ mod tests {
         claude
     }
 
-    /// Claude Code's records once it installed the plugin from `folder`.
+    /// Claude Code's records once it installed this version of the plugin from `folder`.
     fn listed_from(config: &Path, folder: &Path) {
         fs::create_dir_all(config.join("plugins")).unwrap();
         fs::write(
             config.join("plugins/installed_plugins.json"),
-            br#"{"plugins":{"agent-hud@agent-hud":[]}}"#,
+            format!(
+                r#"{{"plugins":{{"agent-hud@agent-hud":[{{"scope":"user","version":"{}"}}]}}}}"#,
+                plugin::PLUGIN_VERSION
+            ),
         )
         .unwrap();
         fs::write(
@@ -459,6 +482,35 @@ mod tests {
         );
         assert!(!repair(&channel, &folder, Some(&claude), &config, root).unwrap());
         assert!(!root.join("calls").exists());
+    }
+
+    #[test]
+    fn an_older_copy_claude_code_runs_is_updated_from_our_folder() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path();
+        let config = root.join("claude-config");
+        let channel = ClaudeChannel::new(root.join("channel"));
+        let folder = root.join("plugin");
+        let claude = fake_claude(root, &config);
+        listed_from(&config, &folder);
+        // Claude Code still runs the copy an earlier app installed (a
+        // project's own install doesn't count).
+        fs::write(
+            config.join("plugins/installed_plugins.json"),
+            br#"{"plugins":{"agent-hud@agent-hud":[{"scope":"project","version":"9.9.9"},{"scope":"user","version":"1.1.0"}]}}"#,
+        )
+        .unwrap();
+        assert!(repair(&channel, &folder, Some(&claude), &config, root).unwrap());
+        assert_eq!(
+            fs::read_to_string(root.join("calls")).unwrap(),
+            "plugin marketplace update agent-hud\nplugin update agent-hud@agent-hud --scope user\n"
+        );
+        assert_eq!(
+            plugin::installed_version(&config).as_deref(),
+            Some(plugin::PLUGIN_VERSION)
+        );
+        // Up to date: nothing more is asked of Claude Code.
+        assert!(!repair(&channel, &folder, Some(&claude), &config, root).unwrap());
     }
 
     #[test]

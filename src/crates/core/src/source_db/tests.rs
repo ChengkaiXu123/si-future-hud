@@ -1445,11 +1445,12 @@ fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
         "CREATE TABLE sessions(id TEXT,title TEXT);
          CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
          INSERT INTO sessions VALUES('s1','Meetings');
-         INSERT INTO sessions VALUES('s2','Reports');",
+         INSERT INTO sessions VALUES('s2','Reports');
+         INSERT INTO sessions VALUES('s3','Notes');",
     )
     .unwrap();
     let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-    for (entry, session) in [("u1", "s1"), ("u2", "s2")] {
+    for (entry, session) in [("u1", "s1"), ("u2", "s2"), ("u3", "s3")] {
         db.execute(
             "INSERT INTO usage_cost_entries VALUES(?1,?2,'auto(free)',100,10,40,?3)",
             [entry, session, at.as_str()],
@@ -1508,15 +1509,214 @@ fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
         .cloned()
         .unwrap();
     assert!(card.to_string().contains("SuperRoot"), "{card}");
-    // Past ten in ten minutes from one session, the click is asked again.
-    for n in 0..9 {
+    // The same words again at once (a call tried again) aren't sent twice,
+    // but the same words for another session are another message.
+    let delivered = fake.0.lock().unwrap().len();
+    let again = send(&mut backend, "second".into(), verified.clone());
+    assert_eq!(again["id"], sent["id"]);
+    assert_eq!(fake.0.lock().unwrap().len(), delivered);
+    let elsewhere = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s3","text":"second","from_session":"s1","caller":verified}),
+        )
+        .unwrap();
+    assert_ne!(elsewhere["id"], sent["id"]);
+    assert_eq!(fake.0.lock().unwrap().last().unwrap().0, "chengxiaobang:s3");
+    // Past ten in ten minutes from one session, the click is asked again,
+    // and stays asked until the user sends one.
+    for n in 0..8 {
         assert_eq!(
             send(&mut backend, format!("more {n}"), verified.clone())["status"],
             "sent"
         );
     }
+    let eleventh = send(&mut backend, "eleventh".into(), verified.clone());
+    assert_eq!(eleventh["status"], "pending");
     assert_eq!(
-        send(&mut backend, "eleventh".into(), verified)["status"],
+        send(&mut backend, "twelfth".into(), verified.clone())["status"],
         "pending"
     );
+    backend
+        .request(
+            "answer_request",
+            json!({"id":eleventh["id"],"decision":{"kind":"allow"}}),
+        )
+        .unwrap();
+    assert_eq!(
+        send(&mut backend, "resumed".into(), verified)["status"],
+        "sent"
+    );
+}
+
+#[test]
+fn a_reply_for_a_wait_that_was_stopped_goes_into_the_conversation() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<(String, String)>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, session: &str, words: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push((session.into(), words.into()));
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("chengxiaobang.sqlite");
+    let db = Connection::open(&path).unwrap();
+    db.execute_batch(
+        "CREATE TABLE sessions(id TEXT,title TEXT);
+         CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
+         INSERT INTO sessions VALUES('s1','Meetings');
+         INSERT INTO sessions VALUES('s2','Reports');",
+    )
+    .unwrap();
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    for (entry, session) in [("u1", "s1"), ("u2", "s2")] {
+        db.execute(
+            "INSERT INTO usage_cost_entries VALUES(?1,?2,'auto(free)',100,10,40,?3)",
+            [entry, session, at.as_str()],
+        )
+        .unwrap();
+    }
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path,
+            provider: "chengxiaobang",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+    // s2's command line waits; a reply for it comes, then the command is stopped.
+    let waiting = json!({"client":"chengxiaobang","sessionId":"s2","via":"cli","waits":true});
+    backend
+        .request("agent_inbox", json!({"caller":waiting,"waitMs":600_000}))
+        .unwrap();
+    let reply = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s2","text":"Done.","from_session":"s1","caller":{"client":"chengxiaobang"}}),
+        )
+        .unwrap();
+    backend
+        .request(
+            "answer_request",
+            json!({"id":reply["id"],"decision":{"kind":"allow"}}),
+        )
+        .unwrap();
+    assert!(
+        fake.0.lock().unwrap().is_empty(),
+        "the waiting command takes it"
+    );
+    // Twenty seconds without a poll: the wait lapses and the reply goes into
+    // s2's conversation, as it would have with nobody waiting, once s2 isn't
+    // in the middle of a turn (the queue busy Codex threads use).
+    let later = chrono::Utc::now().timestamp_millis() + 20_000;
+    backend
+        .agent_inbox(
+            &json!({"caller":{"client":"claude","sessionId":"other"},"waitMs":0}),
+            later,
+        )
+        .unwrap();
+    backend.deliver_deferred_messages(later + 600_000);
+    let delivered = fake.0.lock().unwrap().clone();
+    assert_eq!(delivered.len(), 1);
+    assert_eq!(delivered[0].0, "chengxiaobang:s2");
+    assert!(delivered[0].1.contains("Done."));
+
+    // A denial for the card a wait is on is kept for its command line, even
+    // when that comes back only after the wait lapsed (the Mac slept).
+    let card = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s1","text":"Shall I?","caller":waiting}),
+        )
+        .unwrap();
+    let wait = json!({"caller":waiting,"card":card["id"],"waitMs":600_000});
+    backend.request("agent_inbox", wait.clone()).unwrap();
+    backend
+        .request(
+            "answer_request",
+            json!({"id":card["id"],"decision":{"kind":"deny"}}),
+        )
+        .unwrap();
+    let back = chrono::Utc::now().timestamp_millis() + 40_000;
+    backend
+        .agent_inbox(
+            &json!({"caller":{"client":"claude","sessionId":"other"},"waitMs":0}),
+            back,
+        )
+        .unwrap();
+    let inbox = backend.agent_inbox(&wait, back).unwrap();
+    assert!(inbox["messages"][0]
+        .as_str()
+        .unwrap()
+        .contains("SI Future HUD"));
+}
+
+#[test]
+fn a_second_message_right_after_the_first_waits_for_the_turn_it_started() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<String>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, _: &str, words: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push(words.into());
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let sessions = root.path().join("sessions");
+    std::fs::create_dir_all(&sessions).unwrap();
+    let thread = "01aaaaaa-0000-7000-8000-0000000000cc";
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    // An idle Codex Desktop thread: its last turn has ended.
+    let text = [
+        json!({"timestamp":at,"type":"session_meta","payload":{"id":thread,"timestamp":at,"cwd":"/tmp","originator":"Codex Desktop","cli_version":"0.1.0","source":"vscode"}}),
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"user_message","message":"hello"}}),
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_started"}}),
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_complete"}}),
+    ]
+    .iter()
+    .map(|value| value.to_string() + "\n")
+    .collect::<String>();
+    std::fs::write(sessions.join(format!("rollout-{thread}.jsonl")), text).unwrap();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path: sessions,
+            provider: "codex",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+    let send = |backend: &mut AgentHudCore, text: &str| {
+        let card = backend
+            .request(
+                "agent_message",
+                json!({"to":"codex","text":text,"caller":{"client":"claude","sessionId":"c1"}}),
+            )
+            .unwrap();
+        backend
+            .request(
+                "answer_request",
+                json!({"id":card["id"],"decision":{"kind":"allow"}}),
+            )
+            .unwrap();
+    };
+    send(&mut backend, "first");
+    // The log can't show the turn "first" started until the next pass.
+    send(&mut backend, "second");
+    assert_eq!(fake.0.lock().unwrap().len(), 1, "the second waits");
+    let later = chrono::Utc::now().timestamp_millis() + 20_000;
+    backend.deliver_deferred_messages(later);
+    let sent = fake.0.lock().unwrap().clone();
+    assert_eq!(sent.len(), 2);
+    assert!(sent[1].contains("second"));
 }

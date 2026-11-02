@@ -47,10 +47,23 @@ struct Deferred {
     failed: Option<String>,
 }
 
+/// Local build: a message SuperRoot sent without a click.
+struct AutoSent {
+    from: String,
+    session: Option<String>,
+    to: String,
+    to_session: String,
+    text: String,
+    id: String,
+    at: i64,
+}
+
 /// Local build: a sender waiting for words on the command line (`send --wait`).
 struct Waiter {
     until: i64,
-    words: Vec<String>,
+    /// What came for it, each with the card a notice is about (None for
+    /// words to the session itself), sorted out once it knows its card.
+    words: Vec<(Option<String>, String)>,
     /// The card it waits on, once sent: a notice about another card of the
     /// same session is not its answer.
     card: Option<String>,
@@ -62,9 +75,21 @@ pub(crate) struct AgentMessages {
     /// By (agent, session as the HUD names it).
     waiters: HashMap<(String, String), Waiter>,
     deferred: Vec<Deferred>,
-    /// Local build: messages SuperRoot sent without a click, by (agent,
-    /// sending session) and when, for its limit.
-    auto_sent: Vec<(String, Option<String>, i64)>,
+    /// Local build: messages SuperRoot sent without a click, for its limit
+    /// and so that a call tried again isn't sent twice.
+    auto_sent: Vec<AutoSent>,
+    /// Local build: senders that reached SuperRoot's limit: they wait for
+    /// the user's click until the user sends one of their messages.
+    auto_paused: std::collections::HashSet<(String, Option<String>)>,
+    /// Local build: when words last went into each (agent, session): the
+    /// turn they start shows in its log only at the next pass.
+    started: HashMap<(String, String), i64>,
+}
+
+/// When words went in: the clock now, not the pass's `now` (tries before it
+/// in the same pass may have taken seconds).
+fn delivered_at(now: i64) -> i64 {
+    now.max(chrono::Utc::now().timestamp_millis())
 }
 
 /// The agents that take words now, and how the user knows them.
@@ -116,6 +141,12 @@ const MAX_WAITING: usize = 5;
 /// can't go on by themselves; past it, the user confirms again.
 const AUTO_LIMIT: usize = 10;
 const AUTO_WINDOW_MS: i64 = 600_000;
+/// Local build: how long a Codex thread that was just given words counts as
+/// mid-turn, until a pass has read the turn they started.
+const JUST_STARTED_MS: i64 = 10_000;
+/// Local build: the same words from the same sender within this long after
+/// SuperRoot sent them are a call tried again, not a new message.
+const AUTO_RETRY_MS: i64 = 60_000;
 /// How far back a receiving session may have been active, unless its carrier
 /// says it is running now, and how many are tried.
 const RECENT_MS: i64 = 7 * 86_400_000;
@@ -175,8 +206,18 @@ impl crate::AgentHudCore {
             .is_some_and(|waiter| waiter.until > now)
     }
 
-    /// Whether `session` of `source` is in the middle of a turn.
+    /// Whether `session` of `source` is in the middle of a turn, or was just
+    /// given words that start one (a second message right after the first
+    /// waits for that turn too).
     fn session_running(&self, source: &str, session: &str, now: i64) -> bool {
+        if self
+            .agent_messages
+            .started
+            .get(&(source.to_owned(), session.to_owned()))
+            .is_some_and(|at| now - at < JUST_STARTED_MS)
+        {
+            return true;
+        }
         let presentation = self.presentation(now);
         self.logs.values().any(|log| {
             log.source == source
@@ -225,6 +266,12 @@ impl crate::AgentHudCore {
                 .as_ref()
                 .map(|replies| replies.relay(&item.to, &item.to_session, &item.words));
             let delivered = matches!(sent, Some(Ok(())));
+            if delivered {
+                self.agent_messages.started.insert(
+                    (item.to.clone(), item.to_session.clone()),
+                    delivered_at(now),
+                );
+            }
             if let Some(Err(why)) = sent {
                 item.failed = Some(why);
             }
@@ -309,8 +356,10 @@ impl crate::AgentHudCore {
                     .is_some_and(|viewed| viewed.contains_key(id));
             if (named || looked_at)
                 && Some(id.as_str()) != sender
-                && !listed
-                    .iter()
+                // Known but left out (archived, gone) stays out.
+                && !self
+                    .logs
+                    .values()
                     .any(|log| log.source == source && log.id == *id)
             {
                 let title = replies.session_title(source, id).unwrap_or_default();
@@ -385,8 +434,8 @@ impl crate::AgentHudCore {
                             .any(|log| log.source == source && log.id == id) =>
                 {
                     crate::l10n::text(
-                        "这个 Codex 会话是在命令行里开的：HUD 只能把消息送进 Codex 桌面版的对话。",
-                        "This Codex session runs in a terminal: the HUD can only send words into Codex Desktop conversations.",
+                        "这个 Codex 会话不在 Codex 桌面版的对话列表里（在终端或编辑器里开的，或是子任务）：HUD 只能把消息送进 Codex 桌面版的对话。",
+                        "This Codex session isn't one of Codex Desktop's conversations (it runs in a terminal or an editor, or is a subtask): the HUD can only send words into Codex Desktop conversations.",
                     )
                 }
                 (None, Some(id)) => {
@@ -427,7 +476,7 @@ impl crate::AgentHudCore {
                 .get_mut(&(from.to_owned(), session.to_owned()))
             {
                 if card.is_none() || waiter.card.is_none() || waiter.card.as_deref() == card {
-                    waiter.words.push(note);
+                    waiter.words.push((card.map(str::to_owned), note));
                 }
             }
         }
@@ -463,8 +512,48 @@ impl crate::AgentHudCore {
             }
         }
         self.agent_messages
+            .started
+            .retain(|_, at| now - *at < JUST_STARTED_MS);
+        // A wait that lapsed (its command line was stopped, or the Mac slept)
+        // hands the words that came for the session to its conversation, as
+        // if nobody had waited, through the queue words for a busy Codex
+        // thread take (a turn running there isn't cut into). Notices about
+        // its card stay for the command line, should it come back.
+        let lapsed = self
+            .agent_messages
             .waiters
-            .retain(|_, waiter| waiter.until > now);
+            .iter()
+            .filter(|(_, waiter)| waiter.until <= now)
+            .map(|(key, _)| key.clone())
+            .collect::<Vec<_>>();
+        for key in lapsed {
+            let Some(mut waiter) = self.agent_messages.waiters.remove(&key) else {
+                continue;
+            };
+            let mut notices = Vec::new();
+            for (card, words) in std::mem::take(&mut waiter.words) {
+                if card.is_some() {
+                    notices.push((card, words));
+                    continue;
+                }
+                self.agent_messages.deferred.push(Deferred {
+                    to: key.0.clone(),
+                    to_session: key.1.clone(),
+                    words,
+                    from: String::new(),
+                    from_raw: None,
+                    next_try: now,
+                    until: now + DEFER_MS,
+                    card: String::new(),
+                    failed: None,
+                });
+            }
+            if !notices.is_empty() && now - waiter.until < MAX_WAIT_MS {
+                waiter.words = notices;
+                self.agent_messages.waiters.insert(key, waiter);
+            }
+        }
+        self.deliver_deferred_messages(now);
     }
 
     /// The command line's wait for a reply: {caller, waitMs}. Hands over what
@@ -485,6 +574,11 @@ impl crate::AgentHudCore {
         let wait = params["waitMs"].as_i64().unwrap_or(0).clamp(0, MAX_WAIT_MS);
         self.forget_unanswered_messages(now);
         let key = (from.to_owned(), session);
+        // A notice about another card than the one waited on isn't its answer.
+        let mine = |card: &Option<String>, waits_on: &Option<String>| match (card, waits_on) {
+            (Some(card), Some(waits_on)) => card == waits_on,
+            _ => true,
+        };
         let words = if wait > 0 {
             let waiter = self
                 .agent_messages
@@ -502,12 +596,25 @@ impl crate::AgentHudCore {
             waiter.until = now
                 .saturating_add(wait.min(WAITER_LEASE_MS))
                 .saturating_add(5_000);
+            let waits_on = waiter.card.clone();
             std::mem::take(&mut waiter.words)
+                .into_iter()
+                .filter(|(card, _)| mine(card, &waits_on))
+                .map(|(_, words)| words)
+                .collect::<Vec<_>>()
         } else {
             self.agent_messages
                 .waiters
                 .remove(&key)
-                .map(|waiter| waiter.words)
+                .map(|waiter| {
+                    let waits_on = params["card"].as_str().map(str::to_owned).or(waiter.card);
+                    waiter
+                        .words
+                        .into_iter()
+                        .filter(|(card, _)| mine(card, &waits_on))
+                        .map(|(_, words)| words)
+                        .collect()
+                })
                 .unwrap_or_default()
         };
         Ok(json!({"messages": words}))
@@ -583,6 +690,31 @@ impl crate::AgentHudCore {
                 "note": crate::l10n::text(
                     "这条消息已经在等用户确认了，不用再发。",
                     "This message already waits for the user; no need to send it again.",
+                ),
+            }));
+        }
+        // The same words SuperRoot just sent (a call that timed out on the
+        // client's side and was tried again) aren't sent twice.
+        let asked_to = params["to"].as_str().and_then(receiver).map(|(to, _)| to);
+        if let Some(earlier) = self.agent_messages.auto_sent.iter().find(|sent| {
+            sent.from == from
+                && sent.session == named
+                && sent.text == text
+                && Some(sent.to.as_str()) == asked_to
+                // The same words for another named session are another message.
+                && params["session"]
+                    .as_str()
+                    .filter(|session| !session.is_empty())
+                    .is_none_or(|session| listed_id(&sent.to, session) == sent.to_session)
+                && now - sent.at < AUTO_RETRY_MS
+        }) {
+            return Ok(json!({
+                "status": "sent",
+                "id": earlier.id,
+                "to": {"agent": earlier.to},
+                "note": crate::l10n::text(
+                    "这条消息刚刚已经自动送出过了，没有再发一次。",
+                    "This message was sent a moment ago; it wasn't sent again.",
                 ),
             }));
         }
@@ -690,14 +822,22 @@ impl crate::AgentHudCore {
         let super_root = self.settings["superRoot"] == true;
         self.agent_messages
             .auto_sent
-            .retain(|(_, _, at)| now - at < AUTO_WINDOW_MS);
+            .retain(|sent| now - sent.at < AUTO_WINDOW_MS);
         let sent_lately = self
             .agent_messages
             .auto_sent
             .iter()
-            .filter(|(agent, session, _)| agent == from && *session == named)
+            .filter(|sent| sent.from == from && sent.session == named)
             .count();
-        let auto = super_root && from_session.is_some() && sent_lately < AUTO_LIMIT;
+        // Past the limit the sender waits for the user's click from then on,
+        // not only until the window slides: two agents answering each other
+        // would otherwise go on at the limit's pace.
+        let sender_key = (from.to_owned(), named.clone());
+        if super_root && sent_lately >= AUTO_LIMIT {
+            self.agent_messages.auto_paused.insert(sender_key.clone());
+        }
+        let paused = self.agent_messages.auto_paused.contains(&sender_key);
+        let auto = super_root && from_session.is_some() && !paused;
         let auto_note = match (super_root && !auto, from_session.is_some(), chinese()) {
             (false, _, _) => String::new(),
             (true, false, true) => {
@@ -707,10 +847,10 @@ impl crate::AgentHudCore {
                 "\n\n(SuperRoot mode is on, but the sending session can't be verified, so this one waits for you.)".into()
             }
             (true, true, true) => format!(
-                "\n\n（SuperRoot 模式开着，但这个会话 10 分钟内已经自动发了 {AUTO_LIMIT} 条：为防止智能体来回对话停不下来，这条要你确认。）"
+                "\n\n（SuperRoot 已暂停这个会话的自动发送：它 10 分钟内自动发了 {AUTO_LIMIT} 条。为防止智能体来回对话停不下来，你点一次「发送」才会恢复。）"
             ),
             (true, true, false) => format!(
-                "\n\n(SuperRoot mode is on, but this session has sent {AUTO_LIMIT} messages by itself in 10 minutes: so that agents can't go on answering each other, this one waits for you.)"
+                "\n\n(SuperRoot paused this session's automatic sending: it sent {AUTO_LIMIT} messages by itself in 10 minutes. So that agents can't go on answering each other, it resumes once you press Send.)"
             ),
         };
         let detail = if chinese() {
@@ -812,9 +952,15 @@ impl crate::AgentHudCore {
                 Ok(flight) => {
                     let _ = self.requests.answer(&id, &decision, now);
                     self.settle_agent_message(&id);
-                    self.agent_messages
-                        .auto_sent
-                        .push((from.to_owned(), sender, now));
+                    self.agent_messages.auto_sent.push(AutoSent {
+                        from: from.to_owned(),
+                        session: sender,
+                        to: to.to_owned(),
+                        to_session: target.session.clone(),
+                        text: text.to_owned(),
+                        id: id.clone(),
+                        at: now,
+                    });
                     let busy_note = match (busy, chinese()) {
                         (false, _) => "",
                         (true, true) => "对方正在跑一轮，消息会等这一轮结束再送进去。",
@@ -839,7 +985,12 @@ impl crate::AgentHudCore {
                 }
                 // Not sendable now (the receiver waits for the user's answer,
                 // say): the card waits for the click, as without SuperRoot.
-                Err(why) => eprintln!("SI Future HUD SuperRoot: {why}"),
+                Err(why) => {
+                    eprintln!("SI Future HUD SuperRoot: {why}");
+                    if let Some(message) = self.agent_messages.pending.get_mut(&id) {
+                        message.auto = false;
+                    }
+                }
             }
         }
         Ok(json!({
@@ -899,6 +1050,16 @@ impl crate::AgentHudCore {
         }
         let words = relayed_words(message);
         let (to, to_session) = (message.to.clone(), message.to_session.clone());
+        // The user's own click on Send resumes SuperRoot for that sender,
+        // with its count started afresh.
+        if !message.auto {
+            let sender = (message.from.clone(), message.from_raw.clone());
+            if self.agent_messages.auto_paused.remove(&sender) {
+                self.agent_messages
+                    .auto_sent
+                    .retain(|sent| sent.from != sender.0 || sent.session != sender.1);
+            }
+        }
         if self.waits_on_command_line(&to, &to_session, now) {
             self.tell_waiting_sender(&to, Some(&to_session), None, words);
             return Ok(Some(flight));
@@ -932,6 +1093,9 @@ impl crate::AgentHudCore {
             )
         })?;
         replies.relay(&to, &to_session, &words)?;
+        self.agent_messages
+            .started
+            .insert((to, to_session), delivered_at(now));
         Ok(Some(flight))
     }
 

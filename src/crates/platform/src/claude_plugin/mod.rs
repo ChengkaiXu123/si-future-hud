@@ -39,6 +39,15 @@ pub const CHECK_IN_LIFETIME: Duration = Duration::from_secs(20);
 pub const PROMPT_LIFETIME: Duration = Duration::from_secs(3600);
 /// How Claude Code names the plugin once installed: plugin@marketplace.
 pub const PLUGIN_ID: &str = "agent-hud@agent-hud";
+/// The plugin's version: one per release of the app (1.<minor>.<patch>), so
+/// Claude Code, which runs its own copy made when it installed the plugin,
+/// takes the new script when it updates the plugin.
+pub const PLUGIN_VERSION: &str = concat!(
+    "1.",
+    env!("CARGO_PKG_VERSION_MINOR"),
+    ".",
+    env!("CARGO_PKG_VERSION_PATCH")
+);
 const SCRIPT: &str = include_str!("register.ts");
 
 /// Why words could not be left for a session.
@@ -114,6 +123,16 @@ fn listed(claude_config: &Path) -> Option<Value> {
 /// Whether Claude Code lists the plugin as installed.
 pub fn installed(claude_config: &Path) -> bool {
     listed(claude_config).is_some()
+}
+
+/// The version of the copy of the plugin Claude Code runs from its user
+/// scope (where the HUD installs it), if it says.
+pub fn installed_version(claude_config: &Path) -> Option<String> {
+    listed(claude_config)?
+        .as_array()?
+        .iter()
+        .filter(|install| install["scope"] == "user")
+        .find_map(|install| install["version"].as_str().map(str::to_owned))
 }
 
 /// Local build: whether the user turned the plugin off in Claude Code
@@ -290,7 +309,7 @@ impl ClaudeChannel {
             ),
             (
                 ".claude-plugin/plugin.json",
-                json!({"name":"agent-hud","version":"1.1.0","description":"Delivers user-authorized SI Future HUD input to this existing session.","author":{"name":"SI Future HUD"}}).to_string(),
+                json!({"name":"agent-hud","version":PLUGIN_VERSION,"description":"Delivers user-authorized SI Future HUD input to this existing session.","author":{"name":"SI Future HUD"}}).to_string(),
             ),
             ("hooks/hooks.json", json!({"modules":["./register.ts"]}).to_string()),
             ("hooks/register.ts", SCRIPT.replace("__AGENT_HUD_CHANNEL_JSON__", &channel)),
@@ -675,24 +694,39 @@ pub struct ClaudeReplies {
     channel: ClaudeChannel,
     /// Claude Code's own folder, where it lists the plugins it installed.
     claude_config: PathBuf,
-    /// The `claude` command the HUD found and the PATH it runs with, whose
-    /// version stands in for a session that doesn't say its own.
-    command: Option<(PathBuf, std::ffi::OsString)>,
+    /// How to find the `claude` command and the PATH it runs with, whose
+    /// version stands in for a session that doesn't say its own: looked up
+    /// the first time it's needed (finding it may read the login shell),
+    /// never while the app starts.
+    find_command: Option<FindCommand>,
+    command: std::sync::OnceLock<Option<(PathBuf, std::ffi::OsString)>>,
 }
+
+type FindCommand = Box<dyn Fn() -> Option<(PathBuf, std::ffi::OsString)> + Send + Sync>;
 
 impl ClaudeReplies {
     pub fn new(channel: ClaudeChannel, claude_config: PathBuf) -> Self {
         Self {
             channel,
             claude_config,
-            command: None,
+            find_command: None,
+            command: std::sync::OnceLock::new(),
         }
     }
 
-    /// The `claude` command the HUD found, if any, and the PATH it runs with.
-    pub fn with_command(mut self, command: Option<(PathBuf, std::ffi::OsString)>) -> Self {
-        self.command = command;
+    /// How to find the `claude` command and the PATH it runs with.
+    pub fn with_command(
+        mut self,
+        find: impl Fn() -> Option<(PathBuf, std::ffi::OsString)> + Send + Sync + 'static,
+    ) -> Self {
+        self.find_command = Some(Box::new(find));
         self
+    }
+
+    fn command(&self) -> Option<&(PathBuf, std::ffi::OsString)> {
+        self.command
+            .get_or_init(|| self.find_command.as_ref().and_then(|find| find()))
+            .as_ref()
     }
 
     /// Local build: the session's own inbox, while its process runs.
@@ -730,7 +764,7 @@ impl ClaudeReplies {
         // done in it. The command's version speaks for it only while no
         // session runs the plugin (another install, the desktop app's, may).
         let version = session_version(&self.claude_config, session).or_else(|| {
-            let (command, search) = self.command.as_ref()?;
+            let (command, search) = self.command()?;
             if !self.channel.loaded(SystemTime::now()).is_empty() {
                 return None;
             }

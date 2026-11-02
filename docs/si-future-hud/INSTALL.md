@@ -8,14 +8,15 @@ About five minutes, most of it macOS asking whether you trust the app.
 
 ## Before you start
 
-| You need | Why |
-| --- | --- |
-| **A Mac with Apple silicon** (M1, M2, M3, M4…) and **macOS 12 or newer** | The release is built for arm64 only. Check: Apple menu → **About This Mac** → *Chip* says *Apple M…*. On an Intel Mac, [build it from source](../../README.md#build-from-source). |
-| **The `claude` command** (Claude Code CLI), if you use Claude Code | The HUD installs its plugin and tools into Claude Code through this command. **The desktop app alone is not enough.** |
-| **The Codex desktop app**, if you use Codex | Nothing to install on top. The HUD uses the `codex` command built into the app (Codex.app, or the ChatGPT app that carries Codex) to add its tools, and messages *to* Codex go to the app. **You don't need the Codex CLI.** Only if you use Codex purely from a terminal does the HUD need a `codex` command from the list below. |
-| **Chengxiaobang (程小帮)**, if you use it | Nothing to prepare. The HUD drops its plugin in by itself; enable it once in Chengxiaobang afterwards (below). |
+| You need                                                                 | Why                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A Mac with Apple silicon** (M1, M2, M3, M4…) and **macOS 12 or newer** | The release is built for arm64 only. Check: Apple menu → **About This Mac** → _Chip_ says _Apple M…_. On an Intel Mac, [build it from source](../../README.md#build-from-source).                                                                                                                                                  |
+| **The `claude` command** (Claude Code CLI), if you use Claude Code       | The HUD installs its plugin and tools into Claude Code through this command. **The desktop app alone is not enough.**                                                                                                                                                                                                              |
+| **The Codex desktop app**, if you use Codex                              | Nothing to install on top. The HUD uses the `codex` command built into the app (Codex.app, or the ChatGPT app that carries Codex) to add its tools, and messages _to_ Codex go to the app. **You don't need the Codex CLI.** Only if you use Codex purely from a terminal does the HUD need a `codex` command from the list below. |
+| **Chengxiaobang (程小帮)**, if you use it                                | Nothing to prepare. The HUD drops its plugin in by itself; enable it once in Chengxiaobang afterwards (below).                                                                                                                                                                                                                     |
 
 **Installing the command‑line tools.** Follow each vendor's official instructions:
+
 - Claude Code: [docs.claude.com → Claude Code → Set up](https://docs.claude.com/en/docs/claude-code/setup)
 - Codex, only if you have no Codex desktop app: [github.com/openai/codex](https://github.com/openai/codex)
 
@@ -51,10 +52,10 @@ You should see `SI-Future-HUD_0.1.5_aarch64.dmg: OK`.
 
 Open **Applications → SI Future HUD**.
 
-SI Future HUD is ad‑hoc signed, not notarized by Apple, so the first launch is blocked. You will see *"SI Future HUD" cannot be opened because Apple cannot check it for malicious software*, or *…from an unidentified developer*. To allow it once:
+SI Future HUD is ad‑hoc signed, not notarized by Apple, so the first launch is blocked. You will see _"SI Future HUD" cannot be opened because Apple cannot check it for malicious software_, or _…from an unidentified developer_. To allow it once:
 
 1. Click **Done** (or **Cancel**) to close the prompt.
-2. Open **System Settings → Privacy & Security** and scroll down. You'll see *"SI Future HUD" was blocked to protect your Mac*.
+2. Open **System Settings → Privacy & Security** and scroll down. You'll see _"SI Future HUD" was blocked to protect your Mac_.
 3. Click **Open Anyway**, then **Open**. Enter your password if asked.
 
 From now on it opens normally.
@@ -69,26 +70,26 @@ xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"
 
 You don't need to touch any setting. On first launch SI Future HUD:
 
-| It does | So that |
-| --- | --- |
-| Shows the HUD at the top of the screen, around the notch where there is one | You see it right away |
-| Installs its **Claude Code plugin** (`agent-hud@agent-hud`) | You can answer Claude's questions on the HUD, and messages can reach Claude |
-| Adds **HUD tools** (the `agent-hud` MCP server) to **Claude Code** and **Codex** | Agents can call `hud_send_message` and read the HUD |
-| Turns on **Client hooks** (Settings → General) | Permission requests from Claude Code, Codex, Cursor, Copilot and OpenCode come to the HUD |
-| Writes its plugin into **Chengxiaobang** and adds the HUD tools to it | Chengxiaobang shows on the HUD and can send and receive messages |
-| Keeps a **login item** you turned on pointed at the app, even after you move it | *Launch at login* stays off until you turn it on in Settings |
+| It does                                                                          | So that                                                                                   |
+| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Shows the HUD at the top of the screen, around the notch where there is one      | You see it right away                                                                     |
+| Installs its **Claude Code plugin** (`agent-hud@agent-hud`)                      | You can answer Claude's questions on the HUD, and messages can reach Claude               |
+| Adds **HUD tools** (the `agent-hud` MCP server) to **Claude Code** and **Codex** | Agents can call `hud_send_message` and read the HUD                                       |
+| Turns on **Client hooks** (Settings → General)                                   | Permission requests from Claude Code, Codex, Cursor, Copilot and OpenCode come to the HUD |
+| Writes its plugin into **Chengxiaobang** and adds the HUD tools to it            | Chengxiaobang shows on the HUD and can send and receive messages                          |
+| Keeps a **login item** you turned on pointed at the app, even after you move it  | _Launch at login_ stays off until you turn it on in Settings                              |
 
-Each step runs once. **Nothing you remove later is put back.** If `claude` wasn't installed yet (or `codex`, when there is no Codex desktop app either), that step waits and runs on a later launch.
+Each step runs once. **Nothing you remove later is put back**, except Chengxiaobang's plugin and tools, which the HUD keeps in place on each launch: to stop them, turn the plugin off on Chengxiaobang's Plugins page. If `claude` wasn't installed yet (or `codex`, when there is no Codex desktop app either), that step waits and runs on a later launch.
 
 ## 5 · Finish setting up each agent
 
-| Agent | One last step |
-| --- | --- |
-| **Claude Code** | **Sign in to the terminal `claude` once:** run `claude` in Terminal and follow the sign‑in. The quota comes from the terminal command, and the desktop app's sign‑in is separate. In conversations that were already open before you installed the HUD, type `/reload-plugins`, or start a new conversation. |
-| **Codex** | Use the **Codex desktop app** for conversations that should receive messages (the CLI shows status only). The first time Codex asks whether to trust the HUD's hook, allow it, or approvals won't reach the HUD. |
-| **Chengxiaobang** | Open its **Plugins** page and enable **SI Future HUD** once (no restart needed). Settings → Agent plugins shows whether it is enabled. After a restart of Chengxiaobang, a conversation takes messages once you open it; messages for one that took messages before wait in a queue until then. |
-| **Cursor** | Sign in **inside the Cursor desktop app**. A web sign‑in doesn't count. |
-| **Grok Bot** | Sign in. Quota and replies appear by themselves. |
+| Agent             | One last step                                                                                                                                                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Claude Code**   | **Sign in to the terminal `claude` once:** run `claude` in Terminal and follow the sign‑in. The quota comes from the terminal command, and the desktop app's sign‑in is separate. In conversations that were already open before you installed the HUD, type `/reload-plugins`, or start a new conversation. |
+| **Codex**         | Use the **Codex desktop app** for conversations that should receive messages (the CLI shows status only). The first time Codex asks whether to trust the HUD's hook, allow it, or approvals won't reach the HUD.                                                                                             |
+| **Chengxiaobang** | Open its **Plugins** page and enable **SI Future HUD** once (no restart needed). Settings → Agent plugins shows whether it is enabled. After a restart of Chengxiaobang, a conversation takes messages once you open it; messages for one that took messages before wait in a queue until then.              |
+| **Cursor**        | Sign in **inside the Cursor desktop app**. A web sign‑in doesn't count.                                                                                                                                                                                                                                      |
+| **Grok Bot**      | Sign in. Quota and replies appear by themselves.                                                                                                                                                                                                                                                             |
 
 ## 6 · Check that everything is connected
 
@@ -105,13 +106,15 @@ Each step runs once. **Nothing you remove later is put back.** If `claude` wasn'
 - **Hover the notch.** Every agent you use should be listed with its quota.
 - **Try a message.** In a Claude Code conversation, ask:
 
-  > *Ask Codex what it's working on, using the HUD.*
+  > _Ask Codex what it's working on, using the HUD._
 
   A card appears on the HUD. Press **Send** and watch the paper plane fly.
 
 ## Update
 
 Quit SI Future HUD, then drag the new version into **Applications** and replace the old one. Settings, plugins and tools carry over. If the app moved, the tool entries are re‑pointed on launch.
+
+On its first launch after an update, the HUD has Claude Code update its plugin. Claude Code sessions started from then on run the new one; in a session that was already open, run `/reload-plugins`.
 
 After an update, **restart Chengxiaobang once**. Its running MCP relay keeps the old tool definitions until it restarts.
 
@@ -122,7 +125,7 @@ Do it in this order. Otherwise the hook entries in your agents' settings point a
 1. **Settings → General → turn off Client hooks.** This removes the HUD's hooks from Claude Code, Codex and the others.
 2. Quit SI Future HUD from its menu bar icon.
 3. Drag **Applications → SI Future HUD** to the Trash.
-4. *(Optional)* Remove the plugin and tools it added:
+4. Remove the plugin and tools it added. Otherwise Claude Code, Codex and Chengxiaobang keep trying to start the deleted app's tools:
 
    ```bash
    claude plugin uninstall agent-hud@agent-hud
@@ -133,7 +136,9 @@ Do it in this order. Otherwise the hook entries in your agents' settings point a
 
    With only the Codex desktop app, run the last line with the app's copy of `codex` (see step 6 above).
 
-   In Chengxiaobang, disable or delete the SI Future HUD plugin on its Plugins page.
+   In Chengxiaobang, delete the SI Future HUD plugin on its Plugins page, and the `agent-hud` entry in `~/.chengxiaobang/mcp.json`.
+
+   Delete the message skill too: the `si-future-hud` folder in `~/.claude/skills` and in `~/.agents/skills`.
 
 The HUD's own data is in `~/Library/Application Support/app.agenthud.next`. Delete that folder too if you want nothing left.
 
