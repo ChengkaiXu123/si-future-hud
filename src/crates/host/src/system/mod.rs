@@ -48,6 +48,13 @@ pub(crate) fn stop_client(child: &mut std::process::Child) {
     target::stop_client(child)
 }
 
+/// The user's login shell PATH, read once (version managers put the clients'
+/// commands there).
+pub(crate) fn login_shell_path() -> Option<&'static std::ffi::OsString> {
+    static PATH: std::sync::OnceLock<Option<std::ffi::OsString>> = std::sync::OnceLock::new();
+    PATH.get_or_init(target::login_shell_path).as_ref()
+}
+
 /// Whether a program answers on the local socket at `path`.
 pub(crate) fn socket_answers(path: &std::path::Path) -> bool {
     target::socket_answers(path)

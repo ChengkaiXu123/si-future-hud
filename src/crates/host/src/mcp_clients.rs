@@ -37,6 +37,9 @@ fn paths(home: &std::path::Path) -> Vec<PathBuf> {
     if let Some(appdata) = std::env::var_os("APPDATA") {
         dirs.push(PathBuf::from(appdata).join("npm"));
     }
+    if let Some(path) = super::system::login_shell_path() {
+        dirs.extend(std::env::split_paths(path));
+    }
     if let Some(path) = std::env::var_os("PATH") {
         dirs.extend(std::env::split_paths(&path));
     }

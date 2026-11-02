@@ -23,6 +23,8 @@ export const register: Register = on => {
           // /clear and resume can change identity without another session.start.
           const id = await $.session.id()
           if (ticks++ % CHECK_IN_EVERY === 0 || id !== last) {
+            // The session it was (before /clear or a resume) no longer runs here.
+            if (last && id !== last) await $.fs.write(`${CHANNEL}/sessions/${last}.json`, JSON.stringify({ ended: await $.clock.now() }))
             last = id
             await $.fs.write(`${CHANNEL}/sessions/${id}.json`, JSON.stringify({ at: await $.clock.now(), version, channelVersion: 2 }))
           }

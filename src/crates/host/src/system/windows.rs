@@ -189,3 +189,8 @@ mod tests {
 pub(super) fn socket_answers(_path: &Path) -> bool {
     false
 }
+
+/// Windows apps inherit the user's PATH: nothing more to read.
+pub(super) fn login_shell_path() -> Option<std::ffi::OsString> {
+    None
+}

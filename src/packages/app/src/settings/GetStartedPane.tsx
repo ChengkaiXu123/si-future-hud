@@ -232,11 +232,22 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
       image: planeImage,
     },
     {
-      title: ["Set up for you", "这些已经替你配好"],
-      text: [
-        "On its first launch the HUD set up your agents by itself. Windows that were already open work too: they pick up how to message from a skill the HUD wrote.",
-        "第一次启动时，HUD 已经自动替你的智能体配好了。之前就开着的窗口也能用：HUD 写入的使用说明会被它们自动读到。",
-      ],
+      // Run from its disk image or a copy macOS translocated, the app sets
+      // nothing up: moving it into Applications is the step left.
+      title:
+        statuses.mcp && !statuses.mcp.ready
+          ? ["Move it into Applications first", "先把它拖进「应用程序」"]
+          : ["Set up for you", "这些已经替你配好"],
+      text:
+        statuses.mcp && !statuses.mcp.ready
+          ? [
+              "SI Future HUD is running from its disk image or a temporary copy macOS made, so nothing could be set up. Quit it, drag SI Future HUD into Applications, and open it from there: it sets your agents up then.",
+              "SI Future HUD 现在是从安装包或 macOS 的临时副本里运行的，什么都没法自动配置。先退出，把 SI Future HUD 拖进「应用程序」文件夹，再从那里打开，就会自动配好。",
+            ]
+          : [
+              "On its first launch the HUD set up your agents by itself. Windows that were already open work too: they pick up how to message from a skill the HUD wrote.",
+              "第一次启动时，HUD 已经自动替你的智能体配好了。之前就开着的窗口也能用：HUD 写入的使用说明会被它们自动读到。",
+            ],
       extra: (
         <div className="guide-checks">
           <CheckRow

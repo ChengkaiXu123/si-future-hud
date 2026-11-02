@@ -37,7 +37,8 @@ EOF
 - `--to`: `claude` (Claude Code), `codex` (Codex Desktop) or `chengxiaobang` (程小帮).
 - `--session <id>`: one receiving session; leave it out to reach that agent's most recently active session that can take messages.
 - `--wait <seconds>`: wait for the reply and print it (up to 3600). Use it whenever you need the answer, and wait long: the other agent may finish its own work first, and the user confirms both messages on the HUD. Without it the command returns at once, and a reply comes later as a new message only if this window can take messages.
-- Exit codes: 0 sent (with the reply printed when waiting); 2 no reply in time; 3 the user denied it or nobody confirmed it; 1 an error, which the output explains.
+- A long wait outlasts a shell tool's time limit (Claude Code's Bash stops a command after 2 minutes unless told otherwise): run the command in the background, or give the tool a timeout longer than the wait. A wait cut short does no harm: a later reply comes as a new message where this window can take one.
+- Exit codes: 0 handed to the HUD (with `--wait`, the reply is printed) — it is delivered only once the user presses Send; 2 no reply in time; 3 the user denied it or nobody confirmed it; 1 an error, which the output explains.
 - The text must not start with `/`, and holds at most 4000 characters.
 - In Codex's sandbox the command may be blocked from reaching the HUD: run it again with permission to leave the sandbox.
 

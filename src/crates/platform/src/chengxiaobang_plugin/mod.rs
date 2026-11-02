@@ -405,6 +405,26 @@ impl SessionReplies for ChengxiaobangReplies {
     fn viewed_at(&self, _source: &str) -> Option<HashMap<String, i64>> {
         last_viewed(self.plugin.home()?)
     }
+    fn session_title(&self, _source: &str, session: &str) -> Option<String> {
+        let rows = agent_hud_agents::sqlite::rows(
+            &self.plugin.home()?.join("data/chengxiaobang.sqlite"),
+            "SELECT title FROM sessions WHERE id = ?1",
+            &[own(session)],
+            Duration::from_millis(250),
+        )
+        .ok()?;
+        rows.first()?.first()?.as_str().map(str::to_owned)
+    }
+    fn caution(&self, _source: &str) -> Option<String> {
+        let backends = self.state().backends;
+        (backends > 1).then(|| {
+            if l10n::chinese() {
+                format!("注意：程小帮有 {backends} 个后台同时在运行（上一次的程小帮没退干净），消息可能被旧的那个收走、你在程小帮里看不到。最好先彻底退出程小帮（⌘Q），在「活动监视器」里结束剩下的程小帮和 bun 进程，再打开程小帮发送。")
+            } else {
+                format!("Note: {backends} 程小帮 backends are running at once (an earlier 程小帮 didn't quit fully), so the old one may take the message where you can't see it. Quit 程小帮 (⌘Q), end the remaining 程小帮 and bun processes in Activity Monitor, then open 程小帮 and send.")
+            }
+        })
+    }
     fn live_sessions(&self, _source: &str) -> Option<HashSet<String>> {
         Some(
             self.channel()
@@ -489,6 +509,12 @@ impl SessionReplies for RepliesBySource {
     }
     fn viewed_at(&self, source: &str) -> Option<HashMap<String, i64>> {
         self.carrier(source)?.viewed_at(source)
+    }
+    fn caution(&self, source: &str) -> Option<String> {
+        self.carrier(source)?.caution(source)
+    }
+    fn session_title(&self, source: &str, session: &str) -> Option<String> {
+        self.carrier(source)?.session_title(source, session)
     }
     fn relays_to(&self, source: &str, session: &str) -> Result<(), Unreachable> {
         match self.carrier(source) {

@@ -43,4 +43,15 @@ pub trait SessionReplies: Send + Sync {
     fn viewed_at(&self, _source: &str) -> Option<std::collections::HashMap<String, i64>> {
         None
     }
+    /// Local build: the title of a session of `source` the HUD doesn't list
+    /// yet, for clients that keep one.
+    fn session_title(&self, _source: &str, _session: &str) -> Option<String> {
+        None
+    }
+    /// Local build: what the user should know before words go to `source`
+    /// that doesn't stop them (an earlier 程小帮 still running beside the new
+    /// one may take them), in the app's language.
+    fn caution(&self, _source: &str) -> Option<String> {
+        None
+    }
 }

@@ -1227,3 +1227,198 @@ fn the_candidate_cap_never_cuts_a_session_running_the_carrier() {
         .unwrap();
     assert_eq!(proposed["to"]["session"], live.as_str());
 }
+
+#[test]
+fn a_dead_wait_lets_go_and_a_wait_hears_only_about_its_own_card() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<String>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, source: &str, session: &str) -> Result<(), crate::replies::Unreachable> {
+            if source == "chengxiaobang" && session == "chengxiaobang:s1" {
+                Ok(())
+            } else {
+                Err(crate::replies::Unreachable::new("not loaded".into(), None))
+            }
+        }
+        fn reply(&self, _: &str, _: &str, words: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push(words.into());
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("chengxiaobang.sqlite");
+    let db = Connection::open(&path).unwrap();
+    db.execute_batch(
+        "CREATE TABLE sessions(id TEXT,title TEXT);
+         CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
+         INSERT INTO sessions VALUES('s1','Meetings');",
+    )
+    .unwrap();
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    db.execute(
+        "INSERT INTO usage_cost_entries VALUES('u1','s1','auto(free)',100,10,40,?1)",
+        [at],
+    )
+    .unwrap();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path,
+            provider: "chengxiaobang",
+        }],
+        root.path().join("hud"),
+    );
+    backend.set_session_replies(Some(Arc::new(Fake(Mutex::new(vec![])))));
+    refresh(&mut backend);
+    let cli = json!({"client":"codex","sessionId":"t-cli","via":"cli","waits":true});
+    let now = chrono::Utc::now().timestamp_millis();
+
+    // A `send --wait 1800` killed twenty seconds ago no longer holds the thread.
+    backend
+        .agent_inbox(&json!({"caller":cli,"waitMs":1_800_000}), now - 20_000)
+        .unwrap();
+    assert!(
+        backend
+            .request(
+                "agent_message",
+                json!({"to":"codex","session":"t-cli","text":"late","from_session":"s1","caller":{"client":"chengxiaobang"}}),
+            )
+            .is_err(),
+        "no wait is left to take it"
+    );
+
+    // Two cards from that thread; its command line waits on the second.
+    let first = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"one","caller":cli}),
+        )
+        .unwrap();
+    let second = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"two","caller":cli}),
+        )
+        .unwrap();
+    let wait = json!({"caller":cli,"card":second["id"],"waitMs":60_000});
+    backend.request("agent_inbox", wait.clone()).unwrap();
+    backend
+        .request(
+            "answer_request",
+            json!({"id":first["id"],"decision":{"kind":"deny"}}),
+        )
+        .unwrap();
+    let inbox = backend.request("agent_inbox", wait.clone()).unwrap();
+    assert_eq!(
+        inbox["messages"],
+        json!([]),
+        "the first card's denial isn't its answer"
+    );
+    backend
+        .request(
+            "answer_request",
+            json!({"id":second["id"],"decision":{"kind":"deny"}}),
+        )
+        .unwrap();
+    let inbox = backend.request("agent_inbox", wait).unwrap();
+    assert!(inbox["messages"][0]
+        .as_str()
+        .unwrap()
+        .contains("SI Future HUD"));
+
+    // The same words for another named session are not the waiting card again.
+    let caller = json!({"client":"claude","sessionId":"c9"});
+    let to_s1 = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s1","text":"same","caller":caller}),
+        )
+        .unwrap();
+    let elsewhere = backend.request(
+        "agent_message",
+        json!({"to":"chengxiaobang","session":"s2","text":"same","caller":caller}),
+    );
+    assert!(elsewhere.map_or(true, |other| other["id"] != to_s1["id"]));
+}
+
+#[test]
+fn a_new_conversation_not_listed_yet_takes_words_and_a_new_sender_gets_its_reply() {
+    use std::collections::{HashMap, HashSet};
+    use std::sync::{Arc, Mutex};
+    // 程小帮's "fresh" runs the plugin and was just opened, but has no usage yet.
+    struct Fake(Mutex<Vec<(String, String)>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, session: &str, words: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push((session.into(), words.into()));
+            Ok(())
+        }
+        fn live_sessions(&self, source: &str) -> Option<HashSet<String>> {
+            (source == "chengxiaobang").then(|| {
+                HashSet::from([
+                    "chengxiaobang:s1".to_owned(),
+                    "chengxiaobang:fresh".to_owned(),
+                ])
+            })
+        }
+        fn viewed_at(&self, source: &str) -> Option<HashMap<String, i64>> {
+            let now = chrono::Utc::now().timestamp_millis();
+            (source == "chengxiaobang").then(|| {
+                HashMap::from([
+                    ("chengxiaobang:fresh".to_owned(), now),
+                    ("chengxiaobang:s1".to_owned(), now - 3_600_000),
+                ])
+            })
+        }
+        fn session_title(&self, _: &str, session: &str) -> Option<String> {
+            (session == "chengxiaobang:fresh").then(|| "HUD test".to_owned())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("chengxiaobang.sqlite");
+    let db = Connection::open(&path).unwrap();
+    db.execute_batch(
+        "CREATE TABLE sessions(id TEXT,title TEXT);
+         CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
+         INSERT INTO sessions VALUES('s1','Meetings');
+         INSERT INTO sessions VALUES('fresh','HUD test');",
+    )
+    .unwrap();
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    db.execute(
+        "INSERT INTO usage_cost_entries VALUES('u1','s1','auto(free)',100,10,40,?1)",
+        [at],
+    )
+    .unwrap();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path,
+            provider: "chengxiaobang",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+    // A Claude session the HUD hasn't read yet sends, naming no receiver.
+    let sent = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","text":"Hello","caller":{"client":"claude","sessionId":"c-new"}}),
+        )
+        .unwrap();
+    assert_eq!(sent["to"]["session"], "chengxiaobang:fresh");
+    assert_eq!(sent["to"]["title"], "HUD test");
+    backend
+        .request(
+            "answer_request",
+            json!({"id":sent["id"],"decision":{"kind":"allow"}}),
+        )
+        .unwrap();
+    let (session, words) = fake.0.lock().unwrap()[0].clone();
+    assert_eq!(session, "chengxiaobang:fresh");
+    // The reply is pointed at the sender itself, not at whichever Claude
+    // session happens to be most recent.
+    assert!(words.contains("c-new"), "{words}");
+}

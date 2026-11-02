@@ -1,5 +1,5 @@
 pub(super) use super::unix::{
-    client_command_line, configure_client_command, socket_answers, stop_client,
+    client_command_line, configure_client_command, login_shell_path, socket_answers, stop_client,
 };
 use serde_json::{json, Value};
 use std::path::Path;

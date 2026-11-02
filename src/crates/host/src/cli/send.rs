@@ -100,11 +100,17 @@ pub(super) fn run(arguments: &[String]) -> i32 {
     if waits {
         caller["waits"] = json!(true);
         // Waiting before the card exists: the reply can't come before it.
-        if let Err(error) = ask(
+        // Words that came for this session since an earlier wait are shown.
+        match ask(
             "agent_inbox",
             json!({"caller":caller,"waitMs":wait * 1000 + 60_000}),
         ) {
-            return fail(error);
+            Ok(inbox) => {
+                for message in inbox["messages"].as_array().into_iter().flatten() {
+                    println!("{}\n", message.as_str().unwrap_or_default());
+                }
+            }
+            Err(error) => return fail(error),
         }
     }
     let mut params = json!({"to":to,"text":text,"caller":caller});
@@ -137,27 +143,36 @@ pub(super) fn run(arguments: &[String]) -> i32 {
         return 0;
     }
     println!("正在等回信，最多 {wait} 秒… / Waiting for the reply, up to {wait} s…");
+    // The wait is on this card: a notice about another card of this session isn't its answer.
+    let card = sent["id"].clone();
     let deadline = Instant::now() + Duration::from_secs(wait);
     // The card itself may wait for the user a while: the wait covers it.
     loop {
         let left = deadline.saturating_duration_since(Instant::now());
         let polled = ask(
             "agent_inbox",
-            json!({"caller":caller,"waitMs":if left.is_zero() {0} else {left.as_millis() as u64 + 5_000}}),
+            json!({"caller":caller,"card":card,"waitMs":if left.is_zero() {0} else {left.as_millis() as u64 + 5_000}}),
         );
         match polled {
             Ok(inbox) => {
-                let messages = inbox["messages"].as_array().cloned().unwrap_or_default();
+                let mut messages = inbox["messages"].as_array().cloned().unwrap_or_default();
                 if !messages.is_empty() {
+                    // Ending the wait hands over what came since this poll too.
+                    if !left.is_zero() {
+                        if let Ok(rest) = ask(
+                            "agent_inbox",
+                            json!({"caller":caller,"card":card,"waitMs":0}),
+                        ) {
+                            messages
+                                .extend(rest["messages"].as_array().cloned().unwrap_or_default());
+                        }
+                    }
                     let mut notice = false;
                     for message in &messages {
                         let words = message.as_str().unwrap_or_default();
                         notice |= words.starts_with("【SI Future HUD】")
                             || words.starts_with("[SI Future HUD]");
                         println!("\n{words}");
-                    }
-                    if !left.is_zero() {
-                        let _ = ask("agent_inbox", json!({"caller":caller,"waitMs":0}));
                     }
                     return if notice { 3 } else { 0 };
                 }
@@ -210,6 +225,14 @@ fn caller() -> Result<Value, String> {
     }
     if let Some(id) = chengxiaobang {
         return Ok(json!({"client":"chengxiaobang","sessionId":id,"via":"cli"}));
+    }
+    // Claude Code's shell names its session too: the way left where its
+    // processes can't be read (a sandboxed shell has no `ps`).
+    if let Some(id) = std::env::var("CLAUDE_CODE_SESSION_ID")
+        .ok()
+        .filter(|id| !id.is_empty())
+    {
+        return Ok(json!({"client":"claude","sessionId":id,"via":"cli"}));
     }
     Err("认不出是哪个智能体在调用：这个命令要在 Claude Code、Codex 或程小帮的会话里运行。/ Can't tell which agent calls: run this command from a Claude Code, Codex or 程小帮 session.".into())
 }

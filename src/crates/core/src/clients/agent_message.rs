@@ -38,12 +38,19 @@ struct Deferred {
     /// When the next try may go, and when they are given up.
     next_try: i64,
     until: i64,
+    /// The card they came from, and why the last try failed when it wasn't
+    /// the turn still running.
+    card: String,
+    failed: Option<String>,
 }
 
 /// Local build: a sender waiting for words on the command line (`send --wait`).
 struct Waiter {
     until: i64,
     words: Vec<String>,
+    /// The card it waits on, once sent: a notice about another card of the
+    /// same session is not its answer.
+    card: Option<String>,
 }
 
 #[derive(Default)]
@@ -104,6 +111,10 @@ const RECENT_MS: i64 = 7 * 86_400_000;
 const MAX_CANDIDATES: usize = 30;
 /// How long a command-line sender may wait for a reply, at most.
 const MAX_WAIT_MS: i64 = 3_600_000;
+/// How long a command line's wait holds without a poll. It polls every second
+/// and a half, so a `send --wait` that was killed stops taking its session's
+/// words within seconds, not at the end of the wait it asked for.
+const WAITER_LEASE_MS: i64 = 10_000;
 /// How long sent words wait for a busy Codex thread, and how often they try.
 const DEFER_MS: i64 = 30 * 60_000;
 const DEFER_RETRY_MS: i64 = 15_000;
@@ -173,13 +184,21 @@ impl crate::AgentHudCore {
         let mut keep = Vec::new();
         for mut item in std::mem::take(&mut self.agent_messages.deferred) {
             if item.until <= now {
-                self.tell_waiting_sender(
-                    &item.from,
-                    item.from_raw.as_deref(),
-                    crate::l10n::text(
+                let note = match &item.failed {
+                    Some(why) => crate::l10n::text(
+                        &format!("【SI Future HUD】消息半小时内没能送进去，已经作废：{why}"),
+                        &format!("[SI Future HUD] The message couldn't go in within half an hour and was dropped: {why}"),
+                    ),
+                    None => crate::l10n::text(
                         "【SI Future HUD】对方一直在忙，消息半小时内没能送进去，已经作废。",
                         "[SI Future HUD] The receiver stayed busy for half an hour; the message was dropped.",
                     ),
+                };
+                self.tell_waiting_sender(
+                    &item.from,
+                    item.from_raw.as_deref(),
+                    Some(&item.card),
+                    note,
                 );
                 continue;
             }
@@ -190,12 +209,15 @@ impl crate::AgentHudCore {
                 keep.push(item);
                 continue;
             }
-            let sent = self.session_replies.as_ref().is_some_and(|replies| {
-                replies
-                    .relay(&item.to, &item.to_session, &item.words)
-                    .is_ok()
-            });
-            if !sent {
+            let sent = self
+                .session_replies
+                .as_ref()
+                .map(|replies| replies.relay(&item.to, &item.to_session, &item.words));
+            let delivered = matches!(sent, Some(Ok(())));
+            if let Some(Err(why)) = sent {
+                item.failed = Some(why);
+            }
+            if !delivered {
                 item.next_try = now + DEFER_RETRY_MS;
                 keep.push(item);
             }
@@ -249,9 +271,10 @@ impl crate::AgentHudCore {
         })?;
         let live = replies.live_sessions(source);
         let running = |id: &str| live.as_ref().is_some_and(|live| live.contains(id));
-        let mut candidates = self
-            .listed_sessions()
-            .into_iter()
+        let viewed = replies.viewed_at(source);
+        let listed = self.listed_sessions();
+        let mut candidates = listed
+            .iter()
             .filter(|log| log.source == source && log.live.parent_id.is_none())
             // Only threads Codex Desktop holds take words (not the CLI's); the
             // log keeps the client's raw name, "Desktop".
@@ -261,47 +284,67 @@ impl crate::AgentHudCore {
                 Some(id) => log.id == id,
                 None => running(&log.id) || log.updated_at.is_some_and(|at| now - at < RECENT_MS),
             })
+            .map(|log| (log.id.clone(), log.title.clone(), log.updated_at))
             .collect::<Vec<_>>();
+        // A conversation running the carrier that the HUD doesn't list yet (a
+        // new 程小帮 conversation has no usage before its first answer) counts
+        // when it is named, or when the user has looked at it: never a run in
+        // the background that nobody opened.
+        for id in live.iter().flatten() {
+            let named = asked.as_deref() == Some(id.as_str());
+            let looked_at = asked.is_none()
+                && viewed
+                    .as_ref()
+                    .is_some_and(|viewed| viewed.contains_key(id));
+            if (named || looked_at)
+                && Some(id.as_str()) != sender
+                && !listed
+                    .iter()
+                    .any(|log| log.source == source && log.id == *id)
+            {
+                let title = replies.session_title(source, id).unwrap_or_default();
+                candidates.push((id.clone(), title, None));
+            }
+        }
         // The conversation the user looked at last comes first where the
         // client records it (a scheduled task's runs keep its session the
         // most recently updated one, though nobody reads it).
-        let viewed = replies.viewed_at(source);
-        candidates.sort_by_key(|log| {
+        candidates.sort_by_key(|(id, _, updated_at)| {
             let seen = viewed
                 .as_ref()
-                .map_or(0, |viewed| viewed.get(&log.id).copied().unwrap_or(0));
+                .map_or(0, |viewed| viewed.get(id).copied().unwrap_or(0));
             (
                 std::cmp::Reverse(seen),
-                !running(&log.id),
-                std::cmp::Reverse(log.updated_at.unwrap_or(0)),
+                !running(id),
+                std::cmp::Reverse(updated_at.unwrap_or(0)),
             )
         });
         // The cap bounds the reachability checks; a session running the
         // carrier now is never cut, however long ago the user looked at it.
         let mut others = 0;
-        candidates.retain(|log| {
-            running(&log.id) || {
+        candidates.retain(|(id, _, _)| {
+            running(id) || {
                 others += 1;
                 others <= MAX_CANDIDATES
             }
         });
         let mut first: Option<Unreachable> = None;
         let mut waiting = false;
-        for log in candidates {
-            if self.session_waits(source, &log.id, now) {
+        for (id, title, _) in candidates {
+            if self.session_waits(source, &id, now) {
                 waiting = true;
                 continue;
             }
-            match replies.relays_to(source, &log.id) {
+            match replies.relays_to(source, &id) {
                 Ok(()) => {
-                    let title = if log.title.trim().is_empty() {
+                    let title = if title.trim().is_empty() {
                         name(source).to_owned()
                     } else {
-                        log.title.clone()
+                        title
                     };
                     return Ok(Target {
-                        queued: live.is_some() && !running(&log.id),
-                        session: log.id.clone(),
+                        queued: live.is_some() && !running(&id),
+                        session: id,
                         title,
                     });
                 }
@@ -323,6 +366,18 @@ impl crate::AgentHudCore {
         } else {
             match (first, asked) {
                 (Some(why), _) => why.note,
+                (None, Some(id))
+                    if source == "codex"
+                        && self
+                            .listed_sessions()
+                            .iter()
+                            .any(|log| log.source == source && log.id == id) =>
+                {
+                    crate::l10n::text(
+                        "这个 Codex 会话是在命令行里开的：HUD 只能把消息送进 Codex 桌面版的对话。",
+                        "This Codex session runs in a terminal: the HUD can only send words into Codex Desktop conversations.",
+                    )
+                }
                 (None, Some(id)) => {
                     if chinese() {
                         format!("{}没有 ID 为 {id} 的会话。", name(source))
@@ -344,15 +399,25 @@ impl crate::AgentHudCore {
         })
     }
 
-    /// Leaves a note for the sender's command line, if it waits.
-    fn tell_waiting_sender(&mut self, from: &str, session: Option<&str>, note: String) {
+    /// Leaves a note for the sender's command line, if it waits: about the
+    /// card `card` (only a wait on that card takes it), or words for the
+    /// session itself (`card` None).
+    fn tell_waiting_sender(
+        &mut self,
+        from: &str,
+        session: Option<&str>,
+        card: Option<&str>,
+        note: String,
+    ) {
         if let Some(session) = session {
             if let Some(waiter) = self
                 .agent_messages
                 .waiters
                 .get_mut(&(from.to_owned(), session.to_owned()))
             {
-                waiter.words.push(note);
+                if card.is_none() || waiter.card.is_none() || waiter.card.as_deref() == card {
+                    waiter.words.push(note);
+                }
             }
         }
     }
@@ -378,6 +443,7 @@ impl crate::AgentHudCore {
                 self.tell_waiting_sender(
                     &message.from,
                     message.from_raw.as_deref(),
+                    Some(&id),
                     crate::l10n::text(
                         "【SI Future HUD】这条消息没等到用户确认，已经作废。",
                         "[SI Future HUD] Nobody confirmed this message; it was dropped.",
@@ -416,9 +482,15 @@ impl crate::AgentHudCore {
                 .or_insert_with(|| Waiter {
                     until: 0,
                     words: Vec::new(),
+                    card: None,
                 });
-            // A few seconds past the asked wait: the next poll renews it.
-            waiter.until = now.saturating_add(wait).saturating_add(5_000);
+            if let Some(card) = params["card"].as_str().filter(|card| !card.is_empty()) {
+                waiter.card = Some(card.to_owned());
+            }
+            // Held a few seconds at a time: each poll renews it.
+            waiter.until = now
+                .saturating_add(wait.min(WAITER_LEASE_MS))
+                .saturating_add(5_000);
             std::mem::take(&mut waiter.words)
         } else {
             self.agent_messages
@@ -487,6 +559,11 @@ impl crate::AgentHudCore {
                 && message.text == text
                 && params["to"].as_str().and_then(receiver).map(|(to, _)| to)
                     == Some(message.to.as_str())
+                // The same words for another named session are another message.
+                && params["session"]
+                    .as_str()
+                    .filter(|session| !session.is_empty())
+                    .is_none_or(|session| listed_id(&message.to, session) == message.to_session)
         }) {
             return Ok(json!({
                 "status": "pending",
@@ -568,7 +645,18 @@ impl crate::AgentHudCore {
             }
         );
         let to_title = &target.title;
-        let busy = to == "codex" && self.session_running(to, &target.session, now);
+        let caution = self
+            .session_replies
+            .as_ref()
+            .and_then(|replies| replies.caution(to));
+        let caution_note = caution
+            .as_ref()
+            .map(|caution| format!("\n\n{caution}"))
+            .unwrap_or_default();
+        // Words for a command line waiting there go to it at once.
+        let busy = to == "codex"
+            && !self.waits_on_command_line(to, &target.session, now)
+            && self.session_running(to, &target.session, now);
         let queued_note = match (target.queued || busy, chinese()) {
             (false, _) => String::new(),
             (true, true) if busy => format!(
@@ -586,7 +674,7 @@ impl crate::AgentHudCore {
         };
         let detail = if chinese() {
             format!(
-                "从{}发到{to_name}的会话「{to_title}」：\n\n{text}{queued_note}",
+                "从{}发到{to_name}的会话「{to_title}」：\n\n{text}{queued_note}{caution_note}",
                 match &from_title {
                     Some(title) => format!("{from_name}的会话「{title}」"),
                     None => from_name.clone(),
@@ -594,7 +682,7 @@ impl crate::AgentHudCore {
             )
         } else {
             format!(
-                "From {} to {to_name}'s session \"{to_title}\":\n\n{text}{queued_note}",
+                "From {} to {to_name}'s session \"{to_title}\":\n\n{text}{queued_note}{caution_note}",
                 match &from_title {
                     Some(title) => format!("{from_name}'s session \"{title}\""),
                     None => from_name.clone(),
@@ -631,14 +719,10 @@ impl crate::AgentHudCore {
             "allowLabel": crate::l10n::text("发送", "Send"),
             "badge": null,
         });
-        // A Codex thread the HUD hasn't read yet (a new conversation) still
-        // names itself: the reply goes there, and is refused at that point if
-        // it is no Desktop thread after all.
-        let reply_session = if cli_waits || (from == "codex" && !command_line) {
-            from_session.clone().or_else(|| named.clone())
-        } else {
-            from_session.clone()
-        };
+        // A sender the HUD hasn't read yet (a new conversation) still names
+        // itself: the reply goes there, and is refused while it can't be
+        // reached, never sent to another conversation of that agent.
+        let reply_session = from_session.clone().or_else(|| named.clone());
         let replyable = cli_waits || from != "codex" || reply_session.is_some();
         let ticket = self
             .requests
@@ -684,9 +768,12 @@ impl crate::AgentHudCore {
             "id": id,
             "to": {"agent": to, "session": target.session, "title": target.title, "queued": target.queued},
             "note": if chinese() {
-                format!("已请用户在 HUD 上确认，确认后才会送进对方会话。{queued}{reply}")
+                format!("已请用户在 HUD 上确认，确认后才会送进对方会话。{queued}{reply}{}", caution.as_deref().unwrap_or_default())
             } else {
-                format!("The user confirms it on the HUD before it goes into that session. {queued}{reply}")
+                format!(
+                    "The user confirms it on the HUD before it goes into that session. {queued}{reply}{}",
+                    caution.map(|caution| format!(" {caution}")).unwrap_or_default()
+                )
             },
         }))
     }
@@ -723,6 +810,7 @@ impl crate::AgentHudCore {
             self.tell_waiting_sender(
                 &from,
                 raw.as_deref(),
+                Some(id),
                 crate::l10n::text(
                     "【SI Future HUD】用户在 HUD 上拒绝了这条消息，没有发出去。",
                     "[SI Future HUD] The user denied this message on the HUD; it was not sent.",
@@ -733,7 +821,7 @@ impl crate::AgentHudCore {
         let words = relayed_words(message);
         let (to, to_session) = (message.to.clone(), message.to_session.clone());
         if self.waits_on_command_line(&to, &to_session, now) {
-            self.tell_waiting_sender(&to, Some(&to_session), words);
+            self.tell_waiting_sender(&to, Some(&to_session), None, words);
             return Ok(Some(flight));
         }
         if self.session_waits(&to, &to_session, now) {
@@ -753,6 +841,8 @@ impl crate::AgentHudCore {
                 from_raw,
                 next_try: now,
                 until: now + DEFER_MS,
+                card: id.to_owned(),
+                failed: None,
             });
             return Ok(Some(flight));
         }
