@@ -30,6 +30,7 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 **Setup / 安装与配置**
 
 - **Upgrading now updates the Claude Code plugin.** Claude Code runs its own copy of the plugin, made when it installed it, and earlier versions never refreshed that copy, so their plugin fixes didn't reach Claude Code. The plugin's version now follows the app's, and on launch the HUD has Claude Code update an older copy (new sessions use it; run `/reload-plugins` in open ones). / **升级时会一并更新 Claude Code 插件。** Claude Code 运行的是它安装插件时复制的那份，之前的版本从不刷新它，所以插件脚本的修复都没到达 Claude Code。现在插件版本跟随 App 版本，启动时发现旧的就让 Claude Code 更新（新会话直接用上，已开的会话运行一次 `/reload-plugins`）。
+- A message named for a conversation that waits for the user's answer goes in once it is answered, instead of being refused (it used to be lost). / 点名发给正在等用户回答问题的对话，会等它答完再送进去，不再被拒收（以前会丢）。
 - A second message to a Codex conversation right after the first waits for the turn the first one started, instead of cutting into it. / 紧接着发给同一个 Codex 对话的第二条消息，会等第一条开启的那一轮结束，不会插进去。
 - A command-line wait keeps a reply that arrived while the Mac slept, and a stopped wait no longer hears about another card. / 命令行等待期间电脑睡着了，已到的回信不会丢；也不会收到别的卡片的通知。
 

@@ -118,7 +118,8 @@ impl AgentHudCore {
         self.sync_chengxiaobang_asks(now);
         self.sync_window_asks(now);
         // Local build: words held for a Codex thread that was mid-turn.
-        self.deliver_deferred_messages(now);
+        // Lapsed waits hand on their words, then held words are tried.
+        self.forget_unanswered_messages(now);
         // The snapshot, the session list's pages and the session details of a
         // pass share one fingerprint: it holds while the logs, the requests and
         // the hook facts (their deadlines included) stay as they were, for up

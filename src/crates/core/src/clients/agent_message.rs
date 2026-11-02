@@ -49,6 +49,8 @@ struct Deferred {
 
 /// Local build: a message SuperRoot sent without a click.
 struct AutoSent {
+    /// Whether it counts toward the limit (not once the user resumed it).
+    counted: bool,
     from: String,
     session: Option<String>,
     to: String,
@@ -254,6 +256,12 @@ impl crate::AgentHudCore {
                 );
                 continue;
             }
+            // A command line waiting there (again) takes the words itself.
+            if self.waits_on_command_line(&item.to, &item.to_session, now) {
+                let (to, session) = (item.to.clone(), item.to_session.clone());
+                self.tell_waiting_sender(&to, Some(&session), None, item.words);
+                continue;
+            }
             if item.next_try > now
                 || self.session_running(&item.to, &item.to_session, now)
                 || self.session_waits(&item.to, &item.to_session, now)
@@ -390,9 +398,15 @@ impl crate::AgentHudCore {
         });
         let mut first: Option<Unreachable> = None;
         let mut waiting = false;
+        // A session that waits for the user's answer takes the words once it
+        // is answered: chosen when no other one can take them now.
+        let mut held: Option<(String, String)> = None;
         for (id, title, _) in candidates {
             if self.session_waits(source, &id, now) {
                 waiting = true;
+                if held.is_none() && replies.relays_to(source, &id).is_ok() {
+                    held = Some((id, title));
+                }
                 continue;
             }
             match replies.relays_to(source, &id) {
@@ -412,6 +426,18 @@ impl crate::AgentHudCore {
                     first.get_or_insert(why);
                 }
             }
+        }
+        if let Some((id, title)) = held {
+            let title = if title.trim().is_empty() {
+                name(source).to_owned()
+            } else {
+                title
+            };
+            return Ok(Target {
+                queued: live.is_some() && !running(&id),
+                session: id,
+                title,
+            });
         }
         // A session that holds the user's question is the plainest reason.
         Err(if waiting {
@@ -484,7 +510,7 @@ impl crate::AgentHudCore {
 
     /// Drops messages whose card went away unanswered (expired or cleared),
     /// telling a sender that waits on the command line.
-    fn forget_unanswered_messages(&mut self, now: i64) {
+    pub(crate) fn forget_unanswered_messages(&mut self, now: i64) {
         self.requests.expire(now);
         let gone = self
             .agent_messages
@@ -572,8 +598,25 @@ impl crate::AgentHudCore {
                 )
             })?;
         let wait = params["waitMs"].as_i64().unwrap_or(0).clamp(0, MAX_WAIT_MS);
-        self.forget_unanswered_messages(now);
         let key = (from.to_owned(), session);
+        // A command line polling (again, back from a sleep) holds its wait
+        // before the lapsed ones are cleared away, so words held for its
+        // session meanwhile come to it now.
+        if wait > 0 {
+            let waiter = self
+                .agent_messages
+                .waiters
+                .entry(key.clone())
+                .or_insert_with(|| Waiter {
+                    until: 0,
+                    words: Vec::new(),
+                    card: None,
+                });
+            waiter.until = now
+                .saturating_add(wait.min(WAITER_LEASE_MS))
+                .saturating_add(5_000);
+        }
+        self.forget_unanswered_messages(now);
         // A notice about another card than the one waited on isn't its answer.
         let mine = |card: &Option<String>, waits_on: &Option<String>| match (card, waits_on) {
             (Some(card), Some(waits_on)) => card == waits_on,
@@ -796,6 +839,13 @@ impl crate::AgentHudCore {
             .as_ref()
             .map(|caution| format!("\n\n{caution}"))
             .unwrap_or_default();
+        let held = !self.waits_on_command_line(to, &target.session, now)
+            && self.session_waits(to, &target.session, now);
+        let held_note = match (held, chinese()) {
+            (false, _) => String::new(),
+            (true, true) => "\n\n（对方会话正在等用户回答问题：点发送后，消息会等它答完再送进去，半小时内有效。）".into(),
+            (true, false) => "\n\n(That session waits for the user's answer: once sent, the message goes in after it is answered, within half an hour.)".into(),
+        };
         // Words for a command line waiting there go to it at once.
         let busy = to == "codex"
             && !self.waits_on_command_line(to, &target.session, now)
@@ -827,7 +877,7 @@ impl crate::AgentHudCore {
             .agent_messages
             .auto_sent
             .iter()
-            .filter(|sent| sent.from == from && sent.session == named)
+            .filter(|sent| sent.counted && sent.from == from && sent.session == named)
             .count();
         // Past the limit the sender waits for the user's click from then on,
         // not only until the window slides: two agents answering each other
@@ -855,7 +905,7 @@ impl crate::AgentHudCore {
         };
         let detail = if chinese() {
             format!(
-                "从{}发到{to_name}的会话「{to_title}」：\n\n{text}{queued_note}{caution_note}{auto_note}",
+                "从{}发到{to_name}的会话「{to_title}」：\n\n{text}{queued_note}{held_note}{caution_note}{auto_note}",
                 match &from_title {
                     Some(title) => format!("{from_name}的会话「{title}」"),
                     None => from_name.clone(),
@@ -863,7 +913,7 @@ impl crate::AgentHudCore {
             )
         } else {
             format!(
-                "From {} to {to_name}'s session \"{to_title}\":\n\n{text}{queued_note}{caution_note}{auto_note}",
+                "From {} to {to_name}'s session \"{to_title}\":\n\n{text}{queued_note}{held_note}{caution_note}{auto_note}",
                 match &from_title {
                     Some(title) => format!("{from_name}'s session \"{title}\""),
                     None => from_name.clone(),
@@ -953,6 +1003,7 @@ impl crate::AgentHudCore {
                     let _ = self.requests.answer(&id, &decision, now);
                     self.settle_agent_message(&id);
                     self.agent_messages.auto_sent.push(AutoSent {
+                        counted: true,
                         from: from.to_owned(),
                         session: sender,
                         to: to.to_owned(),
@@ -961,8 +1012,10 @@ impl crate::AgentHudCore {
                         id: id.clone(),
                         at: now,
                     });
-                    let busy_note = match (busy, chinese()) {
+                    let busy_note = match (busy || held, chinese()) {
                         (false, _) => "",
+                        (true, true) if held => "对方在等用户回答问题，消息会等它答完再送进去。",
+                        (true, false) if held => "The receiver waits for the user's answer; the words go in once it is answered. ",
                         (true, true) => "对方正在跑一轮，消息会等这一轮结束再送进去。",
                         (true, false) => {
                             "The receiver is mid-turn; the words go in when that turn ends. "
@@ -1055,23 +1108,23 @@ impl crate::AgentHudCore {
         if !message.auto {
             let sender = (message.from.clone(), message.from_raw.clone());
             if self.agent_messages.auto_paused.remove(&sender) {
-                self.agent_messages
-                    .auto_sent
-                    .retain(|sent| sent.from != sender.0 || sent.session != sender.1);
+                for sent in &mut self.agent_messages.auto_sent {
+                    if sent.from == sender.0 && sent.session == sender.1 {
+                        sent.counted = false;
+                    }
+                }
             }
         }
         if self.waits_on_command_line(&to, &to_session, now) {
             self.tell_waiting_sender(&to, Some(&to_session), None, words);
             return Ok(Some(flight));
         }
-        if self.session_waits(&to, &to_session, now) {
-            return Err(crate::l10n::text(
-                "对方会话正在等你回答问题，先回答它，再发送这条消息。",
-                "That session waits for your answer; answer it, then send this message.",
-            ));
-        }
-        // Codex refuses words in the middle of a turn: they wait for its end.
-        if to == "codex" && self.session_running(&to, &to_session, now) {
+        // A session waiting for the user's answer takes the words once it is
+        // answered; Codex refuses words in the middle of a turn: either way
+        // they wait (deliver_deferred_messages).
+        if self.session_waits(&to, &to_session, now)
+            || (to == "codex" && self.session_running(&to, &to_session, now))
+        {
             let (from, from_raw) = (message.from.clone(), message.from_raw.clone());
             self.agent_messages.deferred.push(Deferred {
                 to,

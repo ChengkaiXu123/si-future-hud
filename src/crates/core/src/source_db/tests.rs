@@ -1544,9 +1544,16 @@ fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
         )
         .unwrap();
     assert_eq!(
-        send(&mut backend, "resumed".into(), verified)["status"],
+        send(&mut backend, "resumed".into(), verified.clone())["status"],
         "sent"
     );
+    // Resuming starts the count afresh but keeps the retry history.
+    let delivered = fake.0.lock().unwrap().len();
+    assert_eq!(
+        send(&mut backend, "second".into(), verified)["id"],
+        sent["id"]
+    );
+    assert_eq!(fake.0.lock().unwrap().len(), delivered);
 }
 
 #[test]
@@ -1719,4 +1726,164 @@ fn a_second_message_right_after_the_first_waits_for_the_turn_it_started() {
     let sent = fake.0.lock().unwrap().clone();
     assert_eq!(sent.len(), 2);
     assert!(sent[1].contains("second"));
+}
+
+#[test]
+fn words_for_a_session_waiting_on_the_user_go_in_once_it_is_answered() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<String>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, _: &str, words: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push(words.into());
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("chengxiaobang.sqlite");
+    let db = Connection::open(&path).unwrap();
+    let iso = |ago_ms: i64| {
+        chrono::DateTime::<chrono::Utc>::from_timestamp_millis(
+            chrono::Utc::now().timestamp_millis() - ago_ms,
+        )
+        .unwrap()
+        .to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+    };
+    db.execute_batch(
+        "CREATE TABLE sessions(id TEXT,title TEXT);
+         CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
+         CREATE TABLE runs(id TEXT,session_id TEXT,status TEXT,created_at TEXT,updated_at TEXT);
+         CREATE TABLE tool_calls(id TEXT,run_id TEXT,name TEXT,status TEXT,args_json TEXT,started_at TEXT,finished_at TEXT);
+         CREATE TABLE messages(id TEXT,session_id TEXT,role TEXT,kind TEXT,content TEXT,created_at TEXT);
+         INSERT INTO sessions VALUES('s1','Plan the trip');",
+    )
+    .unwrap();
+    db.execute(
+        "INSERT INTO usage_cost_entries VALUES('u1','s1','auto(free)',100,10,40,?1)",
+        [iso(60_000)],
+    )
+    .unwrap();
+    db.execute(
+        "INSERT INTO runs VALUES('r1','s1','running',?1,?2)",
+        [iso(61_000), iso(30_000)],
+    )
+    .unwrap();
+    db.execute(
+        "INSERT INTO tool_calls VALUES('c1','r1','AskUserQuestion','pending_approval','{\"questions\":[{\"question\":\"Which day?\",\"options\":[{\"label\":\"Mon\"}]}]}',?1,NULL)",
+        [iso(30_000)],
+    )
+    .unwrap();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path: path.clone(),
+            provider: "chengxiaobang",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+    // A reply named for s1 while s1 waits on the user: no longer refused.
+    let reply = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s1","text":"Here are the dates.","caller":{"client":"claude","sessionId":"c1"}}),
+        )
+        .unwrap();
+    assert_eq!(reply["to"]["session"], "chengxiaobang:s1");
+    backend
+        .request(
+            "answer_request",
+            json!({"id":reply["id"],"decision":{"kind":"allow"}}),
+        )
+        .unwrap();
+    assert!(
+        fake.0.lock().unwrap().is_empty(),
+        "nothing cuts into the question"
+    );
+    // The user answers; the next pass sends the words in.
+    db.execute_batch(
+        "UPDATE tool_calls SET status='completed'; UPDATE runs SET status='completed';",
+    )
+    .unwrap();
+    refresh(&mut backend);
+    let sent = fake.0.lock().unwrap().clone();
+    assert_eq!(sent.len(), 1);
+    assert!(sent[0].contains("Here are the dates."));
+}
+
+#[test]
+fn a_wait_back_from_a_pause_takes_the_reply_that_came_meanwhile() {
+    use std::sync::{Arc, Mutex};
+    struct Fake(Mutex<Vec<String>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, _: &str, words: &str) -> Result<(), String> {
+            self.0.lock().unwrap().push(words.into());
+            Ok(())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let sessions = root.path().join("sessions");
+    std::fs::create_dir_all(&sessions).unwrap();
+    let thread = "01aaaaaa-0000-7000-8000-0000000000dd";
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    // A Codex Desktop thread mid-turn: its turn runs `send --wait`.
+    let text = [
+        json!({"timestamp":at,"type":"session_meta","payload":{"id":thread,"timestamp":at,"cwd":"/tmp","originator":"Codex Desktop","cli_version":"0.1.0","source":"vscode"}}),
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"user_message","message":"ask Claude"}}),
+        json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_started"}}),
+    ]
+    .iter()
+    .map(|value| value.to_string() + "\n")
+    .collect::<String>();
+    std::fs::write(sessions.join(format!("rollout-{thread}.jsonl")), text).unwrap();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path: sessions,
+            provider: "codex",
+        }],
+        root.path().join("hud"),
+    );
+    let fake = Arc::new(Fake(Mutex::new(vec![])));
+    backend.set_session_replies(Some(fake.clone()));
+    refresh(&mut backend);
+    let now = chrono::Utc::now().timestamp_millis();
+    let waiting = json!({"client":"codex","sessionId":thread,"via":"cli","waits":true});
+    backend
+        .agent_inbox(&json!({"caller":waiting,"waitMs":600_000}), now)
+        .unwrap();
+    let reply = backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","session":thread,"text":"Two options.","caller":{"client":"claude","sessionId":"c1"}}),
+        )
+        .unwrap();
+    backend
+        .request(
+            "answer_request",
+            json!({"id":reply["id"],"decision":{"kind":"allow"}}),
+        )
+        .unwrap();
+    // The Mac sleeps; meanwhile another request clears lapsed waits away.
+    backend
+        .agent_inbox(
+            &json!({"caller":{"client":"claude","sessionId":"other"},"waitMs":0}),
+            now + 16_000,
+        )
+        .unwrap();
+    // Back, the command line polls again: the reply is there, not stuck
+    // behind the turn that waits for it.
+    let inbox = backend
+        .agent_inbox(&json!({"caller":waiting,"waitMs":600_000}), now + 17_000)
+        .unwrap();
+    assert!(inbox["messages"][0]
+        .as_str()
+        .unwrap()
+        .contains("Two options."));
+    assert!(fake.0.lock().unwrap().is_empty());
 }
