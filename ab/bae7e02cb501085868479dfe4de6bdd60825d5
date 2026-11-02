@@ -1,0 +1,35 @@
+src/crates/host/src/cli/send.rs
+  s_d48b3b8d3c26d0::t_80cfdfa4bf05f2 110
+src/crates/core/src/source_db/tests.rs
+  s_d48b3b8d3c26d0::t_01a54999a47422 1548-1549
+  s_d48b3b8d3c26d0::t_930b480ad0b740 1512,1545,1547,1550-1553,1619,1627,1951-1976,1980,1985-2017
+  s_d48b3b8d3c26d0::t_639defb4ff31e4 1977-1979,1981-1984
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_337b84e41b7a0c 9,26-28
+src/crates/core/src/clients/agent_message.rs
+  s_d48b3b8d3c26d0::t_63535fa1b06918 48-49,78,259-273,275
+  s_d48b3b8d3c26d0::t_80cfdfa4bf05f2 584,1115-1116,1127
+src/packages/app/src/App.tsx
+  s_d48b3b8d3c26d0::t_fb1ebffbb1bf9e 122,166
+src/packages/app/src/settings/GetStartedPane.tsx
+  s_d48b3b8d3c26d0::t_b20712b0bd9955 309-310
+src/crates/hud/src/presentation/style_rules.rs
+  s_d48b3b8d3c26d0::t_639defb4ff31e4 730-738
+  s_d48b3b8d3c26d0::t_63535fa1b06918 359-364
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "abbae7e02cb501085868479dfe4de6bdd60825d5",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
