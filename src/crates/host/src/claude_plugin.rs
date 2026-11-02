@@ -44,10 +44,16 @@ impl ClaudePlugin {
 
     /// The HUD's way to answer Claude's questions in a session running the plugin.
     pub(crate) fn replies(&self) -> Arc<dyn SessionReplies> {
-        let claude_config = super::mcp_clients::home()
-            .map(|home| plugin::claude_config_directory(&home))
+        let home = super::mcp_clients::home().ok();
+        let claude_config = home
+            .as_deref()
+            .map(plugin::claude_config_directory)
             .unwrap_or_default();
-        Arc::new(ClaudeReplies::new(self.channel.clone(), claude_config))
+        let command = home.and_then(|home| {
+            let command = super::mcp_clients::executable("claudeCode", &home)?;
+            Some((command, super::mcp_clients::search_path(&home)?))
+        });
+        Arc::new(ClaudeReplies::new(self.channel.clone(), claude_config).with_command(command))
     }
 }
 
@@ -61,11 +67,18 @@ fn status(
     claude_config: &Path,
 ) -> Value {
     let installed = plugin::installed(claude_config);
+    // Local build: a Claude Code too old to run the plugin, by its version
+    // (run as the HUD runs it); the row weighs it against sessions running it.
+    let version = executable.and_then(|executable| {
+        let home = super::mcp_clients::home().ok()?;
+        plugin::command_version(executable, &super::mcp_clients::search_path(&home)?)
+    });
     json!({
         "found": executable.is_some(),
         "installed": installed,
         "elsewhere": installed && !plugin::installed_from(claude_config, folder),
         "sessions": channel.loaded(SystemTime::now()).len(),
+        "tooOld": version.as_deref().filter(|version| plugin::without_mods(version)),
     })
 }
 
@@ -295,7 +308,8 @@ mod tests {
 
     /// Stands in for Claude Code: `plugin install`, `plugin uninstall` and
     /// `plugin marketplace remove` change its records of installed plugins
-    /// and of marketplaces as the real one does, and every call is logged.
+    /// and of marketplaces as the real one does, and every call is logged
+    /// (all but `--version`, which only reads).
     fn fake_claude(root: &Path, config: &Path) -> PathBuf {
         use std::os::unix::fs::PermissionsExt;
         let record = config.join("plugins/installed_plugins.json");
@@ -304,7 +318,7 @@ mod tests {
         fs::write(
             &claude,
             format!(
-                "#!/bin/sh\necho \"$@\" >> '{log}'\ncase \"$1 $2 $3\" in\n\"plugin install agent-hud\") printf '%s' '{on}' > '{record}'; printf '{market}' \"$5\" \"$5\" > '{markets}' ;;\n\"plugin uninstall agent-hud@agent-hud\") printf '%s' '{off}' > '{record}' ;;\n\"plugin marketplace remove\") printf '%s' '{none}' > '{markets}' ;;\nesac\n",
+                "#!/bin/sh\n[ \"$1\" = --version ] && echo '2.1.311 (Claude Code)' && exit 0\necho \"$@\" >> '{log}'\ncase \"$1 $2 $3\" in\n\"plugin install agent-hud\") printf '%s' '{on}' > '{record}'; printf '{market}' \"$5\" \"$5\" > '{markets}' ;;\n\"plugin uninstall agent-hud@agent-hud\") printf '%s' '{off}' > '{record}' ;;\n\"plugin marketplace remove\") printf '%s' '{none}' > '{markets}' ;;\nesac\n",
                 log = root.join("calls").display(),
                 record = record.display(),
                 markets = config.join("plugins/known_marketplaces.json").display(),
@@ -358,7 +372,7 @@ mod tests {
 
         assert_eq!(
             status(&channel, &folder, None, &config),
-            json!({"found":false,"installed":false,"elsewhere":false,"sessions":0})
+            json!({"found":false,"installed":false,"elsewhere":false,"sessions":0,"tooOld":null})
         );
         assert!(
             install(&channel, &folder, None, &config, root).is_err(),
@@ -386,13 +400,13 @@ mod tests {
         .unwrap();
         assert_eq!(
             status(&channel, &folder, Some(&claude), &config),
-            json!({"found":true,"installed":true,"elsewhere":false,"sessions":1})
+            json!({"found":true,"installed":true,"elsewhere":false,"sessions":1,"tooOld":null})
         );
 
         remove(&channel, Some(&claude), &config, root).unwrap();
         assert_eq!(
             status(&channel, &folder, Some(&claude), &config),
-            json!({"found":true,"installed":false,"elsewhere":false,"sessions":0})
+            json!({"found":true,"installed":false,"elsewhere":false,"sessions":0,"tooOld":null})
         );
         assert!(!channel.directory().join("sessions").exists());
         let calls = fs::read_to_string(root.join("calls")).unwrap();
@@ -414,7 +428,7 @@ mod tests {
         listed_from(&config, &root.join("swift-plugin"));
         assert_eq!(
             status(&channel, &folder, Some(&claude), &config),
-            json!({"found":true,"installed":true,"elsewhere":true,"sessions":0})
+            json!({"found":true,"installed":true,"elsewhere":true,"sessions":0,"tooOld":null})
         );
 
         install(&channel, &folder, Some(&claude), &config, root).unwrap();

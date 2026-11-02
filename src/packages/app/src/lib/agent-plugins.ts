@@ -64,7 +64,12 @@ export interface PluginInput {
   running: "install" | "remove" | null;
   /** Installed from this page since it opened. */
   justInstalled: boolean;
+  /** Local build: the client's version when it is too old to run the plugin. */
+  tooOld?: string | null;
 }
+
+/** Claude Code runs a plugin's hooks module (Claude Mods) from this version on. */
+export const claudeModsSince = "2.1.287";
 
 /** A plugin a client loads per session, such as Agent HUD's Claude Code plugin. */
 export function pluginRow(
@@ -84,6 +89,34 @@ export function pluginRow(
         : null;
   if (input.installed === null && !busy)
     return { ...base, tone: "off", status: checking, action: null };
+  // Local build: an old client never runs it, unless another install (the
+  // desktop app's) already does: sessions running it outweigh the command.
+  if (input.tooOld && input.sessions === 0 && !busy)
+    return {
+      ...base,
+      tone: "off",
+      status: [
+        `${client} ${input.tooOld} is too old`,
+        `${client} ${input.tooOld} 太旧`,
+      ],
+      action: null,
+      menu: input.installed
+        ? [
+            {
+              id: "remove",
+              label: ["Remove plugin", "移除插件"],
+              destructive: true,
+            },
+          ]
+        : [],
+      next: {
+        words: [
+          `The plugin needs ${client} ${claudeModsSince} or newer. Update it (or update the desktop app), then start a new session.`,
+          `插件要 ${client} ${claudeModsSince} 或更新的版本。先升级（用桌面 App 的，把 App 更新到最新），再新开一个会话。`,
+        ],
+        command: "claude update",
+      },
+    };
   if (!input.installed)
     return {
       ...base,
@@ -285,6 +318,8 @@ export function chengxiaobangPluginRow(input: {
   stopped?: boolean;
   /** Whether 程小帮 itself runs now. */
   appRunning?: boolean;
+  /** 程小帮 backends running at once; more than one is an instance left over. */
+  backends?: number;
 }): RowState {
   const base: Pick<RowState, "menu" | "next"> = { menu: [], next: null };
   const busy: Words | null = input.running
@@ -334,6 +369,20 @@ export function chengxiaobangPluginRow(input: {
         words: [
           "程小帮 stopped loading SI Future HUD: load it again in 程小帮 → Plugins.",
           "程小帮停止加载了 SI Future HUD：在程小帮 → 插件里重新加载它。",
+        ],
+      },
+    };
+  if ((input.backends ?? 0) > 1)
+    return {
+      ...base,
+      tone: "attention",
+      status: ["An earlier 程小帮 still runs", "旧的程小帮没退干净"],
+      action: null,
+      busy,
+      next: {
+        words: [
+          `${input.backends} 程小帮 backends run at once, so conversations opened now can't take messages. Quit 程小帮 (⌘Q), end the remaining 程小帮 and bun processes in Activity Monitor (or restart the Mac), then open 程小帮 again.`,
+          `程小帮有 ${input.backends} 个后台同时在运行，新打开的对话收不到消息。彻底退出程小帮（⌘Q），在「活动监视器」里结束剩下的程小帮和 bun 进程（或重启电脑），再打开程小帮。`,
         ],
       },
     };

@@ -114,6 +114,8 @@ export interface ClaudePluginStatus {
   found: boolean;
   installed: boolean;
   sessions: number;
+  /** Local build: the `claude` version when it is too old to run the plugin. */
+  tooOld?: string | null;
 }
 export type ClaudePluginService = (
   action: "status" | "install" | "remove",
@@ -559,6 +561,7 @@ function ClaudePluginRow({
     clientFound: status ? status.found : context.clientFound,
     running,
     justInstalled,
+    tooOld: status?.tooOld ?? null,
   });
   const answers = snapshot.settings.claudeAnswers !== false;
   return (
@@ -666,6 +669,8 @@ interface ChengxiaobangStatus {
   enabled?: boolean | null;
   stopped?: boolean;
   running?: boolean;
+  /** 程小帮 backends running at once; more than one is an instance left over. */
+  backends?: number;
 }
 const nativeChengxiaobang = async (
   action: "status" | "install" | "open",
@@ -758,6 +763,7 @@ function ChengxiaobangCard({
           enabled: status?.enabled,
           stopped: status?.stopped,
           appRunning: status?.running,
+          backends: status?.backends,
         })}
         error={error}
         zh={zh}

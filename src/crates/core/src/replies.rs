@@ -36,4 +36,11 @@ pub trait SessionReplies: Send + Sync {
     fn relays_to(&self, source: &str, session: &str) -> Result<(), Unreachable> {
         self.reaches(source, session)
     }
+    /// Local build: when the user last looked at each session of `source`, in
+    /// milliseconds since the epoch and as the HUD names them, for clients
+    /// that record it. A message that names no session goes to the one looked
+    /// at last, not to one a scheduled task has just run in.
+    fn viewed_at(&self, _source: &str) -> Option<std::collections::HashMap<String, i64>> {
+        None
+    }
 }

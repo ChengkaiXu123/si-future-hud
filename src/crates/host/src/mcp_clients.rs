@@ -42,6 +42,10 @@ fn paths(home: &std::path::Path) -> Vec<PathBuf> {
     }
     dirs
 }
+/// The PATH a client's command line runs with: the usual install folders first.
+pub(crate) fn search_path(home: &std::path::Path) -> Option<std::ffi::OsString> {
+    std::env::join_paths(paths(home)).ok()
+}
 pub(crate) fn executable(client: &str, home: &std::path::Path) -> Option<PathBuf> {
     let command = client_command(client).ok()?;
     super::system::cli_candidates(home, command, paths(home))
@@ -283,7 +287,7 @@ pub(crate) fn run_client(
             .stdin(Stdio::null())
             .stdout(output.try_clone().map_err(|e| e.to_string())?)
             .stderr(output);
-        if let Ok(path) = std::env::join_paths(paths(home)) {
+        if let Some(path) = search_path(home) {
             command.env("PATH", path);
         }
         let mut child = command.spawn().map_err(|e| e.to_string())?;

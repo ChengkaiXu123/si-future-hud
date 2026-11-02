@@ -1093,3 +1093,137 @@ fn words_for_a_codex_thread_mid_turn_wait_for_the_turn_to_end() {
         .unwrap();
     assert_eq!(first["id"], second["id"]);
 }
+
+#[test]
+fn a_message_naming_no_session_goes_to_the_one_the_user_looked_at_last() {
+    use std::collections::HashMap;
+    use std::sync::Arc;
+    // A scheduled task ran in one thread a minute ago; the user last read the other.
+    struct Fake(Option<HashMap<String, i64>>);
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, _: &str, _: &str) -> Result<(), String> {
+            Ok(())
+        }
+        fn viewed_at(&self, _: &str) -> Option<HashMap<String, i64>> {
+            self.0.clone()
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let sessions = root.path().join("sessions");
+    std::fs::create_dir_all(&sessions).unwrap();
+    let scheduled = "01aaaaaa-0000-7000-8000-0000000000a1";
+    let read = "01aaaaaa-0000-7000-8000-0000000000a2";
+    let now = chrono::Utc::now();
+    for (thread, ago) in [(scheduled, 60), (read, 3600)] {
+        let at = (now - chrono::Duration::seconds(ago))
+            .to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+        let text = [
+            json!({"timestamp":at,"type":"session_meta","payload":{"id":thread,"timestamp":at,"cwd":"/tmp","originator":"Codex Desktop","cli_version":"0.1.0","source":"vscode"}}),
+            json!({"timestamp":at,"type":"event_msg","payload":{"type":"user_message","message":"hello"}}),
+            json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_started"}}),
+            json!({"timestamp":at,"type":"event_msg","payload":{"type":"task_complete"}}),
+        ]
+        .iter()
+        .map(|value| value.to_string() + "\n")
+        .collect::<String>();
+        std::fs::write(sessions.join(format!("rollout-{thread}.jsonl")), text).unwrap();
+    }
+    let target = |viewed: Option<HashMap<String, i64>>| {
+        let mut backend = AgentHudCore::new(
+            vec![SourceRoot {
+                path: sessions.clone(),
+                provider: "codex",
+            }],
+            root.path().join(format!("hud-{}", viewed.is_some())),
+        );
+        backend.set_session_replies(Some(Arc::new(Fake(viewed))));
+        refresh(&mut backend);
+        let proposed = backend
+            .request(
+                "agent_message",
+                json!({"to":"codex","text":"hi","caller":{"client":"claude","sessionId":"c1"}}),
+            )
+            .unwrap();
+        proposed["to"]["session"].as_str().unwrap().to_owned()
+    };
+    // Without a record of viewing, the most recently updated one, as before.
+    assert_eq!(target(None), scheduled);
+    let viewed = HashMap::from([
+        (read.to_owned(), now.timestamp_millis() - 120_000),
+        (scheduled.to_owned(), now.timestamp_millis() - 86_400_000),
+    ]);
+    assert_eq!(target(Some(viewed)), read);
+}
+
+#[test]
+fn the_candidate_cap_never_cuts_a_session_running_the_carrier() {
+    use std::collections::{HashMap, HashSet};
+    use std::sync::Arc;
+    // Forty threads the user read lately can't take words; the one that can
+    // runs the carrier now, though nobody has looked at it.
+    struct Fake {
+        live: String,
+        viewed: HashMap<String, i64>,
+    }
+    impl crate::replies::SessionReplies for Fake {
+        fn reaches(&self, _: &str, session: &str) -> Result<(), crate::replies::Unreachable> {
+            if session == self.live {
+                Ok(())
+            } else {
+                Err(crate::replies::Unreachable::new("not loaded".into(), None))
+            }
+        }
+        fn reply(&self, _: &str, _: &str, _: &str) -> Result<(), String> {
+            Ok(())
+        }
+        fn live_sessions(&self, _: &str) -> Option<HashSet<String>> {
+            Some(HashSet::from([self.live.clone()]))
+        }
+        fn viewed_at(&self, _: &str) -> Option<HashMap<String, i64>> {
+            Some(self.viewed.clone())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let sessions = root.path().join("sessions");
+    std::fs::create_dir_all(&sessions).unwrap();
+    let now = chrono::Utc::now();
+    let at = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    let thread = |n: u32| format!("01aaaaaa-0000-7000-8000-{n:012}");
+    for n in 0..41 {
+        let id = thread(n);
+        let text = [
+            json!({"timestamp":at,"type":"session_meta","payload":{"id":id,"timestamp":at,"cwd":"/tmp","originator":"Codex Desktop","cli_version":"0.1.0","source":"vscode"}}),
+            json!({"timestamp":at,"type":"event_msg","payload":{"type":"user_message","message":"hello"}}),
+        ]
+        .iter()
+        .map(|value| value.to_string() + "\n")
+        .collect::<String>();
+        std::fs::write(sessions.join(format!("rollout-{id}.jsonl")), text).unwrap();
+    }
+    let live = thread(40);
+    let viewed = (0..40)
+        .map(|n| (thread(n), now.timestamp_millis() - i64::from(n)))
+        .collect();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path: sessions,
+            provider: "codex",
+        }],
+        root.path().join("hud"),
+    );
+    backend.set_session_replies(Some(Arc::new(Fake {
+        live: live.clone(),
+        viewed,
+    })));
+    refresh(&mut backend);
+    let proposed = backend
+        .request(
+            "agent_message",
+            json!({"to":"codex","text":"hi","caller":{"client":"claude","sessionId":"c1"}}),
+        )
+        .unwrap();
+    assert_eq!(proposed["to"]["session"], live.as_str());
+}

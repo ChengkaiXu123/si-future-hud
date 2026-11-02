@@ -7,7 +7,7 @@ use agent_hud_core::l10n;
 use agent_hud_core::replies::{AnswerFix, SessionReplies, Unreachable};
 use serde_json::json;
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     fs,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
@@ -42,6 +42,9 @@ pub struct PluginState {
     pub stopped: bool,
     /// 程小帮 runs now.
     pub running: bool,
+    /// Local build: 程小帮 backends running at once (its conversations and
+    /// plugins run in one); more than one is an instance left over.
+    pub backends: u8,
 }
 
 /// 程小帮's own record of its plugins (read-only): whether ours is enabled,
@@ -66,6 +69,40 @@ fn plugin_settings(home: &Path) -> Option<(bool, bool)> {
         .any(|name| name.as_str() == Some(PLUGIN_NAME));
     let stopped = value("mods.stopped").is_some_and(|stopped| stopped.get(PLUGIN_NAME).is_some());
     Some((enabled, stopped))
+}
+
+/// When the user last opened each of 程小帮's conversations, from its own
+/// record (read-only), in milliseconds since the epoch.
+fn last_viewed(home: &Path) -> Option<HashMap<String, i64>> {
+    let rows = agent_hud_agents::sqlite::rows(
+        &home.join("data/chengxiaobang.sqlite"),
+        "SELECT id, last_viewed_at FROM sessions WHERE last_viewed_at IS NOT NULL AND deleted_at IS NULL AND archived_at IS NULL",
+        &[],
+        Duration::from_millis(250),
+    )
+    .ok()?;
+    Some(
+        rows.iter()
+            .filter_map(|row| {
+                let id = row.first()?.as_str()?;
+                let at = chrono::DateTime::parse_from_rfc3339(row.get(1)?.as_str()?).ok()?;
+                Some((format!("chengxiaobang:{id}"), at.timestamp_millis()))
+            })
+            .collect(),
+    )
+}
+
+/// How many 程小帮 backends run now: one per running app, unless an earlier
+/// instance's was left behind.
+fn chengxiaobang_backends() -> u8 {
+    std::process::Command::new("/usr/bin/pgrep")
+        .args(["-f", "/程小帮.app/Contents/Resources/backend/main.js"])
+        .output()
+        .map(|output| {
+            let found = String::from_utf8_lossy(&output.stdout).lines().count();
+            u8::try_from(found).unwrap_or(u8::MAX)
+        })
+        .unwrap_or(0)
 }
 
 /// Whether 程小帮's app runs now.
@@ -106,6 +143,7 @@ impl ChengxiaobangPlugin {
             enabled: settings.map(|(enabled, _)| enabled),
             stopped: settings.is_some_and(|(_, stopped)| stopped),
             running: found && chengxiaobang_running(),
+            backends: if found { chengxiaobang_backends() } else { 0 },
         }
     }
 
@@ -314,6 +352,16 @@ impl ChengxiaobangReplies {
                 None,
             );
         }
+        if state.backends > 1 {
+            return Unreachable::new(
+                if l10n::chinese() {
+                    format!("程小帮有 {} 个后台同时在运行（上一次的程小帮没退干净），新打开的对话收不到消息。彻底退出程小帮（⌘Q），在「活动监视器」里结束剩下的程小帮和 bun 进程（或重启电脑），再打开程小帮、点开要收消息的对话。", state.backends)
+                } else {
+                    format!("{} 程小帮 backends are running at once (an earlier 程小帮 didn't quit fully), so conversations opened now can't take messages. Quit 程小帮 (⌘Q), end the remaining 程小帮 and bun processes in Activity Monitor (or restart the Mac), then open 程小帮 and the conversation that should take the message.", state.backends)
+                },
+                None,
+            );
+        }
         if self.channel().loaded(SystemTime::now()).is_empty() {
             return Unreachable::new(
                 l10n::text(
@@ -353,6 +401,9 @@ impl SessionReplies for ChengxiaobangReplies {
             return Ok(());
         }
         self.reaches(source, session)
+    }
+    fn viewed_at(&self, _source: &str) -> Option<HashMap<String, i64>> {
+        last_viewed(self.plugin.home()?)
     }
     fn live_sessions(&self, _source: &str) -> Option<HashSet<String>> {
         Some(
@@ -436,6 +487,9 @@ impl SessionReplies for RepliesBySource {
     fn live_sessions(&self, source: &str) -> Option<HashSet<String>> {
         self.carrier(source)?.live_sessions(source)
     }
+    fn viewed_at(&self, source: &str) -> Option<HashMap<String, i64>> {
+        self.carrier(source)?.viewed_at(source)
+    }
     fn relays_to(&self, source: &str, session: &str) -> Result<(), Unreachable> {
         match self.carrier(source) {
             Some(replies) => replies.relays_to(source, session),
@@ -456,6 +510,31 @@ impl SessionReplies for RepliesBySource {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn reads_when_the_user_last_opened_each_conversation() {
+        let home = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(home.path().join("data")).unwrap();
+        let db = rusqlite::Connection::open(home.path().join("data/chengxiaobang.sqlite")).unwrap();
+        db.execute_batch(
+            "CREATE TABLE sessions (id text primary key, last_viewed_at text, deleted_at text, archived_at text);
+             INSERT INTO sessions VALUES ('s_read', '2026-11-02T06:37:47.269Z', NULL, NULL);
+             INSERT INTO sessions VALUES ('s_task', NULL, NULL, NULL);
+             INSERT INTO sessions VALUES ('s_gone', '2026-11-02T07:00:00.000Z', '2026-11-02T07:01:00.000Z', NULL);",
+        )
+        .unwrap();
+        let viewed = last_viewed(home.path()).unwrap();
+        assert_eq!(viewed.len(), 1);
+        assert_eq!(viewed["chengxiaobang:s_read"], 1_793_601_467_269);
+        // A 程小帮 too old to record it reads as unknown, not as never viewed.
+        let older = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(older.path().join("data")).unwrap();
+        rusqlite::Connection::open(older.path().join("data/chengxiaobang.sqlite"))
+            .unwrap()
+            .execute_batch("CREATE TABLE sessions (id text primary key);")
+            .unwrap();
+        assert_eq!(last_viewed(older.path()), None);
+    }
 
     #[test]
     fn prepares_the_mod_and_carries_words_to_a_checked_in_session() {

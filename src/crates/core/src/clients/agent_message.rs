@@ -262,13 +262,29 @@ impl crate::AgentHudCore {
                 None => running(&log.id) || log.updated_at.is_some_and(|at| now - at < RECENT_MS),
             })
             .collect::<Vec<_>>();
+        // The conversation the user looked at last comes first where the
+        // client records it (a scheduled task's runs keep its session the
+        // most recently updated one, though nobody reads it).
+        let viewed = replies.viewed_at(source);
         candidates.sort_by_key(|log| {
+            let seen = viewed
+                .as_ref()
+                .map_or(0, |viewed| viewed.get(&log.id).copied().unwrap_or(0));
             (
+                std::cmp::Reverse(seen),
                 !running(&log.id),
                 std::cmp::Reverse(log.updated_at.unwrap_or(0)),
             )
         });
-        candidates.truncate(MAX_CANDIDATES);
+        // The cap bounds the reachability checks; a session running the
+        // carrier now is never cut, however long ago the user looked at it.
+        let mut others = 0;
+        candidates.retain(|log| {
+            running(&log.id) || {
+                others += 1;
+                others <= MAX_CANDIDATES
+            }
+        });
         let mut first: Option<Unreachable> = None;
         let mut waiting = false;
         for log in candidates {

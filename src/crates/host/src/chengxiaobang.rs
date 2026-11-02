@@ -36,6 +36,7 @@ fn status(plugin: &ChengxiaobangPlugin) -> Value {
         "enabled": state.enabled,
         "stopped": state.stopped,
         "running": state.running,
+        "backends": state.backends,
         "sessions": plugin.loaded(SystemTime::now()),
         "mcp": plugin.mcp_listed(),
     })

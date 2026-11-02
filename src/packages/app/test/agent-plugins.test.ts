@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  chengxiaobangPluginRow,
   codexMessagesRow,
   mcpRow,
   pluginRow,
@@ -262,4 +263,57 @@ test("Codex's message row says whether its desktop app can take messages", () =>
     [ready.tone, ready.status[1], ready.next],
     ["working", "可以收消息", null],
   );
+});
+
+test("a Claude Code too old for mods says so, with the update command", () => {
+  const row = pluginRow({
+    installed: true,
+    sessions: 0,
+    clientFound: true,
+    running: null,
+    justInstalled: false,
+    tooOld: "2.1.221",
+  });
+  assert.equal(row.tone, "off");
+  assert.deepEqual(row.status, [
+    "Claude Code 2.1.221 is too old",
+    "Claude Code 2.1.221 太旧",
+  ]);
+  assert.equal(row.next?.command, "claude update");
+  assert.equal(row.action, null);
+});
+
+test("a 程小帮 left running beside the new one is named, before its sessions", () => {
+  const row = chengxiaobangPluginRow({
+    found: true,
+    installed: true,
+    sessions: 2,
+    running: false,
+    enabled: true,
+    appRunning: true,
+    backends: 2,
+  });
+  assert.equal(row.tone, "attention");
+  assert.deepEqual(row.status, [
+    "An earlier 程小帮 still runs",
+    "旧的程小帮没退干净",
+  ]);
+  assert.match(row.next?.words[1] ?? "", /活动监视器/);
+});
+
+test("an old command doesn't hide sessions already running the plugin, and removal stays", () => {
+  const input = {
+    installed: true,
+    sessions: 0,
+    clientFound: true,
+    running: null,
+    justInstalled: false,
+    tooOld: "2.1.221",
+  } as const;
+  assert.deepEqual(
+    pluginRow(input).menu.map((item) => item.id),
+    ["remove"],
+  );
+  const running = pluginRow({ ...input, sessions: 1 });
+  assert.equal(running.tone, "working");
 });

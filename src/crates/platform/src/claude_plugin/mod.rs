@@ -592,11 +592,92 @@ pub fn post_to_inbox(socket: &Path, session: &str, text: &str) -> Result<(), Str
     write_line(socket, &line)
 }
 
+/// Claude Code runs a plugin's hooks module (Claude Mods) from this version on;
+/// an older one never runs the plugin, so its sessions never check in.
+pub const MODS_SINCE: &str = "2.1.287";
+
+/// Whether Claude Code `version` ("2.1.221", or "2.1.221 (Claude Code)" as
+/// `claude --version` prints it) is older than [`MODS_SINCE`]; false when it
+/// can't be read.
+pub fn without_mods(version: &str) -> bool {
+    let parse = |text: &str| -> Option<Vec<u32>> {
+        text.split_whitespace()
+            .next()?
+            .split('.')
+            .map(|part| part.parse().ok())
+            .collect()
+    };
+    parse(version)
+        .zip(parse(MODS_SINCE))
+        .is_some_and(|(version, since)| version < since)
+}
+
+/// The Claude Code version a session's process wrote in its own record.
+fn session_version(claude_config: &Path, session: &str) -> Option<String> {
+    fs::read_dir(claude_config.join("sessions"))
+        .ok()?
+        .flatten()
+        .find_map(|entry| {
+            let record: Value = serde_json::from_slice(&fs::read(entry.path()).ok()?).ok()?;
+            if record["sessionId"].as_str() != Some(session) {
+                return None;
+            }
+            record["version"].as_str().map(str::to_owned)
+        })
+}
+
+/// What `claude --version` prints, run with `search` as its PATH (an npm
+/// `claude` finds its `node` there, as when the HUD runs it); read again only
+/// when the file changes, a failure included.
+pub fn command_version(executable: &Path, search: &std::ffi::OsStr) -> Option<String> {
+    type Read = Option<(PathBuf, SystemTime, Option<String>)>;
+    static READ: std::sync::Mutex<Read> = std::sync::Mutex::new(None);
+    let changed = fs::metadata(executable)
+        .and_then(|meta| meta.modified())
+        .ok()?;
+    let mut read = READ.lock().unwrap_or_else(|p| p.into_inner());
+    if let Some((path, at, version)) = read.as_ref() {
+        if path == executable && *at == changed {
+            return version.clone();
+        }
+    }
+    let version = std::process::Command::new(executable)
+        .arg("--version")
+        .env("PATH", search)
+        .stdin(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .output()
+        .ok()
+        .and_then(|output| {
+            String::from_utf8_lossy(&output.stdout)
+                .split_whitespace()
+                .next()
+                .map(str::to_owned)
+        });
+    *read = Some((executable.to_owned(), changed, version.clone()));
+    version
+}
+
+/// Why a session of Claude Code `version` never runs the plugin.
+fn too_old(version: &str) -> Unreachable {
+    Unreachable::new(
+        if l10n::chinese() {
+            format!("这里的 Claude Code 是 {version}，太旧了，运行不了 SI Future HUD 插件（要 {MODS_SINCE} 或更新）。先升级 Claude Code（终端里运行 claude update；用桌面 App 的，把 App 更新到最新），再新开一个会话。")
+        } else {
+            format!("Claude Code here is {version}, too old to run SI Future HUD's plugin (it needs {MODS_SINCE} or newer). Update Claude Code (run claude update in Terminal, or update the desktop app), then start a new session.")
+        },
+        None,
+    )
+}
+
 /// The HUD's answers to the Claude desktop app's questions, through the plugin.
 pub struct ClaudeReplies {
     channel: ClaudeChannel,
     /// Claude Code's own folder, where it lists the plugins it installed.
     claude_config: PathBuf,
+    /// The `claude` command the HUD found and the PATH it runs with, whose
+    /// version stands in for a session that doesn't say its own.
+    command: Option<(PathBuf, std::ffi::OsString)>,
 }
 
 impl ClaudeReplies {
@@ -604,7 +685,14 @@ impl ClaudeReplies {
         Self {
             channel,
             claude_config,
+            command: None,
         }
+    }
+
+    /// The `claude` command the HUD found, if any, and the PATH it runs with.
+    pub fn with_command(mut self, command: Option<(PathBuf, std::ffi::OsString)>) -> Self {
+        self.command = command;
+        self
     }
 
     /// Local build: the session's own inbox, while its process runs.
@@ -637,6 +725,19 @@ impl ClaudeReplies {
                 ),
                 Some(AnswerFix::InstallPlugin),
             );
+        }
+        // A session too old to run the plugin never checks in, whatever is
+        // done in it. The command's version speaks for it only while no
+        // session runs the plugin (another install, the desktop app's, may).
+        let version = session_version(&self.claude_config, session).or_else(|| {
+            let (command, search) = self.command.as_ref()?;
+            if !self.channel.loaded(SystemTime::now()).is_empty() {
+                return None;
+            }
+            command_version(command, search)
+        });
+        if let Some(version) = version.filter(|version| without_mods(version)) {
+            return too_old(&version);
         }
         if self.channel.ended(session) {
             return Unreachable::new(

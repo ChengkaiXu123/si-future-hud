@@ -282,3 +282,75 @@ fn an_unreached_session_names_the_step_that_lets_the_hud_answer() {
     checked_in(0);
     assert!(replies.reaches("claude", SESSION).is_ok());
 }
+
+#[test]
+fn a_claude_code_too_old_for_mods_is_named_instead_of_asking_for_a_reload() {
+    assert!(without_mods("2.1.221"));
+    assert!(without_mods("2.1.221 (Claude Code)"));
+    assert!(!without_mods(MODS_SINCE));
+    assert!(!without_mods("2.1.311 (Claude Code)"));
+    assert!(!without_mods("2.2.0"));
+    assert!(!without_mods("unknown"));
+
+    let temp = tempfile::tempdir().unwrap();
+    let channel = ClaudeChannel::new(temp.path().join("channel"));
+    let config = temp.path().join("claude-config");
+    fs::create_dir_all(config.join("plugins")).unwrap();
+    fs::write(
+        config.join("plugins/installed_plugins.json"),
+        json!({"version": 2, "plugins": {"agent-hud@agent-hud": [{"scope": "user"}]}}).to_string(),
+    )
+    .unwrap();
+    let replies = ClaudeReplies::new(channel, config.clone());
+    let record = |version: &str| {
+        fs::create_dir_all(config.join("sessions")).unwrap();
+        fs::write(
+            config.join("sessions/4242.json"),
+            json!({"pid": 4242, "sessionId": SESSION, "version": version}).to_string(),
+        )
+        .unwrap();
+    };
+    record("2.1.221");
+    let old = replies.reaches("claude", SESSION).unwrap_err();
+    assert!(old.note.contains("2.1.221"), "{}", old.note);
+    assert!(old.note.contains("claude update"), "{}", old.note);
+    assert_eq!(old.fix, None);
+    // A current one that hasn't loaded it is asked to reload, as before.
+    record("2.1.311");
+    let current = replies.reaches("claude", SESSION).unwrap_err();
+    assert_eq!(current.fix, Some(AnswerFix::ReloadPlugins));
+}
+
+#[test]
+fn the_command_version_runs_with_the_given_path_and_a_failure_is_kept() {
+    use std::os::unix::fs::PermissionsExt;
+    let temp = tempfile::tempdir().unwrap();
+    let bin = temp.path().join("bin");
+    fs::create_dir_all(&bin).unwrap();
+    let script = |path: &Path, body: &str| {
+        fs::write(path, body).unwrap();
+        fs::set_permissions(path, fs::Permissions::from_mode(0o755)).unwrap();
+    };
+    // An npm `claude` runs through an interpreter found on PATH alone.
+    script(
+        &bin.join("hudnode"),
+        "#!/bin/sh\necho '2.1.221 (Claude Code)'\n",
+    );
+    script(&temp.path().join("claude"), "#!/usr/bin/env hudnode\n");
+    let search =
+        std::env::join_paths([bin.as_path(), Path::new("/usr/bin"), Path::new("/bin")]).unwrap();
+    assert_eq!(
+        command_version(&temp.path().join("claude"), &search).as_deref(),
+        Some("2.1.221")
+    );
+    // One that prints nothing is asked once, not on every pass.
+    let calls = temp.path().join("calls");
+    let broken = temp.path().join("broken");
+    script(
+        &broken,
+        &format!("#!/bin/sh\necho x >> '{}'\n", calls.display()),
+    );
+    assert_eq!(command_version(&broken, &search), None);
+    assert_eq!(command_version(&broken, &search), None);
+    assert_eq!(fs::read_to_string(&calls).unwrap().lines().count(), 1);
+}

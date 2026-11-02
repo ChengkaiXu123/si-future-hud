@@ -1,7 +1,19 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { NativeMethod } from "@agent-hud/protocol";
+
+/** Local build: the engine packaged beside this program (the app's compiled
+ * MCP relay sits next to it in Resources), so a client that starts the relay
+ * itself, without the app's `AGENTHUD_NEXT_ENGINE`, still finds it. */
+function packagedEngine(): string | undefined {
+  const engine = join(
+    dirname(process.execPath),
+    `agent-hud-engine${process.platform === "win32" ? ".exe" : ""}`,
+  );
+  return existsSync(engine) ? engine : undefined;
+}
 
 /** Node transport adapter. All collection and decisions stay in the Rust runtime. */
 export class EngineClient {
@@ -20,6 +32,7 @@ export class EngineClient {
   private mode: "standalone" | "app";
   constructor(
     binary = process.env.AGENTHUD_NEXT_ENGINE ??
+      packagedEngine() ??
       fileURLToPath(
         new URL(
           `../../../../target/debug/agent-hud-engine${process.platform === "win32" ? ".exe" : ""}`,

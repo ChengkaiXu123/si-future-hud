@@ -30,6 +30,8 @@ interface ClaudeStatus {
   found: boolean;
   installed: boolean;
   sessions: number;
+  /** The `claude` version when it is too old to run the plugin. */
+  tooOld?: string | null;
 }
 interface McpStatus {
   ready: boolean;
@@ -244,26 +246,31 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
                 ? "wait"
                 : !claude.found
                   ? "none"
-                  : claude.installed
+                  : claude.installed && (!claude.tooOld || claude.sessions > 0)
                     ? "done"
                     : "todo"
             }
             title={t(["Claude Code plugin", "Claude Code 插件"])}
             detail={
-              claude?.installed
+              claude?.tooOld && claude.sessions === 0
                 ? t([
-                    `Installed; ${claude.sessions} session(s) running it.`,
-                    `已装好，${claude.sessions} 个会话已加载。`,
+                    `Claude Code ${claude.tooOld} is too old to run the plugin: run claude update in Terminal (or update the desktop app), then start a new session.`,
+                    `Claude Code ${claude.tooOld} 太旧，运行不了插件：在终端运行 claude update（用桌面 App 的，把 App 更新到最新），再新开一个会话。`,
                   ])
-                : claude && !claude.found
+                : claude?.installed
                   ? t([
-                      "Claude Code isn't on this Mac.",
-                      "这台 Mac 上没有 Claude Code。",
+                      `Installed; ${claude.sessions} session(s) running it.`,
+                      `已装好，${claude.sessions} 个会话已加载。`,
                     ])
-                  : t([
-                      "Lets the HUD bring messages and answers into Claude Code.",
-                      "让 HUD 能把消息和回答送进 Claude Code。",
-                    ])
+                  : claude && !claude.found
+                    ? t([
+                        "Claude Code isn't on this Mac.",
+                        "这台 Mac 上没有 Claude Code。",
+                      ])
+                    : t([
+                        "Lets the HUD bring messages and answers into Claude Code.",
+                        "让 HUD 能把消息和回答送进 Claude Code。",
+                      ])
             }
           />
           {(["claudeCode", "codex"] as const).map((id) => {
