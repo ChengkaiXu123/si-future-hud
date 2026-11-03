@@ -1,0 +1,43 @@
+docs/si-future-hud/MESSAGING.md
+  s_d48b3b8d3c26d0::t_aaa01a24e25999 65
+src/crates/core/src/clients/agent_message.rs
+  s_d48b3b8d3c26d0::t_4294a0769c265b 1040-1042,1048-1060,1069,1072
+  s_d48b3b8d3c26d0::t_a0a1ada27b70ae 964
+  s_d48b3b8d3c26d0::t_5eda778082a5ed 1003
+docs/si-future-hud/TROUBLESHOOTING.md
+  s_d48b3b8d3c26d0::t_81de3b5f06029a 106-107
+src/crates/platform/src/clients/codex/message.rs
+  s_d48b3b8d3c26d0::t_8826bd9c4109f8 14-20,22-24,36,43
+  s_d48b3b8d3c26d0::t_7f8ff57b64aead 156-166,168-173,175,179-180,187,192-210
+  s_d48b3b8d3c26d0::t_c4347cdede0ec9 167
+  s_d48b3b8d3c26d0::t_924cd69e5c0132 174,181,186
+  s_d48b3b8d3c26d0::t_18b7c970e529ed 176-178,182-185,188-191
+docs/si-future-hud/MESSAGING.zh-CN.md
+  s_d48b3b8d3c26d0::t_aaa01a24e25999 65
+docs/si-future-hud/TROUBLESHOOTING.zh-CN.md
+  s_d48b3b8d3c26d0::t_6714bc92da7a7f 106-107
+src/packages/app/src/settings/GetStartedPane.tsx
+  s_d48b3b8d3c26d0::t_aaa01a24e25999 657-658
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_866a25daf445fa 25-26
+src/crates/core/src/source_db/tests.rs
+  s_d48b3b8d3c26d0::t_18b7c970e529ed 1608-1611,1620-1623
+  s_d48b3b8d3c26d0::t_08523139acffff 1557,1559-1607,1612-1619,1624-1625
+  s_d48b3b8d3c26d0::t_c4fbd715a5a8b7 1558
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "f772b3bb53c462151c70003ff2518959cb913abe",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
