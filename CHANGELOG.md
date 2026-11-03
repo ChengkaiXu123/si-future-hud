@@ -1,6 +1,6 @@
 # Changelog / 版本记录
 
-## v0.1.6 · 2026‑11‑02
+## v0.1.6 · 2026‑11‑03
 
 What changed since 0.1.5: fixes for what colleagues met in their first week: messages that seemed sent but never showed up, and setups that quietly didn't work. / 相对 0.1.5：修好同事第一周实际遇到的问题——显示已发送却没收到的消息，以及悄悄没配好的安装。
 

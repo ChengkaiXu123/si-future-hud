@@ -28,7 +28,7 @@ You can install them later. The HUD tries again every time it starts.
 
 The quickest: **[SI-Future-HUD.dmg](https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg)** (47 MB, no sign‑in, company network only). Or download these from a release page: the [company GitLab one](http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest) (sign‑in needed) or the [GitHub one](https://github.com/ChengkaiXu123/si-future-hud/releases/latest) (no sign‑in, works anywhere):
 
-- `SI-Future-HUD_0.1.5_aarch64.dmg`: the app
+- `SI-Future-HUD_0.1.6_aarch64.dmg`: the app
 - `SHA256SUMS.txt`: checksums, if you want to verify the download
 
 To verify, run this in Terminal in the download folder:
@@ -37,7 +37,7 @@ To verify, run this in Terminal in the download folder:
 shasum -a 256 -c SHA256SUMS.txt --ignore-missing
 ```
 
-You should see `SI-Future-HUD_0.1.5_aarch64.dmg: OK`.
+You should see `SI-Future-HUD_0.1.6_aarch64.dmg: OK`.
 
 ## 2 · Move it into Applications
 
