@@ -1,0 +1,47 @@
+docs/si-future-hud/TROUBLESHOOTING.zh-CN.md
+  s_d48b3b8d3c26d0::t_a1620ab84a6af4 106
+src/packages/app/src/settings/GetStartedPane.tsx
+  s_d48b3b8d3c26d0::t_a1620ab84a6af4 309-310
+src/crates/platform/src/chengxiaobang_plugin/mod.rs
+  s_d48b3b8d3c26d0::t_090617c46f1c4b 510-512
+src/crates/core/src/source_db/tests.rs
+  s_d48b3b8d3c26d0::t_0e2a3c3ebb5cd8 1627-1629,1632-1641,1651-1655,1660-1662,1666-1667,1670-1671,1680-1681,1683-1685,1696-1703,1708-1711,1714-1718,1722-1724,1726-1727,1729-1732,1738-1740,1745-1746
+  s_d48b3b8d3c26d0::t_68e2ed880e888c 1712-1713,1721
+  s_d48b3b8d3c26d0::t_d719016e04a539 1630-1631,1642-1650,1656-1659,1663-1665,1668-1669,1672-1679,1682,1686-1695,1704-1707,1719-1720,1725,1728,1733-1737,1741-1744
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_a1620ab84a6af4 26
+src/crates/core/src/clients/agent_message.rs
+  s_d48b3b8d3c26d0::t_b49da23c20f659 174-175
+  s_d48b3b8d3c26d0::t_feba306df09264 436-439,442,450-451
+  s_d48b3b8d3c26d0::t_be71e51f170591 434-435,440-441,443-449,452-455
+  s_d48b3b8d3c26d0::t_200c101154d0ca 114-136
+src/crates/core/src/replies.rs
+  s_d48b3b8d3c26d0::t_eb9e463ed74ae8 33-44
+src/crates/platform/src/clients/codex/message.rs
+  s_d48b3b8d3c26d0::t_36e8b712e295f2 299-313
+  s_d48b3b8d3c26d0::t_c0c05110a00667 120-127,130-150,195-196
+  s_d48b3b8d3c26d0::t_36749671e463ea 128-129,202-204,207,213-253,262-263,267,272-296
+  s_d48b3b8d3c26d0::t_35631aad658218 6,9-13,26-46,49-50,52,78,80
+docs/si-future-hud/TROUBLESHOOTING.md
+  s_d48b3b8d3c26d0::t_a1620ab84a6af4 106
+docs/si-future-hud/MESSAGING.md
+  s_d48b3b8d3c26d0::t_a1620ab84a6af4 40
+docs/si-future-hud/MESSAGING.zh-CN.md
+  s_d48b3b8d3c26d0::t_a1620ab84a6af4 40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.51-trip",
+  "base_commit_sha": "e0537c8824821649ca355a480569ab63650a415a",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
