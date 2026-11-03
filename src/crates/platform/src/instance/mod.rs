@@ -223,6 +223,23 @@ mod tests {
     use super::*;
     use std::fs;
 
+    /// Takes a lock its holder just let go of. A test beside this one may be
+    /// starting a process, and on Linux the child shares the lock's file, and
+    /// so the lock, until it runs its program: a moment, never for good.
+    fn when_free<T>(mut take: impl FnMut() -> Option<T>) -> T {
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        loop {
+            if let Some(taken) = take() {
+                return taken;
+            }
+            assert!(
+                std::time::Instant::now() < deadline,
+                "the lock stays held after its holder let go"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+    }
+
     #[test]
     fn a_held_lock_turns_the_next_claim_away_and_names_the_holder() {
         let temp = tempfile::tempdir().unwrap();
@@ -239,9 +256,10 @@ mod tests {
             _ => panic!("a second claim is turned away"),
         }
         drop(first);
-        let Claim::Acquired(second) = claim(&path, Some(&next)) else {
-            panic!("the lock is free once its holder lets go");
-        };
+        let second = when_free(|| match claim(&path, Some(&next)) {
+            Claim::Acquired(lock) => Some(lock),
+            _ => None,
+        });
         drop(second);
         assert_eq!(
             holder(&path).as_deref(),
@@ -329,7 +347,7 @@ mod tests {
             Err(CollectorError::Held { path, .. }) if path == hooks
         ));
         // A failed hook claim must release the data lock it took first.
-        let _second = claim_collector(&second, None, None).unwrap();
+        let _second = when_free(|| claim_collector(&second, None, None).ok());
     }
 
     #[test]

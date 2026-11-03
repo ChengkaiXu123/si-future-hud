@@ -138,7 +138,19 @@ mod tests {
         );
         drop(lock);
         let other = Path::new("/Applications/Agent HUD.app/Contents/MacOS/Agent HUD");
-        let _other = instance::claim_collector(&data, None, Some(other)).unwrap();
+        // A test beside this one may be starting a process, and on Linux the
+        // child shares the lock's file, and so the lock, until it runs its
+        // program: a moment, never for good.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        let _other = loop {
+            match instance::claim_collector(&data, None, Some(other)) {
+                Ok(lock) => break lock,
+                Err(error) if std::time::Instant::now() >= deadline => {
+                    panic!("the lock stays held after its holder let go: {error:?}")
+                }
+                Err(_) => std::thread::sleep(std::time::Duration::from_millis(10)),
+            }
+        };
         match take() {
             Launch::Refused(Some(holder)) => assert_eq!(holder, other),
             // Windows may keep the locked file's executable from being read.
