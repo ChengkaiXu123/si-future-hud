@@ -507,6 +507,9 @@ impl SessionReplies for RepliesBySource {
     fn live_sessions(&self, source: &str) -> Option<HashSet<String>> {
         self.carrier(source)?.live_sessions(source)
     }
+    fn open_among(&self, source: &str, sessions: &[String]) -> Option<HashSet<String>> {
+        self.carrier(source)?.open_among(source, sessions)
+    }
     fn viewed_at(&self, source: &str) -> Option<HashMap<String, i64>> {
         self.carrier(source)?.viewed_at(source)
     }

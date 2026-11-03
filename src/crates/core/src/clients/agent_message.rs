@@ -111,6 +111,29 @@ fn name(source: &str) -> &str {
     }
 }
 
+/// Why words can't go now when `source` has the named conversation, or any
+/// it was asked about, closed (`SessionReplies::open_among`).
+fn not_open(source: &str, named: bool) -> String {
+    match (source, named) {
+        ("codex", true) => crate::l10n::text(
+            "Codex 桌面版没有打开这个对话：在 Codex 里打开它，再发一次。",
+            "Codex Desktop doesn't have this conversation open: open it in Codex, then send again.",
+        ),
+        ("codex", false) => crate::l10n::text(
+            "Codex 桌面版里没有开着的对话：在 Codex 里打开要发给的那个对话，再发一次。",
+            "No conversation is open in Codex Desktop: open the one to send to in Codex, then send again.",
+        ),
+        (_, true) => crate::l10n::text(
+            &format!("{}没有打开这个对话：打开它，再发一次。", name(source)),
+            &format!("{} doesn't have this conversation open: open it, then send again.", name(source)),
+        ),
+        (_, false) => crate::l10n::text(
+            &format!("{}里没有开着的对话：打开要发给的那个对话，再发一次。", name(source)),
+            &format!("No conversation is open in {}: open the one to send to, then send again.", name(source)),
+        ),
+    }
+}
+
 /// A session as the HUD names it: 程小帮's carry the source as a prefix.
 fn listed_id(source: &str, id: &str) -> String {
     if source == "chengxiaobang" && !id.starts_with("chengxiaobang:") {
@@ -148,6 +171,8 @@ const JUST_STARTED_MS: i64 = 10_000;
 /// says it is running now, and how many are tried.
 const RECENT_MS: i64 = 7 * 86_400_000;
 const MAX_CANDIDATES: usize = 30;
+/// How many candidates a client that tells only when asked is asked about.
+const OPEN_ASKED: usize = 8;
 /// How long a command-line sender may wait for a reply, at most.
 const MAX_WAIT_MS: i64 = 3_600_000;
 /// How long a command line's wait holds without a poll. It polls every second
@@ -406,6 +431,28 @@ impl crate::AgentHudCore {
                 others <= MAX_CANDIDATES
             }
         });
+        // Local build: a client that tells only when asked (Codex Desktop
+        // takes words only into a conversation a window has open) is asked
+        // about the first few that could take them now; one it hasn't open
+        // isn't chosen, and none open is said now, before a card the click
+        // couldn't send. One waiting for the user's answer is open, and stays
+        // the choice when no other one can take the words now.
+        let asked_open = candidates
+            .iter()
+            .filter(|(id, _, _)| !self.session_waits(source, id, now))
+            .take(OPEN_ASKED)
+            .map(|(id, _, _)| id.clone())
+            .collect::<Vec<_>>();
+        if let Some(open) = (!asked_open.is_empty())
+            .then(|| replies.open_among(source, &asked_open))
+            .flatten()
+        {
+            candidates
+                .retain(|(id, _, _)| open.contains(id) || self.session_waits(source, id, now));
+            if candidates.is_empty() {
+                return Err(not_open(source, asked.is_some()));
+            }
+        }
         let mut first: Option<Unreachable> = None;
         let mut waiting = false;
         // A session that waits for the user's answer takes the words once it

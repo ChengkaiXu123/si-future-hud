@@ -3,9 +3,14 @@
 //! (`thread-follower-start-turn`), only while the thread is idle.
 use super::desktop_io::{request_id, DesktopIpc, IpcError};
 use serde_json::json;
-use std::{path::Path, time::Duration};
+use std::{collections::HashSet, path::Path, time::Duration};
 
 const START: &str = "thread-follower-start-turn";
+/// How long to wait for the window that has a thread: one that has it
+/// answers within a tenth of a second (measured on two Macs, 26.1016).
+const OWNER_WAIT: Duration = Duration::from_secs(2);
+/// How long the rest of a send may take.
+const SEND_WAIT: Duration = Duration::from_secs(5);
 
 fn failed(error: IpcError) -> String {
     error.to_string()
@@ -18,11 +23,33 @@ fn not_open() -> String {
     )
 }
 
+/// A connection to the desktop app and the client id it gave this one.
+fn connect(codex_home: &Path) -> Result<(DesktopIpc, String), String> {
+    let mut connection =
+        DesktopIpc::connect(&codex_home.join("ipc/ipc.sock"), SEND_WAIT).map_err(failed)?;
+    let initialized = connection
+        .request(
+            "initialize",
+            0,
+            "initializing-client",
+            None,
+            json!({"clientType":"agent-hud"}),
+            None,
+        )
+        .map_err(failed)?;
+    let client = initialized["result"]["clientId"]
+        .as_str()
+        .ok_or_else(|| failed(IpcError::Protocol))?
+        .to_owned();
+    Ok((connection, client))
+}
+
 /// Which client of the desktop app owns `thread` now, if the app has it open.
 /// A window that has it answers at once; for one no window has, Desktop
-/// (26.1016) says so only after its own 10-second search, past this
-/// connection's wait, so a wait that runs out reads as not open too.
+/// (26.1016) says so only after its own 10-second search, past `OWNER_WAIT`,
+/// so a wait that runs out reads as not open too.
 fn owner(connection: &mut DesktopIpc, client: &str, thread: &str) -> Result<String, String> {
+    connection.renew(OWNER_WAIT);
     let discovery = connection
         .request(
             "thread-owner-discovery",
@@ -48,24 +75,9 @@ fn owner(connection: &mut DesktopIpc, client: &str, thread: &str) -> Result<Stri
 /// not come back readable (it may have arrived: never offered again). A turn
 /// already running is refused, so relayed words never cut into a task.
 pub fn send(codex_home: &Path, thread: &str, text: &str) -> Result<&'static str, String> {
-    let mut connection =
-        DesktopIpc::connect(&codex_home.join("ipc/ipc.sock"), Duration::from_secs(5))
-            .map_err(failed)?;
-    let initialized = connection
-        .request(
-            "initialize",
-            0,
-            "initializing-client",
-            None,
-            json!({"clientType":"agent-hud"}),
-            None,
-        )
-        .map_err(failed)?;
-    let client = initialized["result"]["clientId"]
-        .as_str()
-        .ok_or_else(|| failed(IpcError::Protocol))?
-        .to_owned();
+    let (mut connection, client) = connect(codex_home)?;
     let owner = owner(&mut connection, &client, thread)?;
+    connection.renew(SEND_WAIT);
     let id = request_id().map_err(failed)?;
     let input = json!([{"type":"text","text":text,"text_elements":[]}]);
     let restore = json!({"id":id,"text":text,"context":{"prompt":text,"addedFiles":[],"fileAttachments":[],"ideContext":null,"imageAttachments":[]},"createdAt":chrono::Utc::now().timestamp_millis()});
@@ -103,6 +115,37 @@ pub fn send(codex_home: &Path, thread: &str, text: &str) -> Result<&'static str,
         Err(_) if wrote => Ok("uncertain"),
         Err(other) => Err(failed(other)),
     }
+}
+
+/// Which of `threads` (the most wanted first) a Desktop window has open,
+/// asked about all at once. It stops waiting once the first open one is
+/// known, so a later one may be missing; None when none could be asked.
+pub fn open_among(codex_home: &Path, threads: &[String]) -> Option<HashSet<String>> {
+    let (answer, answers) = std::sync::mpsc::channel();
+    for (index, thread) in threads.iter().enumerate() {
+        let (answer, home, thread) = (answer.clone(), codex_home.to_owned(), thread.clone());
+        std::thread::spawn(move || {
+            let open = connect(&home)
+                .map(|(mut connection, client)| owner(&mut connection, &client, &thread).is_ok());
+            let _ = answer.send((index, open.ok()));
+        });
+    }
+    drop(answer);
+    let mut known = vec![None; threads.len()];
+    let mut open = HashSet::new();
+    let mut asked = false;
+    for (index, found) in answers {
+        asked |= found.is_some();
+        known[index] = Some(found == Some(true));
+        if found == Some(true) {
+            open.insert(threads[index].clone());
+        }
+        // Settled once every one before the first open one said it isn't.
+        if known.iter().find(|answer| **answer != Some(false)) == Some(&Some(true)) {
+            return Some(open);
+        }
+    }
+    asked.then_some(open)
 }
 
 /// Words for Codex Desktop threads: the app must be running (its IPC socket
@@ -149,47 +192,65 @@ impl agent_hud_core::replies::SessionReplies for CodexReplies {
     fn relay(&self, _source: &str, session: &str, words: &str) -> Result<(), String> {
         send(&self.home, session, words).map(drop)
     }
+    fn open_among(&self, _source: &str, sessions: &[String]) -> Option<HashSet<String>> {
+        open_among(&self.home, sessions)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    /// A Desktop that knows no window with the thread: it answers the
-    /// handshake, then `owner` (an error, or nothing within the wait).
-    fn desktop(owner: Option<&'static str>) -> tempfile::TempDir {
+    /// A Desktop whose windows have the threads in `open`. For another one it
+    /// answers `closed` (an error), or nothing within the wait when None.
+    fn desktop(open: &'static [&'static str], closed: Option<&'static str>) -> tempfile::TempDir {
         use serde_json::{json, Value};
         use std::io::{Read, Write};
+        use std::os::unix::net::UnixStream;
         let home = tempfile::tempdir().unwrap();
         std::fs::create_dir(home.path().join("ipc")).unwrap();
         let listener =
             std::os::unix::net::UnixListener::bind(home.path().join("ipc/ipc.sock")).unwrap();
         std::thread::spawn(move || {
-            let (mut socket, _) = listener.accept().unwrap();
-            let receive = |socket: &mut std::os::unix::net::UnixStream| {
-                let mut header = [0; 4];
-                socket.read_exact(&mut header).ok()?;
-                let mut bytes = vec![0; u32::from_le_bytes(header) as usize];
-                socket.read_exact(&mut bytes).ok()?;
-                serde_json::from_slice::<Value>(&bytes).ok()
-            };
-            let answer = |socket: &mut std::os::unix::net::UnixStream, message: Value| {
-                let bytes = serde_json::to_vec(&message).unwrap();
-                socket
-                    .write_all(&(bytes.len() as u32).to_le_bytes())
-                    .unwrap();
-                socket.write_all(&bytes).unwrap();
-            };
-            let initialize = receive(&mut socket).unwrap();
-            answer(
-                &mut socket,
-                json!({"type":"response","requestId":initialize["requestId"],"resultType":"success","method":"initialize","result":{"clientId":"hud"}}),
-            );
-            let discovery = receive(&mut socket).unwrap();
-            match owner {
-                Some(error) => answer(
-                    &mut socket,
-                    json!({"type":"response","requestId":discovery["requestId"],"resultType":"error","error":error}),
-                ),
-                None => std::thread::sleep(std::time::Duration::from_secs(8)),
+            for socket in listener.incoming() {
+                let Ok(mut socket) = socket else { return };
+                std::thread::spawn(move || {
+                    let receive = |socket: &mut UnixStream| {
+                        let mut header = [0; 4];
+                        socket.read_exact(&mut header).ok()?;
+                        let mut bytes = vec![0; u32::from_le_bytes(header) as usize];
+                        socket.read_exact(&mut bytes).ok()?;
+                        serde_json::from_slice::<Value>(&bytes).ok()
+                    };
+                    let answer = |socket: &mut UnixStream, message: Value| {
+                        let bytes = serde_json::to_vec(&message).unwrap();
+                        let _ = socket.write_all(&(bytes.len() as u32).to_le_bytes());
+                        let _ = socket.write_all(&bytes);
+                    };
+                    let Some(initialize) = receive(&mut socket) else {
+                        return;
+                    };
+                    answer(
+                        &mut socket,
+                        json!({"type":"response","requestId":initialize["requestId"],"resultType":"success","method":"initialize","result":{"clientId":"hud"}}),
+                    );
+                    let Some(discovery) = receive(&mut socket) else {
+                        return;
+                    };
+                    let thread = discovery["params"]["conversationId"].as_str().unwrap_or("");
+                    match (open.contains(&thread), closed) {
+                        (true, _) => answer(
+                            &mut socket,
+                            json!({"type":"response","requestId":discovery["requestId"],"resultType":"success","method":"thread-owner-discovery","handledByClientId":"window","result":{}}),
+                        ),
+                        (false, Some(error)) => answer(
+                            &mut socket,
+                            json!({"type":"response","requestId":discovery["requestId"],"resultType":"error","error":error}),
+                        ),
+                        // Holds on until the HUD gives up and hangs up.
+                        (false, None) => {
+                            let _ = socket.read(&mut [0; 1]);
+                        }
+                    }
+                });
             }
         });
         home
@@ -198,14 +259,56 @@ mod tests {
     #[test]
     fn a_conversation_no_window_has_open_is_named_so_whether_desktop_says_it_or_lets_the_wait_run_out(
     ) {
-        for owner in [Some("no-client-found"), None] {
-            let home = desktop(owner);
+        for closed in [Some("no-client-found"), None] {
+            let home = desktop(&[], closed);
             assert_eq!(
                 super::send(home.path(), "thread", "hello"),
                 Err(super::not_open()),
-                "{owner:?}"
+                "{closed:?}"
             );
         }
+    }
+
+    #[test]
+    fn the_open_conversations_are_asked_about_at_once_and_the_first_open_one_ends_the_wait() {
+        use std::time::{Duration, Instant};
+        let threads = |ids: &[&str]| ids.iter().map(|id| id.to_string()).collect::<Vec<_>>();
+        // The first open one answers at once: no wait for the closed one after it.
+        let home = desktop(&["a"], None);
+        let started = Instant::now();
+        let open = super::open_among(home.path(), &threads(&["a", "b"])).unwrap();
+        assert!(open.contains("a") && !open.contains("b"), "{open:?}");
+        assert!(started.elapsed() < Duration::from_secs(1));
+        // A closed one before it is waited for, once, not one after another.
+        let home = desktop(&["c"], None);
+        let started = Instant::now();
+        let open = super::open_among(home.path(), &threads(&["a", "b", "c"])).unwrap();
+        assert_eq!(open, std::collections::HashSet::from(["c".to_owned()]));
+        assert!(started.elapsed() < super::OWNER_WAIT + Duration::from_secs(1));
+        // None open: an empty answer, not "can't tell".
+        let home = desktop(&[], Some("no-client-found"));
+        assert_eq!(
+            super::open_among(home.path(), &threads(&["a"])),
+            Some(Default::default())
+        );
+        // Desktop not running: can't tell.
+        let away = tempfile::tempdir().unwrap();
+        assert_eq!(super::open_among(away.path(), &threads(&["a"])), None);
+    }
+
+    /// Read-only: which of CODEX_TEST_THREADS (comma-separated, the most
+    /// wanted first) a real Codex Desktop has open, and how long asking took.
+    /// Run by hand: `cargo test -p agent-hud-platform --lib
+    /// codex_open_among_live -- --ignored --nocapture`.
+    #[test]
+    #[ignore]
+    fn codex_open_among_live() {
+        let threads = std::env::var("CODEX_TEST_THREADS").expect("CODEX_TEST_THREADS");
+        let threads = threads.split(',').map(str::to_owned).collect::<Vec<_>>();
+        let home = super::super::data_directory().unwrap();
+        let started = std::time::Instant::now();
+        let open = super::open_among(&home, &threads);
+        println!("open {open:?} in {:?}", started.elapsed());
     }
 
     /// Sends one message into a real Codex Desktop thread: run by hand with

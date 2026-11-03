@@ -30,6 +30,18 @@ pub trait SessionReplies: Send + Sync {
     fn live_sessions(&self, _source: &str) -> Option<std::collections::HashSet<String>> {
         None
     }
+    /// Local build: which of `sessions` (the most wanted first) the client
+    /// has open to take words now, for carriers that can only tell by asking
+    /// about each (Codex Desktop); None when the carrier can't tell. It may
+    /// stop asking once the first open one is known, so a later one missing
+    /// from the set may be open too. Asked once per message, while choosing.
+    fn open_among(
+        &self,
+        _source: &str,
+        _sessions: &[String],
+    ) -> Option<std::collections::HashSet<String>> {
+        None
+    }
     /// Local build: whether another agent's words (`relay`) would reach the
     /// session, which a carrier may do in more ways than an answer (a queue
     /// the session takes when it opens, the client's own inbox).

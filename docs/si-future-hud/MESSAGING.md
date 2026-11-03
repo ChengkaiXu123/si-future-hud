@@ -37,7 +37,7 @@ sequenceDiagram
    - `session` *(optional)*: which conversation;
    - `text`: up to 4,000 characters.
 
-   Without `session`, the message goes to the receiving agent's most recently active conversation that can receive.
+   Without `session`, the message goes to the receiving agent's most recently active conversation that can receive (for Codex, the most recent one open in Codex Desktop).
 2. **The call returns at once** with status *pending*. The sender doesn't wait for the answer.
 3. **The HUD shows a card** with who sends to whom, the target conversation and the whole text. You can scroll through it.
 4. **You choose:**

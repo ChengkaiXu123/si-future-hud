@@ -1624,6 +1624,127 @@ fn words_super_root_could_not_send_wait_for_the_click_and_the_card_and_sender_sa
 }
 
 #[test]
+fn words_go_to_a_conversation_the_client_has_open_and_a_closed_one_is_refused_before_a_card() {
+    use std::collections::HashSet;
+    use std::sync::{Arc, Mutex};
+    // A client that tells only when asked which conversations are open, and
+    // stops at the first open one, as Codex Desktop's answers come in.
+    struct Asked(Mutex<HashSet<String>>, Mutex<Vec<Vec<String>>>);
+    impl crate::replies::SessionReplies for Asked {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, _: &str, _: &str) -> Result<(), String> {
+            Ok(())
+        }
+        fn open_among(&self, _: &str, sessions: &[String]) -> Option<HashSet<String>> {
+            self.1.lock().unwrap().push(sessions.to_vec());
+            let open = self.0.lock().unwrap();
+            Some(
+                sessions
+                    .iter()
+                    .find(|id| open.contains(*id))
+                    .cloned()
+                    .into_iter()
+                    .collect(),
+            )
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("chengxiaobang.sqlite");
+    let db = Connection::open(&path).unwrap();
+    let iso = |minutes: i64| {
+        (chrono::Utc::now() - chrono::Duration::minutes(minutes))
+            .to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+    };
+    db.execute_batch(
+        "CREATE TABLE sessions(id TEXT,title TEXT);
+         CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
+         CREATE TABLE runs(id TEXT,session_id TEXT,status TEXT,created_at TEXT,updated_at TEXT);
+         CREATE TABLE tool_calls(id TEXT,run_id TEXT,name TEXT,status TEXT,args_json TEXT,started_at TEXT,finished_at TEXT);
+         CREATE TABLE messages(id TEXT,session_id TEXT,role TEXT,kind TEXT,content TEXT,created_at TEXT);
+         INSERT INTO sessions VALUES('s1','Meetings');
+         INSERT INTO sessions VALUES('s2','Reports');
+         INSERT INTO sessions VALUES('s3','Notes');
+         INSERT INTO sessions VALUES('s4','Drafts');",
+    )
+    .unwrap();
+    // From the oldest: s1 sends; s2 is open; s3 is open and waits for the
+    // user's answer; s4, the most recent, is closed.
+    for (entry, session, minutes) in [
+        ("u1", "s1", 40),
+        ("u2", "s2", 30),
+        ("u3", "s3", 20),
+        ("u4", "s4", 10),
+    ] {
+        db.execute(
+            "INSERT INTO usage_cost_entries VALUES(?1,?2,'auto(free)',100,10,40,?3)",
+            [entry, session, iso(minutes).as_str()],
+        )
+        .unwrap();
+    }
+    db.execute(
+        "INSERT INTO runs VALUES('r3','s3','running',?1,?2)",
+        [iso(21), iso(20)],
+    )
+    .unwrap();
+    db.execute(
+        "INSERT INTO tool_calls VALUES('c3','r3','AskUserQuestion','pending_approval','{\"questions\":[{\"question\":\"Which day?\",\"options\":[{\"label\":\"Mon\"}]}]}',?1,NULL)",
+        [iso(20)],
+    )
+    .unwrap();
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path,
+            provider: "chengxiaobang",
+        }],
+        root.path().join("hud"),
+    );
+    let client = Arc::new(Asked(
+        Mutex::new(HashSet::from([
+            "chengxiaobang:s2".to_owned(),
+            "chengxiaobang:s3".to_owned(),
+        ])),
+        Mutex::new(vec![]),
+    ));
+    backend.set_session_replies(Some(client.clone()));
+    refresh(&mut backend);
+    let send = |backend: &mut AgentHudCore, text: &str, session: Option<&str>| {
+        let mut params = json!({"to":"chengxiaobang","text":text,"from_session":"s1","caller":{"client":"chengxiaobang"}});
+        if let Some(session) = session {
+            params["session"] = json!(session);
+        }
+        backend.request("agent_message", params)
+    };
+    // Unnamed: the open one that can take the words now, not the closed most
+    // recent one nor the one waiting for the user, which isn't asked about.
+    let sent = send(&mut backend, "first", None).unwrap();
+    assert_eq!(sent["to"]["session"], "chengxiaobang:s2");
+    assert_eq!(
+        client.1.lock().unwrap().last().unwrap(),
+        &vec!["chengxiaobang:s4".to_owned(), "chengxiaobang:s2".to_owned()]
+    );
+    // Named but closed: refused now, with no card left for the click.
+    let error = send(&mut backend, "second", Some("s4")).unwrap_err();
+    assert!(
+        error.contains("doesn't have this conversation open"),
+        "{error}"
+    );
+    // None that could take them now is open: the one waiting for the user
+    // takes them once it is answered.
+    client.0.lock().unwrap().remove("chengxiaobang:s2");
+    let held = send(&mut backend, "third", None).unwrap();
+    assert_eq!(held["to"]["session"], "chengxiaobang:s3");
+    let cards = backend.request("snapshot", json!({})).unwrap()["approvals"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|card| card["toolName"] == "hud_send_message")
+        .count();
+    assert_eq!(cards, 2, "the refused message left no card");
+}
+
+#[test]
 fn a_reply_for_a_wait_that_was_stopped_goes_into_the_conversation() {
     use std::sync::{Arc, Mutex};
     struct Fake(Mutex<Vec<(String, String)>>);

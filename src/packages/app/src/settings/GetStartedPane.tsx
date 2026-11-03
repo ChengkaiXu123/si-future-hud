@@ -306,8 +306,8 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
             [
               ["Which conversation", "送进哪个对话"],
               [
-                "unless the agent names one: in 程小帮, the conversation you opened last; in Claude Code and Codex, the one active most recently.",
-                "没指定时，程小帮送进你最近打开的对话，Claude Code 和 Codex 送进最近活动的对话；也可以让智能体指名某个对话。",
+                "unless the agent names one: in 程小帮, the conversation you opened last; in Claude Code, the one active most recently; in Codex, the most recent one open in Codex Desktop.",
+                "没指定时，程小帮送进你最近打开的对话，Claude Code 送进最近活动的对话，Codex 送进桌面版里开着的对话中最近的那个；也可以让智能体指名某个对话。",
               ],
             ],
             [

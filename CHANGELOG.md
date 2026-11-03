@@ -23,6 +23,7 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 - After `/clear` or a resume, the conversation it was stops counting as open at once. / `/clear` 或恢复会话后，原来的会话立刻不再算作开着。
 - A message held for a busy Codex conversation that fails for another reason says why; a terminal Codex session is named as such. / Codex 忙时延后的消息因别的原因失败时，会说明真正原因；在终端里开的 Codex 会话会直接说明收不了。
 - **A Codex conversation that isn't open in Codex Desktop** is named so, with what to do: open it, then send again. Before, it read _Codex did not answer in time_, because Desktop takes 10 seconds to say no window has it, and the HUD gave up after 5. / **Codex 桌面版没打开的对话**会直接说明，并提示在 Codex 里打开再发。以前显示「Codex 没有及时回应」：桌面版要 10 秒才回答「没有窗口打开它」，HUD 等 5 秒就放弃了。
+- **Messages for Codex go to a conversation Codex Desktop has open.** Before a message goes, the HUD asks Codex which of the recent conversations are open: without a named one, it goes to the most recent open one, not one that would fail; a named one that isn't open, or none open, is said at once, before a card you couldn't send. Asking takes at most 2 seconds, down from 5. / **发给 Codex 的消息会送进桌面版里开着的对话。** 发之前 HUD 先问 Codex 最近哪些对话开着：没指定对话时，发给最近一个开着的，不再挑一个发不进去的；指定的对话没开，或者一个开着的都没有，当场说明，不再生成一张点了也发不出去的卡片。查一次最多等 2 秒，以前是 5 秒。
 - **When SuperRoot can't send a message at once**, the card and the sending agent say why. Before, it quietly waited for your Send, and the agent was only told you'd confirm it. / **SuperRoot 没能直接送出的消息**，卡片和发件的智能体都会看到原因。以前只是悄悄改成等你点「发送」，智能体只被告知「已请用户确认」。
 
 **Get started, in detail / 「开始使用」写得更详细**
