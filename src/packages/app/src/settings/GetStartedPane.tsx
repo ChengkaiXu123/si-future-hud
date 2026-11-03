@@ -654,8 +654,8 @@ export function GetStartedPane({ snapshot }: { snapshot: Snapshot }) {
               [
                 ["Codex", "Codex"],
                 [
-                  "only conversations in the Codex desktop app take messages (not one in a terminal or an editor); mid-turn, the message waits for the turn to end.",
-                  "只有 Codex 桌面版里的对话能收消息，终端或编辑器里开的收不到；它正在跑一轮时，消息会等这一轮结束再送。",
+                  "only conversations open in the Codex desktop app take messages (not one in a terminal or an editor); mid-turn, the message waits for the turn to end.",
+                  "只有在 Codex 桌面版里打开着的对话能收消息，终端或编辑器里开的收不到；它正在跑一轮时，消息会等这一轮结束再送。",
                 ],
               ],
               [

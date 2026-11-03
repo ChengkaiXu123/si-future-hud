@@ -22,6 +22,8 @@ What changed since 0.1.5: fixes for what colleagues met in their first week: mes
 - **An earlier 程小帮 still running.** When an old 程小帮 backend didn't quit, conversations opened now can't take messages; Settings, the error and the message card say so and how to fix it. / **旧的程小帮没退干净。** 旧后台还在跑时，新打开的对话收不到消息；设置页、报错和消息卡片都会说明并给出处理办法。
 - After `/clear` or a resume, the conversation it was stops counting as open at once. / `/clear` 或恢复会话后，原来的会话立刻不再算作开着。
 - A message held for a busy Codex conversation that fails for another reason says why; a terminal Codex session is named as such. / Codex 忙时延后的消息因别的原因失败时，会说明真正原因；在终端里开的 Codex 会话会直接说明收不了。
+- **A Codex conversation that isn't open in Codex Desktop** is named so, with what to do: open it, then send again. Before, it read _Codex did not answer in time_, because Desktop takes 10 seconds to say no window has it, and the HUD gave up after 5. / **Codex 桌面版没打开的对话**会直接说明，并提示在 Codex 里打开再发。以前显示「Codex 没有及时回应」：桌面版要 10 秒才回答「没有窗口打开它」，HUD 等 5 秒就放弃了。
+- **When SuperRoot can't send a message at once**, the card and the sending agent say why. Before, it quietly waited for your Send, and the agent was only told you'd confirm it. / **SuperRoot 没能直接送出的消息**，卡片和发件的智能体都会看到原因。以前只是悄悄改成等你点「发送」，智能体只被告知「已请用户确认」。
 
 **Get started, in detail / 「开始使用」写得更详细**
 

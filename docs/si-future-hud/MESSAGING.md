@@ -62,7 +62,7 @@ Nothing, for new windows: the HUD sets everything up on its first launch. Window
 | Agent | To send | To receive |
 | --- | --- | --- |
 | **Claude Code** | New conversations get the HUD tools (`agent-hud` MCP). Conversations opened earlier use the command line, which the `si-future-hud` skill teaches them; a new skill reaches open conversations at once. | The HUD's Claude Code plugin, set up automatically. A conversation opened before it takes messages through Claude Code's own inbox (version 2.1.224 or later); one that skips permission prompts holds them for approval, which the desktop app can't show, so use `/reload-plugins` there. |
-| **Codex** | The same: HUD tools in new conversations, the skill and the command line in older ones. In Codex's sandbox, allow the command to leave it when asked. | The conversation must be in the **Codex desktop app**. One in the middle of a turn gets the message when the turn ends (within half an hour). |
+| **Codex** | The same: HUD tools in new conversations, the skill and the command line in older ones. In Codex's sandbox, allow the command to leave it when asked. | The conversation must be open in the **Codex desktop app**. One in the middle of a turn gets the message when the turn ends (within half an hour). |
 | **Chengxiaobang** | Nothing: its HUD tools are written into `~/.chengxiaobang/mcp.json` on launch. | Enable the **SI Future HUD** plugin once in Chengxiaobang → Plugins (no restart needed). Settings → Agent plugins shows whether it is enabled, with a button that opens Chengxiaobang. |
 
 Messaging doesn't depend on **Let agents arrange the HUD** or on **Answer questions**: those switches only cover the HUD tools and answering questions.

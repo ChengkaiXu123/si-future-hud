@@ -961,7 +961,7 @@ impl crate::AgentHudCore {
         let replyable = cli_waits || from != "codex" || reply_session.is_some();
         let ticket = self
             .requests
-            .register_native(id.clone(), view, now)
+            .register_native(id.clone(), view.clone(), now)
             .ok_or_else(|| {
                 crate::l10n::text(
                     "这条消息已经在等你确认了。",
@@ -1000,6 +1000,7 @@ impl crate::AgentHudCore {
             (true, true) => "对方会话现在没开着，消息会排队，等用户打开它才送达。",
             (true, false) => "That session isn't open; the message waits until the user opens it. ",
         };
+        let mut unsent = String::new();
         if auto {
             let decision = json!({"kind": "allow"});
             match self.answer_agent_message(&id, &decision, now) {
@@ -1036,13 +1037,27 @@ impl crate::AgentHudCore {
                         },
                     }));
                 }
-                // Not sendable now (the receiver waits for the user's answer,
-                // say): the card waits for the click, as without SuperRoot.
+                // Not sendable now (the Codex conversation isn't open, say):
+                // the card waits for the click, as without SuperRoot, and it
+                // and the sender say why.
                 Err(why) => {
                     eprintln!("SI Future HUD SuperRoot: {why}");
                     if let Some(message) = self.agent_messages.pending.get_mut(&id) {
                         message.auto = false;
                     }
+                    let why = why.trim_end_matches(['。', '.', ' ']);
+                    unsent = if chinese() {
+                        format!("SuperRoot 模式开着，但这条没能直接送出（{why}）。")
+                    } else {
+                        format!("SuperRoot mode is on, but this one couldn't go at once ({why}). ")
+                    };
+                    let mut view = view;
+                    view["detail"] = json!(format!(
+                        "{}\n\n{}",
+                        view["detail"].as_str().unwrap_or_default(),
+                        unsent.trim_end()
+                    ));
+                    self.requests.refresh_native(&id, view);
                 }
             }
         }
@@ -1051,10 +1066,10 @@ impl crate::AgentHudCore {
             "id": id,
             "to": {"agent": to, "session": target.session, "title": target.title, "queued": target.queued},
             "note": if chinese() {
-                format!("已请用户在 HUD 上确认，确认后才会送进对方会话。{queued}{reply}{}", caution.as_deref().unwrap_or_default())
+                format!("{unsent}已请用户在 HUD 上确认，确认后才会送进对方会话。{queued}{reply}{}", caution.as_deref().unwrap_or_default())
             } else {
                 format!(
-                    "The user confirms it on the HUD before it goes into that session. {queued}{reply}{}",
+                    "{unsent}The user confirms it on the HUD before it goes into that session. {queued}{reply}{}",
                     caution.map(|caution| format!(" {caution}")).unwrap_or_default()
                 )
             },

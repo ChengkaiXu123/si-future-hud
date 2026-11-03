@@ -103,6 +103,8 @@ Update Claude Code with `claude update`, then install the plugin from **Settings
 
 Only conversations in the **Codex desktop app** can receive. The Codex CLI shows its status on the HUD, but it can't take messages.
 
+The conversation must also be open in the desktop app. When the HUD says _Codex Desktop doesn't have this conversation open_, open that conversation in Codex and send again. The same goes with SuperRoot on: such a message waits for you instead, so open the conversation, then press Send on its card.
+
 The HUD talks to Codex desktop over `~/.codex/ipc/ipc.sock`. That channel only connects while a desktop conversation is running or waiting.
 </details>
 

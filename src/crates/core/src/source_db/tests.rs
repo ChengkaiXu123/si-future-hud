@@ -1554,6 +1554,76 @@ fn super_root_sends_verified_messages_at_once_a_limited_number_at_a_time() {
 }
 
 #[test]
+fn words_super_root_could_not_send_wait_for_the_click_and_the_card_and_sender_say_why() {
+    use std::sync::Arc;
+    // The receiver can't take words now, as a Codex conversation no
+    // Desktop window has open.
+    struct Closed;
+    impl crate::replies::SessionReplies for Closed {
+        fn reaches(&self, _: &str, _: &str) -> Result<(), crate::replies::Unreachable> {
+            Ok(())
+        }
+        fn reply(&self, _: &str, _: &str, _: &str) -> Result<(), String> {
+            Err("not open here: open it, then send again.".into())
+        }
+    }
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("chengxiaobang.sqlite");
+    let db = Connection::open(&path).unwrap();
+    db.execute_batch(
+        "CREATE TABLE sessions(id TEXT,title TEXT);
+         CREATE TABLE usage_cost_entries(id TEXT,session_id TEXT,model TEXT,prompt_tokens INTEGER,completion_tokens INTEGER,cached_prompt_tokens INTEGER,entry_created_at TEXT);
+         INSERT INTO sessions VALUES('s1','Meetings');
+         INSERT INTO sessions VALUES('s2','Reports');",
+    )
+    .unwrap();
+    let at = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    for (entry, session) in [("u1", "s1"), ("u2", "s2")] {
+        db.execute(
+            "INSERT INTO usage_cost_entries VALUES(?1,?2,'auto(free)',100,10,40,?3)",
+            [entry, session, at.as_str()],
+        )
+        .unwrap();
+    }
+    let mut backend = AgentHudCore::new(
+        vec![SourceRoot {
+            path,
+            provider: "chengxiaobang",
+        }],
+        root.path().join("hud"),
+    );
+    backend.set_session_replies(Some(Arc::new(Closed)));
+    refresh(&mut backend);
+    backend
+        .request("set_setting", json!({"key":"superRoot","value":true}))
+        .unwrap();
+    let proposed = backend
+        .request(
+            "agent_message",
+            json!({"to":"chengxiaobang","session":"s2","text":"hello","from_session":"s1","caller":{"client":"chengxiaobang"}}),
+        )
+        .unwrap();
+    assert_eq!(proposed["status"], "pending");
+    let note = proposed["note"].as_str().unwrap();
+    assert!(
+        note.contains("SuperRoot") && note.contains("open it, then send again"),
+        "{note}"
+    );
+    let card = backend.request("snapshot", json!({})).unwrap()["approvals"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|a| a["id"] == proposed["id"])
+        .cloned()
+        .unwrap();
+    let detail = card["detail"].as_str().unwrap();
+    assert!(
+        detail.contains("hello") && detail.contains("open it, then send again"),
+        "{detail}"
+    );
+}
+
+#[test]
 fn a_reply_for_a_wait_that_was_stopped_goes_into_the_conversation() {
     use std::sync::{Arc, Mutex};
     struct Fake(Mutex<Vec<(String, String)>>);

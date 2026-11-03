@@ -11,7 +11,17 @@ fn failed(error: IpcError) -> String {
     error.to_string()
 }
 
+fn not_open() -> String {
+    agent_hud_core::l10n::text(
+        "Codex 桌面版没有打开这个对话：在 Codex 里打开它，再发一次。",
+        "Codex Desktop doesn't have this conversation open: open it in Codex, then send again.",
+    )
+}
+
 /// Which client of the desktop app owns `thread` now, if the app has it open.
+/// A window that has it answers at once; for one no window has, Desktop
+/// (26.1016) says so only after its own 10-second search, past this
+/// connection's wait, so a wait that runs out reads as not open too.
 fn owner(connection: &mut DesktopIpc, client: &str, thread: &str) -> Result<String, String> {
     let discovery = connection
         .request(
@@ -23,22 +33,14 @@ fn owner(connection: &mut DesktopIpc, client: &str, thread: &str) -> Result<Stri
             None,
         )
         .map_err(|error| match error {
-            IpcError::Rejected(_) => agent_hud_core::l10n::text(
-                "Codex 桌面版没有打开这个对话。",
-                "Codex Desktop doesn't have this conversation open.",
-            ),
+            IpcError::Rejected(_) | IpcError::TimedOut => not_open(),
             other => failed(other),
         })?;
     discovery["handledByClientId"]
         .as_str()
         .filter(|owner| !owner.is_empty())
         .map(str::to_owned)
-        .ok_or_else(|| {
-            agent_hud_core::l10n::text(
-                "Codex 桌面版没有打开这个对话。",
-                "Codex Desktop doesn't have this conversation open.",
-            )
-        })
+        .ok_or_else(not_open)
 }
 
 /// Sends `text` into `thread` as a new turn. Ok("start") when Codex confirms
@@ -151,6 +153,61 @@ impl agent_hud_core::replies::SessionReplies for CodexReplies {
 
 #[cfg(test)]
 mod tests {
+    /// A Desktop that knows no window with the thread: it answers the
+    /// handshake, then `owner` (an error, or nothing within the wait).
+    fn desktop(owner: Option<&'static str>) -> tempfile::TempDir {
+        use serde_json::{json, Value};
+        use std::io::{Read, Write};
+        let home = tempfile::tempdir().unwrap();
+        std::fs::create_dir(home.path().join("ipc")).unwrap();
+        let listener =
+            std::os::unix::net::UnixListener::bind(home.path().join("ipc/ipc.sock")).unwrap();
+        std::thread::spawn(move || {
+            let (mut socket, _) = listener.accept().unwrap();
+            let receive = |socket: &mut std::os::unix::net::UnixStream| {
+                let mut header = [0; 4];
+                socket.read_exact(&mut header).ok()?;
+                let mut bytes = vec![0; u32::from_le_bytes(header) as usize];
+                socket.read_exact(&mut bytes).ok()?;
+                serde_json::from_slice::<Value>(&bytes).ok()
+            };
+            let answer = |socket: &mut std::os::unix::net::UnixStream, message: Value| {
+                let bytes = serde_json::to_vec(&message).unwrap();
+                socket
+                    .write_all(&(bytes.len() as u32).to_le_bytes())
+                    .unwrap();
+                socket.write_all(&bytes).unwrap();
+            };
+            let initialize = receive(&mut socket).unwrap();
+            answer(
+                &mut socket,
+                json!({"type":"response","requestId":initialize["requestId"],"resultType":"success","method":"initialize","result":{"clientId":"hud"}}),
+            );
+            let discovery = receive(&mut socket).unwrap();
+            match owner {
+                Some(error) => answer(
+                    &mut socket,
+                    json!({"type":"response","requestId":discovery["requestId"],"resultType":"error","error":error}),
+                ),
+                None => std::thread::sleep(std::time::Duration::from_secs(8)),
+            }
+        });
+        home
+    }
+
+    #[test]
+    fn a_conversation_no_window_has_open_is_named_so_whether_desktop_says_it_or_lets_the_wait_run_out(
+    ) {
+        for owner in [Some("no-client-found"), None] {
+            let home = desktop(owner);
+            assert_eq!(
+                super::send(home.path(), "thread", "hello"),
+                Err(super::not_open()),
+                "{owner:?}"
+            );
+        }
+    }
+
     /// Sends one message into a real Codex Desktop thread: run by hand with
     /// CODEX_TEST_THREAD set, as `cargo test -p agent-hud-platform --lib
     /// codex_message_live -- --ignored --nocapture`.

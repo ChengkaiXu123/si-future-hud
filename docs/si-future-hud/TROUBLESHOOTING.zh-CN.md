@@ -103,6 +103,8 @@ claude auth status
 
 只有 **Codex 桌面版**的对话能收传话。命令行版 Codex 会在 HUD 上显示状态，但收不了消息。
 
+对话还要在桌面版里打开着。HUD 提示「Codex 桌面版没有打开这个对话」时，在 Codex 里点开那个对话，再发一次。开着 SuperRoot 时也一样：这种消息会改成等你确认，点开对话后在卡片上点「发送」。
+
 HUD 通过 `~/.codex/ipc/ipc.sock` 和 Codex 桌面版通信，这个通道只在桌面版有对话正在运行或等待时才连得上。
 </details>
 
