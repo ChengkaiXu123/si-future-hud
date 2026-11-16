@@ -49,6 +49,17 @@ impl Host for AccountContext {
         self.account_homes.get(agent).cloned().unwrap_or_default()
     }
     fn account_reports(&self, agent: &str) -> Vec<Value> {
+        if matches!(agent, "claude" | "chengxiaobang") {
+            let channel = self.data_dir.join(if agent == "claude" {
+                crate::claude_plugin::CHANNEL_FOLDER
+            } else {
+                "chengxiaobang-channel"
+            });
+            return crate::claude_plugin::ClaudeChannel::new(channel)
+                .usage()
+                .into_iter()
+                .collect();
+        }
         crate::hooks::account_reports(&self.data_dir, agent, &self.account_homes(agent))
     }
     fn read_file(&self, path: &Path, limit: u64) -> Answer<Vec<u8>> {

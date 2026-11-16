@@ -1,4 +1,5 @@
 //! 程小帮 (Chengxiaobang), Trip.com's AI workbench.
+pub mod account;
 pub mod transcript;
 
 use crate::replies::Replies;

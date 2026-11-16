@@ -576,6 +576,10 @@ mod tests {
         let script = fs::read_to_string(plugin.folder().join("hooks/register.ts")).unwrap();
         assert!(script.contains(&*root.path().join("channel").to_string_lossy()));
         assert!(!script.contains("__AGENT_HUD_CHANNEL_JSON__"));
+        assert!(script.contains("/api/auth/ada/usage"));
+        assert!(script.contains("/usage.json"));
+        assert!(script.contains("CHENGXIAOBANG_API_BASE"));
+        assert!(script.contains("CHENGXIAOBANG_API_TOKEN"));
         let replies = plugin.replies(None);
         let refused = replies
             .reaches("chengxiaobang", "chengxiaobang:s_1")

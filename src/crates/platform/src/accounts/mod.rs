@@ -43,7 +43,7 @@ type Reader = fn(&dyn agents::Host) -> Result<AccountReading, String>;
 /// One reading at a time, in this order, as UsageCollector runs the sources'
 /// account steps: Claude, Codex, DeepSeek, then the additional sources in
 /// AdditionalSource order, then the open agents (CombinedUsageProvider).
-const READERS: [(&str, Reader); 11] = [
+const READERS: [(&str, Reader); 12] = [
     ("claude", agents::claude::account::read),
     ("codex", agents::codex::account::read),
     ("deepseek", agents::deepseek::account::read),
@@ -55,6 +55,7 @@ const READERS: [(&str, Reader); 11] = [
     ("kimi", agents::coding_plans::kimi),
     ("glm", agents::coding_plans::glm),
     ("opencode", agents::coding_plans::opencode_go),
+    ("chengxiaobang", agents::chengxiaobang::account::read),
 ];
 
 /// Whether this Mac's work moves the provider's windows. Codex's are spent
@@ -984,6 +985,30 @@ mod tests {
             pause >= Duration::from_secs(60).saturating_sub(elapsed),
             "the pending callback respects the account's 60-second request spacing",
         );
+    }
+
+    #[test]
+    fn chengxiaobang_reports_come_from_its_channel() {
+        let directory = tempfile::tempdir().unwrap();
+        let data = directory.path().join("data");
+        let service = AccountService::with_readers(
+            directory.path().into(),
+            data.clone(),
+            HashSet::new(),
+            CollectionGate::default(),
+            &[],
+        )
+        .unwrap();
+        assert!(agents::Host::account_reports(&service.context, "chengxiaobang").is_empty());
+        let channel = data.join("chengxiaobang-channel");
+        std::fs::create_dir_all(&channel).unwrap();
+        let report = json!({"at":1,"usage":{"status":"available","usedUsd":25,"totalUsd":100}});
+        std::fs::write(channel.join("usage.json"), report.to_string()).unwrap();
+        assert_eq!(
+            agents::Host::account_reports(&service.context, "chengxiaobang"),
+            vec![report]
+        );
+        assert!(agents::Host::account_reports(&service.context, "claude").is_empty());
     }
 
     #[test]

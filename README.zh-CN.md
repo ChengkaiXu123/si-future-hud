@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.6-7c8cff?style=for-the-badge" alt="版本 v0.1.6"></a>
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.7-7c8cff?style=for-the-badge" alt="版本 v0.1.7"></a>
   <img src="https://img.shields.io/badge/macOS-12%2B%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12 以上，Apple 芯片">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-2ea44f?style=for-the-badge" alt="Apache-2.0"></a>
   <a href="https://github.com/jazzenchen/agent-hud-open"><img src="https://img.shields.io/badge/based%20on-Agent%20HUD-ff8a5c?style=for-the-badge" alt="基于 Agent HUD"></a>
@@ -178,7 +178,7 @@ Claude Code、Codex（桌面版）和程小帮现在可以互相发消息。比�
 | --- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Claude Code** | ✓ | ✓ | ✓ | ✓ | ✓ | 能发能收 |
 | **Codex** | ✓ | ✓ | ✓ | ✓ | ✓ | 能发能收（桌面版） |
-| **程小帮** | 近 24 小时用量 | ✓ |  | ✓ | ✓ | 能发能收 |
+| **程小帮** | AI Coding Plan（月度、5 小时） | ✓ |  | ✓ | ✓ | 能发能收 |
 | **Cursor** | ✓ | ✓ |  |  | ✓ |  |
 | **Grok Bot** | ✓ | ✓ |  | 只显示 | ✓ |  |
 
@@ -203,7 +203,7 @@ Agent HUD 支持的其他助手也都保留，比如 DeepSeek、GitHub Copilot C
 > ⚠️ **用之前请先看这几条。**
 > - **Claude Code 要装 `claude` 命令。** HUD 通过这个命令接入 Claude Code，只用桌面版的话也要装上，再重开一次 HUD。没有它，Claude 收发不了传话。
 > - **Codex 不用另装。** 装了 Codex 桌面版（Codex.app，或带 Codex 的 ChatGPT App）的，HUD 会直接用它自带的 `codex` 命令，不用再装 Codex 命令行版。只在终端里用 Codex、没装桌面版的，才需要装 `codex`。
-> - **Claude 的额度要终端里的 `claude` 登录着。** 桌面 App 的登录和终端的不共用。面板里显示「Claude Code 已退出登录」时，在终端运行 `claude` 登录一次就好。
+> - **Claude 的额度优先由终端里的 `claude` 读。** 桌面 App 的登录和终端的不共用。终端没登录时，HUD 改为显示 Claude Code 会话（包括桌面 App 里的）最近报告的 5 小时和每周额度；想看按模型分的周额度，在终端运行 `claude` 登录一次。
 > - **Codex 只有桌面版的对话能收传话**，而且对方正在干活时收不了。
 > - **程小帮**：在它的「插件」页启用一次 SI Future HUD 插件。程小帮每次重启后，要点开某个对话一次，那个对话才能收传话。
 > - **装 HUD 之前就开着的对话**：在 Claude Code 里输入 `/reload-plugins`，或者直接新开一个对话。

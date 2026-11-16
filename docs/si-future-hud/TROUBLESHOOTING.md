@@ -55,9 +55,11 @@ The release is built for **Apple silicon** (arm64) and **macOS 12+**. On an Inte
 ## Claude Code
 
 <details open>
-<summary><b>The panel says "Claude Code is signed out", but the desktop app is signed in</b></summary>
+<summary><b>The panel says "The terminal claude is signed out", but the desktop app is signed in</b></summary>
 
 **Why:** the HUD reads Claude's quota through the **terminal `claude` command**. It runs `get_usage` and checks `claude auth status`. The Claude desktop app manages its own sign‑in for the Claude Code inside it, and that sign‑in is **not shared** with the terminal command. A CLI update or an expired token can sign the terminal out while the desktop app stays signed in.
+
+While the terminal can't read it, a Claude Code session running the HUD's plugin (the desktop app's sessions too) that has talked to the model reports the 5‑hour and weekly windows, and the panel shows those, saying *these are the figures a Claude Code session reported at* a time. They then change only while a session works, and a model's own weekly window isn't among them. Sessions already open start reporting after `/reload-plugins`.
 
 **Check:**
 
@@ -65,7 +67,7 @@ The release is built for **Apple silicon** (arm64) and **macOS 12+**. On an Inte
 claude auth status
 ```
 
-**Fix:** run `claude` in Terminal and sign in (or type `/login`), using the same account. The quota returns on the HUD's next reading.
+**Fix:** for the full quota, run `claude` in Terminal and sign in (or type `/login`), using the same account. The HUD's next reading uses the terminal's figures again.
 </details>
 
 <details>
@@ -121,12 +123,32 @@ Codex has to trust the HUD's hook once. When Codex asks whether to trust it, all
 </details>
 
 <details>
+<summary><b>Codex approvals show on the HUD only, not in the Codex window</b></summary>
+
+That's how Codex works, not a fault. Codex waits for the HUD's hook to decide before it shows its own approval prompt. So while the HUD runs, approvals to run a command or edit a file show on the HUD first, and Codex waits at that step with no prompt in its window.
+
+- Answer on the HUD and Codex carries on.
+- Left unanswered for **Settings → General → Wait for an answer** (10 minutes unless you change it), the request goes back to Codex, and only then does Codex show its own prompt.
+- With the HUD not running, Codex asks you itself.
+
+An approval is never lost, and the HUD never approves for you. If you can't keep an eye on the HUD, set **Wait for an answer** to 1 minute. To keep Codex's approvals in Codex only, turn off **Client hooks**; that switch covers every client, so Claude Code's approvals stop showing on the HUD too.
+
+Claude Code is different: its own window and the HUD show the approval at the same time, and you can answer in either.
+</details>
+
+<details>
 <summary><b>Codex can't send messages</b></summary>
 
 The HUD tools weren't added to Codex, because no `codex` command was found. The HUD first uses the one inside the Codex desktop app, so move the app into **Applications** (or `~/Applications`) and reopen the HUD. Without the app, install the Codex CLI. Check with `codex mcp list`, or the app's copy shown above.
 </details>
 
 ## Chengxiaobang 程小帮
+
+<details>
+<summary><b>AI Coding Plan quotas are missing</b></summary>
+
+Confirm that Chengxiaobang is running, its HUD plugin is enabled, and you are signed in to Chengxiaobang. Open a conversation so the plugin can report usage; refreshes occur at most once every five minutes.
+</details>
 
 <details open>
 <summary><b>Chengxiaobang doesn't appear, or never receives messages</b></summary>
@@ -200,7 +222,7 @@ Each display keeps its own look and position. Check that you edited the display 
 <details>
 <summary><b>An approval disappeared before I answered</b></summary>
 
-After 10 minutes without an answer, the request goes back to the agent. You can still answer it there.
+Left unanswered for **Settings → General → Wait for an answer** (10 minutes unless you change it), the request goes back to the agent. You can still answer it there.
 </details>
 
 <details>

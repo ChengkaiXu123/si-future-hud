@@ -191,7 +191,9 @@ pub trait Host {
     fn account_homes(&self, _agent: &str) -> Vec<PathBuf> {
         Vec::new()
     }
-    /// Sanitized subscription reports supplied by a connected client's callback.
+    /// Subscription reports a connected client supplied: Antigravity's
+    /// callback, sanitized, or the plan windows a Claude Code session running
+    /// the HUD's plugin last reported, as written.
     fn account_reports(&self, _agent: &str) -> Vec<Value> {
         Vec::new()
     }

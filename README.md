@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.6-7c8cff?style=for-the-badge" alt="Release v0.1.6"></a>
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.7-7c8cff?style=for-the-badge" alt="Release v0.1.7"></a>
   <img src="https://img.shields.io/badge/macOS-12%2B%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12+ on Apple silicon">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-2ea44f?style=for-the-badge" alt="Apache-2.0"></a>
   <a href="https://github.com/jazzenchen/agent-hud-open"><img src="https://img.shields.io/badge/based%20on-Agent%20HUD-ff8a5c?style=for-the-badge" alt="Based on Agent HUD"></a>
@@ -178,7 +178,7 @@ Chengxiaobang looks it up and sends each agent its answer. The agents then compa
 | --- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Claude Code** | ✓ | ✓ | ✓ | ✓ | ✓ | send + receive |
 | **Codex** | ✓ | ✓ | ✓ | ✓ | ✓ | send + receive (desktop app) |
-| **Chengxiaobang 程小帮** | last 24 h of tokens | ✓ |  | ✓ | ✓ | send + receive |
+| **Chengxiaobang 程小帮** | AI Coding Plan (monthly, 5-hour) | ✓ |  | ✓ | ✓ | send + receive |
 | **Cursor** | ✓ | ✓ |  |  | ✓ |  |
 | **Grok Bot** | ✓ | ✓ |  | display | ✓ |  |
 
@@ -203,7 +203,7 @@ On first launch it sets itself up:
 > ⚠️ **Read this before your first day with it.**
 > - **Claude Code needs the `claude` command.** The HUD connects to Claude Code through it, so install it even if you only use the desktop app, then reopen the HUD. Without it, Claude can't send or receive messages.
 > - **Codex needs nothing extra.** If you have the Codex desktop app (Codex.app, or the ChatGPT app that carries Codex), the HUD uses the `codex` command built into it. You don't need to install the Codex CLI. Only people who use Codex purely from the terminal need `codex` installed.
-> - **Claude's quota needs the terminal `claude` signed in.** The desktop app's sign‑in is separate. If the panel says *Claude Code is signed out*, run `claude` in a terminal and sign in.
+> - **Claude's quota is read through the terminal `claude` first.** The desktop app's sign‑in is separate. With the terminal signed out, the HUD shows the 5‑hour and weekly windows a Claude Code session (the desktop app's too) last reported; for a model's own weekly window, run `claude` in a terminal and sign in.
 > - **Codex receives messages only in Codex desktop conversations**, and only when that conversation isn't busy with a turn.
 > - **Chengxiaobang:** enable the *SI Future HUD* plugin once on its Plugins page. After each restart, open a conversation once so that it can receive.
 > - **Conversations opened before you installed the HUD** need `/reload-plugins` (Claude Code), or simply start a new one.

@@ -32,7 +32,10 @@ impl ClaudePlugin {
             Some(paths) => paths,
             None => {
                 let data = agent_hud_runtime::local_tools_directory()?;
-                (data.join("claude-channel"), data.join("claude-plugin"))
+                (
+                    data.join(plugin::CHANNEL_FOLDER),
+                    data.join("claude-plugin"),
+                )
             }
         };
         Ok(Self {

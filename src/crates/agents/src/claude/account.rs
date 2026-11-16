@@ -142,10 +142,13 @@ pub fn read(host: &dyn Host) -> Result<Reading, String> {
                 .ok()
                 .and_then(|mut engine| engine.joined(Instant::now() + Duration::from_secs(10)))
                 .and_then(|val| val["loggedIn"].as_bool());
+            if let Some(reported) = reported(host, signed_in == Some(false)) {
+                return Ok(reported);
+            }
             reading.notice = Some(if signed_in == Some(false) {
                 l10n::text(
-                    "Claude Code 已退出登录，运行 claude 重新登录后恢复额度",
-                    "Claude Code is signed out. Run claude to sign in again and the quota returns",
+                    "终端的 claude 没登录（和桌面 App 的登录分开）。在终端运行 claude 登录后恢复额度",
+                    "The terminal claude is signed out (separate from the desktop app's sign-in). Run claude in a terminal to sign in and the quota returns",
                 )
             } else {
                 l10n::text(
@@ -156,43 +159,8 @@ pub fn read(host: &dyn Host) -> Result<Reading, String> {
             return Ok(reading);
         }
         let windows = windows(&payload["rate_limits"]).ok_or_else(malformed)?;
-        let id = identity(&after).unwrap_or_else(|| {
-            account_id(
-                "claude",
-                &["unresolved", config_dir(host).to_string_lossy().as_ref()],
-            )
-        });
-        let label = after["emailAddress"].as_str();
-        let legacy = legacy_account(
-            "Claude",
-            after["accountUuid"].as_str().unwrap_or(""),
-            after["organizationUuid"].as_str().unwrap_or(""),
-        );
-        let account_identity = legacy.unwrap_or_else(|| {
-            legacy_unresolved(
-                "Claude",
-                &client_home_key(host, &config_dir(host), &host.home().join(".claude")),
-            )
-        });
-        reading.account = Some(
-            json!({"id":account_identity,"provider":"claude","label":label,"plan":plan(&after,payload["subscription_type"].as_str())}),
-        );
-        for window in windows {
-            let Window {
-                key,
-                name,
-                percent,
-                reset,
-                family,
-            } = window;
-            // "5h", "Weekly", and a family's weekly window by the family alone.
-            let short = match family.as_deref() {
-                Some(_) => window_names::leading(name.trim_start_matches("Weekly limit · ")),
-                None if key == "claude-session" => window_names::Period::FiveHours.short_name(),
-                None => window_names::Period::Week.short_name(),
-            };
-            reading.quotas.push(json!({"id":format!("{id}:{key}"),"vendor":"claude","name":name,"shortLabel":short,"usedPercent":percent,"resetAt":reset,"status":status(percent),"account":label,"accountId":account_identity,"legacyWindowId":format!("{account_identity}/{key}"),"consumerSource":"claude","windowDurationSeconds":if key=="claude-session"{5*3600}else{7*86400},"allModels":family.is_none(),"modelFamilies":family.map(|family|vec![family])}));
-        }
+        let plan = plan(&after, payload["subscription_type"].as_str());
+        fill(&mut reading, host, &after, plan, windows, None);
         return Ok(reading);
     }
     let reason = process.stderr_preview(200).unwrap_or_else(|| {
@@ -202,6 +170,123 @@ pub fn read(host: &dyn Host) -> Result<Reading, String> {
         )
     });
     Err(engine_failed(&reason))
+}
+
+/// The account and its windows on `reading`, the account as `profile` names
+/// it; each window `observed` then, else when the platform checked.
+fn fill(
+    reading: &mut Reading,
+    host: &dyn Host,
+    profile: &Value,
+    plan: Option<String>,
+    windows: Vec<Window>,
+    observed: Option<&str>,
+) {
+    let id = identity(profile).unwrap_or_else(|| {
+        account_id(
+            "claude",
+            &["unresolved", config_dir(host).to_string_lossy().as_ref()],
+        )
+    });
+    let label = profile["emailAddress"].as_str();
+    let legacy = legacy_account(
+        "Claude",
+        profile["accountUuid"].as_str().unwrap_or(""),
+        profile["organizationUuid"].as_str().unwrap_or(""),
+    );
+    let account_identity = legacy.unwrap_or_else(|| {
+        legacy_unresolved(
+            "Claude",
+            &client_home_key(host, &config_dir(host), &host.home().join(".claude")),
+        )
+    });
+    reading.account =
+        Some(json!({"id":account_identity,"provider":"claude","label":label,"plan":plan}));
+    for window in windows {
+        let Window {
+            key,
+            name,
+            percent,
+            reset,
+            family,
+        } = window;
+        // "5h", "Weekly", and a family's weekly window by the family alone.
+        let short = match family.as_deref() {
+            Some(_) => window_names::leading(name.trim_start_matches("Weekly limit · ")),
+            None if key == "claude-session" => window_names::Period::FiveHours.short_name(),
+            None => window_names::Period::Week.short_name(),
+        };
+        reading.quotas.push(json!({"id":format!("{id}:{key}"),"vendor":"claude","name":name,"shortLabel":short,"usedPercent":percent,"resetAt":reset,"status":status(percent),"account":label,"accountId":account_identity,"legacyWindowId":format!("{account_identity}/{key}"),"consumerSource":"claude","windowDurationSeconds":if key=="claude-session"{5*3600}else{7*86400},"allModels":family.is_none(),"modelFamilies":family.map(|family|vec![family]),"observedAt":observed}));
+    }
+}
+
+/// Claude's plan windows as a Claude Code session running the HUD's plugin
+/// last reported them (`$.session.usage()`): that session's own sign-in, so
+/// the desktop app's sessions, signed in apart from the terminal `claude`,
+/// count too. The 5-hour and weekly windows only, none of a model's own.
+/// None when no session reported any.
+fn reported(host: &dyn Host, signed_out: bool) -> Option<Reading> {
+    let report = host.account_reports("claude").into_iter().next()?;
+    let at = chrono::DateTime::from_timestamp_millis(report["at"].as_i64()?)?;
+    let mut windows = Vec::new();
+    for window in report["windows"].as_array()? {
+        let (key, name) = match window["kind"].as_str() {
+            Some("five_hour") => ("claude-session", "Current session"),
+            Some("seven_day") => ("claude-weekly", "Weekly limit · All models"),
+            _ => continue,
+        };
+        let Some(percent) = window["percentUsed"].as_f64().filter(|p| p.is_finite()) else {
+            continue;
+        };
+        let reset = window["resetsAt"]
+            .as_str()
+            .and_then(|value| chrono::DateTime::parse_from_rfc3339(value).ok())
+            .map(|value| value.to_utc().to_rfc3339());
+        windows.push(Window {
+            key: key.into(),
+            name: name.into(),
+            percent,
+            reset,
+            family: None,
+        });
+    }
+    if windows.is_empty() {
+        return None;
+    }
+    // The session names its account where the desktop app started it; a
+    // session that doesn't is the account Claude Code's .claude.json names.
+    let saved = profile(host);
+    let named = json!({
+        "accountUuid": report["accountUuid"],
+        "organizationUuid": report["organizationUuid"],
+        "emailAddress": report["email"],
+    });
+    let account = match identity(&named) {
+        Some(id) if identity(&saved).as_deref() != Some(id.as_str()) => named,
+        _ => saved,
+    };
+    let plan = plan(&account, Some("")).filter(|plan| !plan.is_empty());
+    let mut reading = Reading::empty("claude");
+    let observed = at.to_rfc3339();
+    fill(&mut reading, host, &account, plan, windows, Some(&observed));
+    let local = at.with_timezone(&chrono::Local);
+    let time = if local.date_naive() == chrono::Local::now().date_naive() {
+        local.format("%H:%M")
+    } else {
+        local.format("%m-%d %H:%M")
+    };
+    reading.notice = Some(if signed_out {
+        l10n::text(
+            &format!("终端的 claude 没登录，这里是 Claude Code 会话在 {time} 报告的额度"),
+            &format!("The terminal claude is signed out; these are the figures a Claude Code session reported at {time}"),
+        )
+    } else {
+        l10n::text(
+            &format!("终端 claude 的登录方式没有订阅额度，这里是 Claude Code 会话在 {time} 报告的额度"),
+            &format!("The terminal claude's login has no plan limits; these are the figures a Claude Code session reported at {time}"),
+        )
+    });
+    Some(reading)
 }
 
 /// One plan window as the engine reports it.
@@ -382,7 +467,7 @@ mod tests {
             .insert("auth".into(), vec![json!({"loggedIn": false})]);
         assert_eq!(
             read(&host).unwrap().notice.as_deref(),
-            Some("Claude Code is signed out. Run claude to sign in again and the quota returns")
+            Some("The terminal claude is signed out (separate from the desktop app's sign-in). Run claude in a terminal to sign in and the quota returns")
         );
         let mut host = installed(none);
         host.engine_output
@@ -392,6 +477,97 @@ mod tests {
             Some("No plan limits for this login (API key or third-party platform)")
         );
         assert_eq!(host.started.borrow()[1].1, ["auth", "status", "--json"]);
+    }
+
+    #[test]
+    fn a_terminal_that_cant_read_the_quota_shows_what_a_session_reported() {
+        let none = json!({"subtype": "success", "response": {"rate_limits_available": false}});
+        let report = |account: &str| {
+            json!({
+                "at": 1_793_700_000_000_i64, "session": "s1",
+                "accountUuid": account, "organizationUuid": "org-1", "email": "desk@example.com",
+                "windows": [
+                    {"kind": "five_hour", "percentUsed": 23.5, "resetsAt": "2026-11-03T15:00:00+08:00"},
+                    {"kind": "seven_day", "percentUsed": 41, "resetsAt": "2026-11-07T00:00:00Z"},
+                    {"kind": "spend_limit", "percentUsed": 10},
+                ],
+            })
+        };
+        // The desktop app's session names the account .claude.json names: its plan too.
+        let mut host = installed(none.clone());
+        host.engine_output
+            .insert("auth".into(), vec![json!({"loggedIn": false})]);
+        host.account_reports
+            .insert("claude".into(), vec![report("user-1")]);
+        let reading = read(&host).unwrap();
+        assert!(reading
+            .notice
+            .as_deref()
+            .unwrap()
+            .starts_with("The terminal claude is signed out; these are the figures a Claude Code session reported at "));
+        assert_eq!(reading.account.as_ref().unwrap()["plan"], "max_20x");
+        assert_eq!(reading.account.as_ref().unwrap()["label"], "me@example.com");
+        let rows: Vec<_> = reading
+            .quotas
+            .iter()
+            .map(|row| {
+                (
+                    row["name"].clone(),
+                    row["usedPercent"].clone(),
+                    row["resetAt"].clone(),
+                )
+            })
+            .collect();
+        assert_eq!(
+            rows,
+            [
+                (
+                    json!("Current session"),
+                    json!(23.5),
+                    json!("2026-11-03T07:00:00+00:00")
+                ),
+                (
+                    json!("Weekly limit · All models"),
+                    json!(41.0),
+                    json!("2026-11-07T00:00:00+00:00")
+                ),
+            ]
+        );
+        assert_eq!(reading.quotas[0]["observedAt"], "2026-11-03T10:00:00+00:00");
+        assert_eq!(reading.quotas[0]["shortLabel"], "5h");
+
+        // Another account than .claude.json's: its own name, no plan known.
+        let mut host = installed(none.clone());
+        host.engine_output
+            .insert("auth".into(), vec![json!({"loggedIn": true})]);
+        host.account_reports
+            .insert("claude".into(), vec![report("user-2")]);
+        let reading = read(&host).unwrap();
+        assert!(reading
+            .notice
+            .as_deref()
+            .unwrap()
+            .starts_with("The terminal claude's login has no plan limits; "));
+        assert_eq!(
+            reading.account.as_ref().unwrap()["label"],
+            "desk@example.com"
+        );
+        assert_eq!(reading.account.as_ref().unwrap()["plan"], Value::Null);
+
+        // A report with no plan window is no reading.
+        let mut host = installed(none);
+        host.engine_output
+            .insert("auth".into(), vec![json!({"loggedIn": false})]);
+        host.account_reports.insert(
+            "claude".into(),
+            vec![json!({"at": 1_793_700_000_000_i64, "windows": [{"kind": "spend_limit", "percentUsed": 10}]})],
+        );
+        let reading = read(&host).unwrap();
+        assert!(reading.quotas.is_empty());
+        assert!(reading
+            .notice
+            .unwrap()
+            .starts_with("The terminal claude is signed out (separate"));
     }
 
     #[test]

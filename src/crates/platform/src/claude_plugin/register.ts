@@ -15,6 +15,30 @@ export const register: Register = on => {
     let checking = false
     let ticks = 0
     let last = ''
+    // The plan's windows as this session's last answer reported them, under
+    // its own sign-in (the desktop app's sessions too): the HUD's Claude quota
+    // when the terminal claude can't read it. Written when they change; a
+    // client without the call reports nothing, and a session with no plan
+    // window (a gateway's spend limit alone) never replaces one that has.
+    let reported = ''
+    const report = async (id: string) => {
+      try {
+        const windows = (await $.session.usage()).rateLimits
+          .filter(({ kind }) => kind === 'five_hour' || kind === 'seven_day')
+          .map(({ kind, percentUsed, resetsAt }) => ({ kind, percentUsed, resetsAt }))
+        const text = JSON.stringify(windows)
+        if (!windows.length || text === reported) return
+        await $.fs.write(`${CHANNEL}/usage.json`, JSON.stringify({
+          at: await $.clock.now(),
+          session: id,
+          windows,
+          accountUuid: await $.env.get('CLAUDE_CODE_ACCOUNT_UUID'),
+          organizationUuid: await $.env.get('CLAUDE_CODE_ORGANIZATION_UUID'),
+          email: await $.env.get('CLAUDE_CODE_USER_EMAIL'),
+        }))
+        reported = text
+      } catch {}
+    }
     $.clock.every(POLL_MS, () => {
       if (checking) return
       checking = true
@@ -27,6 +51,7 @@ export const register: Register = on => {
             if (last && id !== last) await $.fs.write(`${CHANNEL}/sessions/${last}.json`, JSON.stringify({ ended: await $.clock.now() }))
             last = id
             await $.fs.write(`${CHANNEL}/sessions/${id}.json`, JSON.stringify({ at: await $.clock.now(), version, channelVersion: 2 }))
+            await report(id)
           }
           const folder = `${CHANNEL}/prompts/${id}`
           if (!(await $.fs.exists(folder))) return

@@ -55,9 +55,11 @@ xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"
 ## Claude Code
 
 <details open>
-<summary><b>面板显示「Claude Code 已退出登录」，可桌面 App 明明登录着</b></summary>
+<summary><b>面板显示「终端的 claude 没登录」，可桌面 App 明明登录着</b></summary>
 
-**原因：** HUD 是通过**终端里的 `claude` 命令**读 Claude 额度的：它运行 `get_usage`，再查 `claude auth status`。Claude 桌面 App 里的 Claude Code 由桌面 App 自己管理登录，**和终端命令的登录不共用**。命令行版自动更新或登录过期，都可能让终端掉登录，而桌面 App 仍然是登录状态。
+**原因：** HUD 优先通过**终端里的 `claude` 命令**读 Claude 额度：它运行 `get_usage`，再查 `claude auth status`。Claude 桌面 App 里的 Claude Code 由桌面 App 自己管理登录，**和终端命令的登录不共用**。命令行版自动更新或登录过期，都可能让终端掉登录，而桌面 App 仍然是登录状态。
+
+终端读不到时，只要有 Claude Code 会话（包括桌面 App 里的）跑着 HUD 的插件、和模型来回过，面板就会显示它报告的 5 小时和每周额度，提示写成「这里是 Claude Code 会话在某时报告的额度」。这种情况下额度只在会话干活时更新，也看不到按模型分的周额度。已经开着的会话要运行一次 `/reload-plugins` 才会开始报告。
 
 **检查：**
 
@@ -65,7 +67,7 @@ xattr -dr com.apple.quarantine "/Applications/SI Future HUD.app"
 claude auth status
 ```
 
-**解决：** 在终端运行 `claude`，用同一个账号登录（或输入 `/login`）。HUD 下一次读取时额度就回来了。
+**解决：** 想看完整的额度，在终端运行 `claude`，用同一个账号登录（或输入 `/login`）。HUD 下一次读取时就会改用终端读到的额度。
 </details>
 
 <details>
@@ -121,12 +123,32 @@ Codex 需要信任一次 HUD 的回调：Codex 询问时选允许。同时确认
 </details>
 
 <details>
+<summary><b>Codex 的审批只出现在 HUD 上，Codex 窗口里看不到</b></summary>
+
+这是 Codex 的工作方式，不是故障。Codex 要先等 HUD 的回调给出结果，才会弹出自己的审批提示。所以 HUD 开着时，运行命令、改文件这类审批先显示在 HUD 上，Codex 停在这一步等，窗口里没有提示。
+
+- 在 HUD 上答了，Codex 接着往下做。
+- 到了「设置 → 通用 → 等待回答」的时间（默认 10 分钟）还没答，HUD 把请求交还 Codex，Codex 窗口里才弹出它自己的提示。
+- HUD 没开着时，Codex 直接自己询问。
+
+审批不会丢，HUD 也不会替你批准。没法一直看着 HUD 的话，把「等待回答」改成 1 分钟。想让 Codex 的审批只留在 Codex 里，可以关掉「客户端回调」；但这个开关管所有客户端，关掉后 Claude Code 的审批也不会再出现在 HUD 上。
+
+Claude Code 不一样：它自己的窗口和 HUD 同时显示审批，在哪边答都行。
+</details>
+
+<details>
 <summary><b>Codex 发不出传话</b></summary>
 
 当时没找到 `codex` 命令，所以 Codex 里没加上 HUD 工具。HUD 会先用 Codex 桌面版自带的那份，所以请把桌面版放进「应用程序」（或 `~/Applications`），再重开 HUD；没有桌面版才需要装 Codex 命令行版。用 `codex mcp list` 或上面那份桌面版自带的命令检查。
 </details>
 
 ## 程小帮
+
+<details>
+<summary><b>AI Coding Plan 额度没有显示</b></summary>
+
+确认程小帮开着、HUD 插件已启用，并且程小帮已登录。打开一个对话，让插件上报额度；额度最多每 5 分钟刷新一次。
+</details>
 
 <details open>
 <summary><b>程小帮没出现，或者一直收不到传话</b></summary>
@@ -200,7 +222,7 @@ HUD 从 Grok Bot 自己的缓存里读额度，在 Grok Bot 里刷新一下，HU
 <details>
 <summary><b>审批卡片还没回答就消失了</b></summary>
 
-10 分钟没回答，请求会交还给助手，你仍然可以在助手那边回答。
+到了「设置 → 通用 → 等待回答」的时间（默认 10 分钟）还没回答，请求会交还给助手，你仍然可以在助手那边回答。
 </details>
 
 <details>

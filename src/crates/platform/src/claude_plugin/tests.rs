@@ -9,6 +9,24 @@ fn check_in(channel: &ClaudeChannel, session: &str, body: &[u8]) {
 }
 
 #[test]
+fn the_usage_a_session_reported_is_read_whole_or_not_at_all() {
+    let temp = tempfile::tempdir().unwrap();
+    let channel = ClaudeChannel::new(temp.path().to_path_buf());
+    assert_eq!(channel.usage(), None);
+    let report = json!({"at": 1, "windows": [{"kind": "five_hour", "percentUsed": 5}]});
+    fs::write(temp.path().join("usage.json"), report.to_string()).unwrap();
+    assert_eq!(channel.usage(), Some(report));
+    fs::write(temp.path().join("usage.json"), "{\"at\":").unwrap();
+    assert_eq!(channel.usage(), None, "half written");
+    fs::write(
+        temp.path().join("usage.json"),
+        format!("{{\"pad\":\"{}\"}}", "x".repeat(USAGE_LIMIT as usize)),
+    )
+    .unwrap();
+    assert_eq!(channel.usage(), None, "too large");
+}
+
+#[test]
 fn the_plugin_files_point_at_the_channel_and_are_written_once() {
     let temp = tempfile::tempdir().unwrap();
     let channel = ClaudeChannel::new(temp.path().join("channel"));
@@ -25,6 +43,7 @@ fn the_plugin_files_point_at_the_channel_and_are_written_once() {
         script.contains(&serde_json::to_string(&channel.directory().to_string_lossy()).unwrap())
     );
     assert!(script.contains("$.prompt.submit") && script.contains("takenAt"));
+    assert!(script.contains("$.session.usage()") && script.contains("/usage.json"));
     assert!(!script.contains("child_process"));
     let manifest: Value =
         serde_json::from_slice(&fs::read(folder.join(".claude-plugin/plugin.json")).unwrap())

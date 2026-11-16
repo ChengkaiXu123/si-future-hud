@@ -1,5 +1,14 @@
 # Changelog / 版本记录
 
+## v0.1.7 · 2026‑11‑16
+
+What changed since 0.1.6: the panel shows 程小帮's AI Coding Plan quota, and Claude's quota shows even when the terminal `claude` isn't signed in. / 相对 0.1.6：面板能显示程小帮的 AI Coding Plan 额度；终端的 `claude` 没登录时，也能看到 Claude 的额度。
+
+- **程小帮's AI Coding Plan quota.** The panel shows 程小帮's monthly limit and 5‑hour limit, the two figures in 程小帮's menu bar menu, and when the 5‑hour window resets. The HUD's 程小帮 plugin asks 程小帮 for them at most once every 5 minutes while 程小帮 is running, with the access 程小帮 gives its plugins, and writes down only the figures, never a credential. When 程小帮 is signed out, the panel says so; figures older than 30 minutes say when 程小帮 reported them. Before, the panel showed only the last 24 hours' usage. 程小帮 takes the new plugin by itself once the HUD is updated. / **程小帮的 AI Coding Plan 额度。** 面板显示程小帮的月度使用限额和 5 小时使用限额，就是程小帮菜单栏菜单里的那两条，并写明 5 小时额度什么时候重置。HUD 的程小帮插件在程小帮开着时最多每 5 分钟问一次，用的是程小帮开放给插件的权限，只记下额度数字，不记任何凭证。程小帮没登录时，面板会说明；超过 30 分钟的数字会写明是程小帮在什么时候报告的。以前面板只显示近 24 小时用量。HUD 更新后，程小帮会自己用上新插件。
+- **Claude's quota from the desktop app's sessions.** When the terminal `claude` can't read the quota (signed out, or a login without plan limits), the panel shows the 5‑hour and weekly windows a Claude Code session last reported, the desktop app's sessions included, and says when. The HUD's Claude Code plugin reads them in each session (Claude Code's own figures from its last answer, under the session's sign‑in) and writes them when they change. A model's own weekly window still needs the terminal `claude` signed in. Sessions already open take the new plugin after `/reload-plugins`. / **Claude 额度可以来自桌面 App 的会话。** 终端的 `claude` 读不到额度时（没登录，或登录方式没有订阅额度），面板改为显示 Claude Code 会话最近报告的 5 小时和每周额度，包括桌面 App 里的会话，并写明报告时间。HUD 的 Claude Code 插件在每个会话里读这组数字（Claude Code 从最近一次回答里拿到的，用的是会话自己的登录），数字变了才写。按模型分的周额度仍要终端的 `claude` 登录才看得到。已经开着的会话运行 `/reload-plugins` 后用上新插件。
+- **Claude's quota notice names the terminal `claude`.** When the terminal `claude` was signed out, the panel said _Claude Code is signed out_, which read as if the desktop app were signed out too. It now says the terminal `claude` is signed out and that its sign-in is separate from the desktop app's. / **Claude 额度的提示点明是终端的 `claude`。** 终端的 `claude` 没登录时，面板以前写「Claude Code 已退出登录」，看起来像桌面 App 也退出了。现在写明是终端的 `claude` 没登录，它和桌面 App 的登录是分开的。
+- **Troubleshooting: why a Codex approval shows only on the HUD.** Codex waits for the HUD's answer before it shows its own prompt; the guide says what happens if you don't answer, and how to keep approvals in Codex. / **常见问题新增：Codex 的审批为什么只出现在 HUD 上。** Codex 要等 HUD 给出结果才会弹自己的提示；文档写明了不回答会怎样，以及怎么让审批只留在 Codex 里。
+
 ## v0.1.6 · 2026‑11‑03
 
 What changed since 0.1.5: fixes for what colleagues met in their first week: messages that seemed sent but never showed up, and setups that quietly didn't work. / 相对 0.1.5：修好同事第一周实际遇到的问题——显示已发送却没收到的消息，以及悄悄没配好的安装。

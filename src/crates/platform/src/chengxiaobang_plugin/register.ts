@@ -7,6 +7,9 @@ import type { Register } from 'claude-code'
 // in Agent HUD or in this plugin's pane in 程小帮, whichever comes first, as a
 // Claude question is; unanswered for 10 minutes, it goes to 程小帮's own window.
 const CHANNEL = __AGENT_HUD_CHANNEL_JSON__
+const USAGE_MS = 5 * 60 * 1000
+let reporting = false
+let attemptedAt: number | undefined
 const POLL_MS = 1000
 const CHECK_IN_EVERY = 5
 const HOLD_MS = 10 * 60 * 1000
@@ -34,6 +37,51 @@ export const register: Register = on => {
       checking = true
       void (async () => {
         try {
+          // All sessions share this guard; the persisted timestamp survives reloads.
+          if (!reporting) {
+            reporting = true
+            void (async () => {
+              try {
+                // Within five minutes of the last attempt there is nothing to read or ask.
+                if (attemptedAt !== undefined && (await $.clock.now()) - attemptedAt < USAGE_MS) return
+                const base = await $.env.get('CHENGXIAOBANG_API_BASE')
+                const token = await $.env.get('CHENGXIAOBANG_API_TOKEN')
+                if (base && token) {
+                  const now = await $.clock.now()
+                  let at = attemptedAt
+                  try {
+                    const saved = JSON.parse(await $.fs.read(`${CHANNEL}/usage.json`))
+                    if (typeof saved.at === 'number') at = Math.max(at ?? 0, saved.at)
+                  } catch {}
+                  if (at === undefined || now - at >= USAGE_MS) {
+                    attemptedAt = now
+                    const response = await $.http.fetch(`${base.replace(/\/$/, '')}/api/auth/ada/usage`, { headers: { 'x-chengxiaobang-token': token } })
+                    if (response.status === 401) {
+                      await $.fs.write(`${CHANNEL}/usage.json`, JSON.stringify({ at: now, usage: { status: 'signed_out' } }))
+                    } else if (response.ok) {
+                      const { usage } = JSON.parse(response.text)
+                      if (usage?.status === 'available') {
+                        // Explicit fields only: no credentials or arbitrary backend data.
+                        const { planName, currency, usedUsd, remainingUsd, totalUsd, periodStart, periodEnd, expiresAt } = usage
+                        const five = usage.fiveHourWindow
+                        const fiveHourWindow = five ? {
+                          enabled: five.enabled, windowHours: five.windowHours,
+                          usedUsd: five.usedUsd, remainingUsd: five.remainingUsd, limitUsd: five.limitUsd,
+                          windowStartAt: five.windowStartAt, windowEndAt: five.windowEndAt,
+                        } : undefined
+                        await $.fs.write(`${CHANNEL}/usage.json`, JSON.stringify({ at: now, usage: {
+                          status: 'available', planName, currency, usedUsd, remainingUsd, totalUsd,
+                          periodStart, periodEnd, expiresAt, fiveHourWindow,
+                        } }))
+                      }
+                    }
+                  }
+                }
+              } catch {
+                // A failed query leaves the last successful reading intact.
+              } finally { reporting = false }
+            })()
+          }
           const id = await $.session.id()
           if (ticks++ % CHECK_IN_EVERY === 0 || id !== last) {
             // The session it was (before /clear or a resume) no longer runs here.

@@ -33,8 +33,13 @@ mod windows;
 #[cfg(windows)]
 use windows::{is_socket, process_runs, write_line};
 
+/// The channel's folder in the app's data folder, where a product build
+/// names none of its own.
+pub const CHANNEL_FOLDER: &str = "claude-channel";
 /// A session that has not checked in for this long no longer runs the plugin.
 pub const CHECK_IN_LIFETIME: Duration = Duration::from_secs(20);
+/// The largest usage report read; the plugin's is well under 1 KB.
+const USAGE_LIMIT: u64 = 16 * 1024;
 /// Words not taken within an hour expire.
 pub const PROMPT_LIFETIME: Duration = Duration::from_secs(3600);
 /// How Claude Code names the plugin once installed: plugin@marketplace.
@@ -225,6 +230,17 @@ impl ClaudeChannel {
 
     pub fn directory(&self) -> &Path {
         &self.directory
+    }
+
+    /// The plan windows a session last reported, as the plugin wrote them
+    /// (`usage.json`); None without a readable one.
+    pub fn usage(&self) -> Option<Value> {
+        let path = self.directory.join("usage.json");
+        let metadata = fs::symlink_metadata(&path).ok()?;
+        if !metadata.is_file() || metadata.len() > USAGE_LIMIT {
+            return None;
+        }
+        serde_json::from_slice(&fs::read(&path).ok()?).ok()
     }
 
     /// The sessions that checked in within `CHECK_IN_LIFETIME` and have not ended.
