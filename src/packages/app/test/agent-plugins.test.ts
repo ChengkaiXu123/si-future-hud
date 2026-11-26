@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   chengxiaobangPluginRow,
   codexMessagesRow,
+  cursorMessagesRow,
   mcpRow,
   pluginRow,
   toolsSwitch,
@@ -316,4 +317,30 @@ test("an old command doesn't hide sessions already running the plugin, and remov
   );
   const running = pluginRow({ ...input, sessions: 1 });
   assert.equal(running.tone, "working");
+});
+
+test("Cursor takes messages once the client hooks are on and in place", () => {
+  assert.equal(
+    cursorMessagesRow({ found: null, hooksOn: true, installed: true }).tone,
+    "off",
+  );
+  assert.deepEqual(
+    cursorMessagesRow({ found: false, hooksOn: true, installed: true }).status,
+    ["Cursor not found", "没有找到 Cursor"],
+  );
+  const off = cursorMessagesRow({
+    found: true,
+    hooksOn: false,
+    installed: null,
+  });
+  assert.equal(off.tone, "attention");
+  assert.match(off.next!.words[1], /客户端回调/);
+  assert.deepEqual(
+    cursorMessagesRow({ found: true, hooksOn: true, installed: false }).status,
+    ["Hooks need repair", "回调需要修复"],
+  );
+  assert.equal(
+    cursorMessagesRow({ found: true, hooksOn: true, installed: true }).tone,
+    "working",
+  );
 });

@@ -417,6 +417,100 @@ impl ClaudeChannel {
         self.hand_kind(session, text, Some("message"), false, now)
     }
 
+    /// Local build: leaves a relayed message for a session of a client whose
+    /// own hooks take them (`take_messages`), which never checks in.
+    pub fn post_message(
+        &self,
+        session: &str,
+        text: &str,
+        now: SystemTime,
+    ) -> Result<String, Refusal> {
+        Self::check(session, text)?;
+        self.sweep(now);
+        let id = identity(now);
+        self.leave_kind(session, &id, text, false, Some("message"), now)?;
+        Ok(id)
+    }
+
+    /// Local build: takes the messages waiting for `session` (not taken,
+    /// withdrawn or expired), oldest first, marking each taken. Each is
+    /// claimed by renaming its file first, so two hooks running at once never
+    /// both take one.
+    pub fn take_messages(&self, session: &str, now: SystemTime) -> Vec<String> {
+        if !valid_name(session) {
+            return Vec::new();
+        }
+        let folder = self.directory.join("prompts").join(session);
+        let Ok(files) = fs::read_dir(&folder) else {
+            return Vec::new();
+        };
+        // Listed before any is claimed: a claim renames files in the folder.
+        let paths = files
+            .flatten()
+            .map(|entry| entry.path())
+            .collect::<Vec<_>>();
+        let mut taken = Vec::new();
+        for path in paths {
+            let Some(id) = path
+                .file_stem()
+                .and_then(|stem| stem.to_str())
+                .filter(|id| valid_name(id))
+            else {
+                continue;
+            };
+            if path.extension().and_then(|e| e.to_str()) != Some("json")
+                || !matches!(
+                    self.state(session, id, now),
+                    Ok(Some((PromptState::Waiting, _)))
+                )
+            {
+                continue;
+            }
+            let claim = path.with_extension(format!("{}.claim", identity(now)));
+            if fs::rename(&path, &claim).is_err() {
+                continue;
+            }
+            let value = fs::read(&claim)
+                .ok()
+                .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok());
+            let Some(mut value) = value.filter(|value| value["kind"] == "message") else {
+                // Not a message (an answer for a plugin): put back as it was.
+                let _ = fs::rename(&claim, &path);
+                continue;
+            };
+            value["takenAt"] = json!(millis(now));
+            if write_private(&path, value.to_string().as_bytes()).is_err() {
+                let _ = fs::rename(&claim, &path);
+                continue;
+            }
+            let _ = fs::remove_file(&claim);
+            if let Some(text) = value["text"].as_str() {
+                taken.push((
+                    value["at"].as_u64().unwrap_or(0),
+                    id.to_owned(),
+                    text.to_owned(),
+                ));
+            }
+        }
+        taken.sort();
+        taken.into_iter().map(|(_, _, text)| text).collect()
+    }
+
+    fn check(session: &str, text: &str) -> Result<(), Refusal> {
+        if text.trim().is_empty() {
+            return Err(Refusal::InvalidInput("Nothing to send".into()));
+        }
+        if text.trim_start().starts_with('/') {
+            return Err(Refusal::Rejected(
+                "Claude plugins cannot submit slash commands".into(),
+            ));
+        }
+        if !valid_name(session) {
+            return Err(Refusal::InvalidInput("identity".into()));
+        }
+        Ok(())
+    }
+
     /// Local build: whether `session` ever checked in here (it may have ended).
     pub fn checked_in_before(&self, session: &str) -> bool {
         valid_name(session)
@@ -443,17 +537,7 @@ impl ClaudeChannel {
         loaded: bool,
         now: SystemTime,
     ) -> Result<String, Refusal> {
-        if text.trim().is_empty() {
-            return Err(Refusal::InvalidInput("Nothing to send".into()));
-        }
-        if text.trim_start().starts_with('/') {
-            return Err(Refusal::Rejected(
-                "Claude plugins cannot submit slash commands".into(),
-            ));
-        }
-        if !valid_name(session) {
-            return Err(Refusal::InvalidInput("identity".into()));
-        }
+        Self::check(session, text)?;
         if loaded && !self.loaded(now).contains(session) {
             return Err(Refusal::NotLoaded);
         }

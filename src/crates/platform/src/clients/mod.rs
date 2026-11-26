@@ -4,6 +4,7 @@
 //! client. None of them starts a conversation, an engine or a sign-in.
 pub mod antigravity;
 pub mod codex;
+pub mod cursor;
 pub(crate) mod deepseek;
 
 /// Whether the client's native channel runs on this OS.

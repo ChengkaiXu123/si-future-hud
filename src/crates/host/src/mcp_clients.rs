@@ -13,6 +13,8 @@ use std::{
 use tauri::Manager;
 #[derive(Default)]
 pub struct Clients(Mutex<()>);
+/// Local build: Cursor, whose MCP servers SI Future HUD lists itself.
+const CURSOR: &str = "cursor";
 static SEQUENCE: AtomicU64 = AtomicU64::new(0);
 pub(crate) fn home() -> Result<PathBuf, String> {
     agent_hud_runtime::home_directory()
@@ -58,10 +60,23 @@ pub(crate) fn executable(client: &str, home: &std::path::Path) -> Option<PathBuf
 /// Local build: whether `client` lists Agent HUD's MCP server at a program
 /// that is there (an entry left at a deleted build doesn't count).
 fn installed(client: &str, home: &std::path::Path) -> bool {
+    if client == CURSOR {
+        return cursor::entry(&cursor::config(home)).is_some_and(|entry| cursor::current(&entry));
+    }
     listed_command(client, home).is_some_and(|command| std::path::Path::new(&command).is_file())
         && listed(client, home)
 }
+/// Local build: whether `client` is on this Mac to take the HUD tools.
+fn available(client: &str, home: &std::path::Path) -> bool {
+    if client == CURSOR {
+        return cursor::found(home);
+    }
+    executable(client, home).is_some()
+}
 fn listed(client: &str, home: &std::path::Path) -> bool {
+    if client == CURSOR {
+        return cursor::entry(&cursor::config(home)).is_some();
+    }
     let path = if client == "claudeCode" {
         std::env::var_os("CLAUDE_CONFIG_DIR")
             .map(PathBuf::from)
@@ -128,11 +143,16 @@ fn status(app: &tauri::AppHandle) -> Result<Value, String> {
         && super::cli::resource("agent-hud-mcp").is_some()
         && super::cli::resource("agent-hud-engine").is_some();
     Ok(
-        json!({"ready":ready,"notice":if ready{None}else{Some("MCP setup requires the fixed installed app and its packaged relay")},"json":path.map(|path|json!({"mcpServers":{"agent-hud":{"command":path,"args":["--mcp"]}}})),"clients":(["claudeCode","codex"].map(|client|json!({"id":client,"name":if client=="claudeCode"{"Claude Code"}else{"Codex"},"available":executable(client,&home).is_some(),"installed":installed(client,&home),"command":path.map(|p|super::system::client_command_line(&std::iter::once(client_command(client).unwrap().into()).chain(args(client,true,p)).collect::<Vec<_>>()))}))) }),
+        json!({"ready":ready,"notice":if ready{None}else{Some("MCP setup requires the fixed installed app and its packaged relay")},"json":path.map(|path|json!({"mcpServers":{"agent-hud":{"command":path,"args":["--mcp"]}}})),"clients":(["claudeCode","codex",CURSOR].map(|client|json!({"id":client,"name":match client{"claudeCode"=>"Claude Code","codex"=>"Codex",_=>"Cursor"},"available":available(client,&home),"installed":installed(client,&home),"command":client_command(client).ok().zip(path).map(|(command,p)|super::system::client_command_line(&std::iter::once(command.into()).chain(args(client,true,p)).collect::<Vec<_>>()))}))) }),
     )
 }
 /// Local build: the command `client` lists for Agent HUD's MCP server, if any.
 fn listed_command(client: &str, home: &std::path::Path) -> Option<String> {
+    if client == CURSOR {
+        return cursor::entry(&cursor::config(home))?["command"]
+            .as_str()
+            .map(str::to_owned);
+    }
     let path = if client == "claudeCode" {
         std::env::var_os("CLAUDE_CONFIG_DIR")
             .map(PathBuf::from)
@@ -179,6 +199,23 @@ pub(crate) fn repoint(app: &tauri::AppHandle, client: &str) -> Result<bool, Stri
     else {
         return Ok(false);
     };
+    // Local build: Cursor's entry is the HUD's own to write, in one step.
+    if client == CURSOR {
+        let ours = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("agent-hud-next");
+        let moved = listed_command(client, &home).is_some_and(|listed| {
+            std::path::Path::new(&listed) != path
+                && (!std::path::Path::new(&listed).is_file()
+                    || listed.ends_with(&format!(".app/Contents/MacOS/{ours}")))
+        });
+        return if moved && std::env::current_exe().ok().as_ref() == Some(&path) {
+            cursor::write(&cursor::config(&home), Some(&path))
+        } else {
+            Ok(false)
+        };
+    }
     // A re-add that failed after its removal is finished first, so the
     // client never stays without the HUD tools.
     let pending =
@@ -220,7 +257,7 @@ pub(crate) fn add_once(app: &tauri::AppHandle, client: &str) -> Result<bool, Str
     };
     let _guard = owner.0.lock().map_err(|_| "MCP client owner unavailable")?;
     let home = home()?;
-    if executable(client, &home).is_none() {
+    if !available(client, &home) {
         return Ok(false);
     }
     if !installed(client, &home) {
@@ -240,6 +277,15 @@ fn run(app: &tauri::AppHandle, client: &str, install: bool) -> Result<Value, Str
     }
     if install && super::cli::resource("agent-hud-mcp").is_none() {
         return Err("The packaged MCP relay is missing".into());
+    }
+    // Local build: Cursor has no command that adds an MCP server; the HUD
+    // writes its entry into Cursor's mcp.json.
+    if client == CURSOR {
+        if install && !cursor::found(&home) {
+            return Err("Cursor is not installed".into());
+        }
+        cursor::write(&cursor::config(&home), install.then_some(path.as_path()))?;
+        return status(app);
     }
     let executable =
         executable(client, &home).ok_or("The client's command line is not installed")?;
@@ -357,9 +403,12 @@ pub async fn native_mcp_clients(
     .map_err(|e| e.to_string())?
 }
 
-/// Local build: whether Codex Desktop can take messages now, for its card
-/// in Settings: Codex is here, and its app answers on its local channel
-/// (`<codex home>/ipc/ipc.sock`), which only it serves.
+/// Local build: whether Codex can take messages now, for its card in
+/// Settings: Codex is here, and either its app-server daemon answers
+/// (`<codex home>/app-server-control/app-server-control.sock`, which
+/// messages go through since Desktop 26.11) or Codex's CLI is installed to
+/// start it. The old window channel (`ipc/ipc.sock`) still counts for older
+/// Desktops.
 #[tauri::command]
 pub async fn native_codex_messages(window: tauri::WebviewWindow) -> Result<Value, String> {
     if window.label() != "main" {
@@ -370,9 +419,179 @@ pub async fn native_codex_messages(window: tauri::WebviewWindow) -> Result<Value
             return json!({"found":false,"running":false});
         };
         let found = home.is_dir();
-        let running = found && crate::system::socket_answers(&home.join("ipc/ipc.sock"));
+        let user = std::env::var_os("HOME").map(std::path::PathBuf::from);
+        let cli = std::iter::once(std::path::PathBuf::from("/Applications"))
+            .chain(user.map(|user| user.join("Applications")))
+            .any(|apps| {
+                apps.join("ChatGPT.app/Contents/Resources/codex-cli/bin/codex")
+                    .is_file()
+            });
+        let running = found
+            && (crate::system::socket_answers(
+                &home.join("app-server-control/app-server-control.sock"),
+            ) || crate::system::socket_answers(&home.join("ipc/ipc.sock"))
+                || cli);
         json!({"found":found,"running":running})
     })
     .await
     .map_err(|e| e.to_string())
+}
+
+/// Local build: Agent HUD's MCP server in Cursor's own list,
+/// `~/.cursor/mcp.json`. Cursor has no command that adds one, so the HUD
+/// writes its entry, keeping every other server as it is. The entry names the
+/// client (`AGENT_HUD_CLIENT`), as 程小帮's does: Cursor tells an MCP server
+/// nothing about who calls it.
+mod cursor {
+    use serde_json::{json, Value};
+    use std::{
+        fs,
+        path::{Path, PathBuf},
+    };
+
+    const NAME: &str = "agent-hud";
+
+    /// Whether Cursor is on this Mac: its folder, made the first time it runs.
+    pub(super) fn found(home: &Path) -> bool {
+        home.join(".cursor").is_dir()
+    }
+
+    pub(super) fn config(home: &Path) -> PathBuf {
+        home.join(".cursor/mcp.json")
+    }
+
+    fn read(file: &Path) -> Result<Value, String> {
+        match fs::read(file) {
+            Ok(bytes) if bytes.len() > 4 * 1024 * 1024 => {
+                Err("Cursor's mcp.json is too large".into())
+            }
+            Ok(bytes) if bytes.iter().all(u8::is_ascii_whitespace) => Ok(json!({})),
+            Ok(bytes) => serde_json::from_slice::<Value>(&bytes)
+                .ok()
+                .filter(Value::is_object)
+                .ok_or_else(|| "Cursor's mcp.json is not a JSON object".into()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(json!({})),
+            Err(error) => Err(error.to_string()),
+        }
+    }
+
+    /// Agent HUD's entry in Cursor's list, if there is one.
+    pub(super) fn entry(file: &Path) -> Option<Value> {
+        read(file).ok()?["mcpServers"].get(NAME).cloned()
+    }
+
+    /// Whether an entry runs a program that is there, for Cursor.
+    pub(super) fn current(entry: &Value) -> bool {
+        entry["command"]
+            .as_str()
+            .is_some_and(|command| Path::new(command).is_file())
+            && entry["env"]["AGENT_HUD_CLIENT"] == "cursor"
+    }
+
+    /// The entry for `executable`.
+    pub(super) fn wanted(executable: &Path) -> Value {
+        json!({"command": executable.to_string_lossy(), "args": ["--mcp"], "env": {"AGENT_HUD_CLIENT": "cursor"}})
+    }
+
+    /// Lists Agent HUD's server at `executable`, or takes it out (None),
+    /// every other server kept. Returns whether the file changed.
+    pub(super) fn write(file: &Path, executable: Option<&Path>) -> Result<bool, String> {
+        let mut config = read(file)?;
+        let root = config
+            .as_object_mut()
+            .ok_or("Cursor's mcp.json is not a JSON object")?;
+        let servers = root.entry("mcpServers").or_insert_with(|| json!({}));
+        let servers = servers
+            .as_object_mut()
+            .ok_or("Cursor's mcpServers is not a JSON object")?;
+        match executable {
+            Some(executable) => {
+                let wanted = wanted(executable);
+                if servers.get(NAME) == Some(&wanted) {
+                    return Ok(false);
+                }
+                servers.insert(NAME.into(), wanted);
+            }
+            None => {
+                if servers.remove(NAME).is_none() {
+                    return Ok(false);
+                }
+            }
+        }
+        let mut text = serde_json::to_string_pretty(&config).map_err(|e| e.to_string())?;
+        text.push('\n');
+        let folder = file.parent().ok_or("Cursor's folder is unavailable")?;
+        fs::create_dir_all(folder).map_err(|e| e.to_string())?;
+        let temporary = folder.join(format!(".mcp.json.agent-hud-{}.tmp", std::process::id()));
+        if let Ok(metadata) = fs::metadata(file) {
+            fs::write(&temporary, &text).map_err(|e| e.to_string())?;
+            let _ = fs::set_permissions(&temporary, metadata.permissions());
+        } else {
+            fs::write(&temporary, &text).map_err(|e| e.to_string())?;
+        }
+        fs::rename(&temporary, file).map_err(|error| {
+            let _ = fs::remove_file(&temporary);
+            error.to_string()
+        })?;
+        Ok(true)
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn the_hud_tools_join_cursors_list_once_and_leave_it_cleanly() {
+            let home = tempfile::tempdir().unwrap();
+            let file = config(home.path());
+            assert!(!found(home.path()));
+            fs::create_dir_all(file.parent().unwrap()).unwrap();
+            assert!(found(home.path()));
+            let others =
+                json!({"mcpServers":{"github":{"command":"npx","args":["gh-mcp"]}},"other":true});
+            fs::write(&file, others.to_string()).unwrap();
+            let exe = home
+                .path()
+                .join("SI Future HUD.app/Contents/MacOS/agent-hud-next");
+            fs::create_dir_all(exe.parent().unwrap()).unwrap();
+            fs::write(&exe, "").unwrap();
+            assert!(write(&file, Some(&exe)).unwrap());
+            let written: Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+            assert_eq!(
+                written["mcpServers"]["github"],
+                others["mcpServers"]["github"]
+            );
+            assert_eq!(written["other"], true);
+            assert_eq!(
+                written["mcpServers"]["agent-hud"],
+                json!({"command":exe.to_string_lossy(),"args":["--mcp"],"env":{"AGENT_HUD_CLIENT":"cursor"}})
+            );
+            assert!(entry(&file).is_some_and(|entry| current(&entry)));
+            // Again: nothing to change.
+            assert!(!write(&file, Some(&exe)).unwrap());
+            // An entry left without the client's name is not Cursor's yet.
+            let mut bare = written.clone();
+            bare["mcpServers"]["agent-hud"]["env"] = json!({});
+            fs::write(&file, bare.to_string()).unwrap();
+            assert!(!entry(&file).is_some_and(|entry| current(&entry)));
+            assert!(write(&file, Some(&exe)).unwrap());
+            // Taken out, only the others are left.
+            assert!(write(&file, None).unwrap());
+            let left: Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+            assert_eq!(left, others);
+            assert!(!write(&file, None).unwrap());
+        }
+
+        #[test]
+        fn a_missing_list_is_made_and_a_broken_one_is_left_alone() {
+            let home = tempfile::tempdir().unwrap();
+            let file = config(home.path());
+            let exe = Path::new("/Applications/SI Future HUD.app/Contents/MacOS/agent-hud-next");
+            assert!(write(&file, Some(exe)).unwrap());
+            assert_eq!(entry(&file), Some(wanted(exe)));
+            fs::write(&file, "{ not json").unwrap();
+            assert!(write(&file, Some(exe)).is_err());
+            assert_eq!(fs::read_to_string(&file).unwrap(), "{ not json");
+        }
+    }
 }

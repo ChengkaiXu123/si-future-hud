@@ -1,6 +1,6 @@
 //! Local build: what Agent HUD sets up by itself on its first launch, as
 //! 程小帮's integration is, so no click in Settings is needed: SI Future HUD's
-//! Claude Code plugin, the HUD tools in Claude Code and Codex, the message
+//! Claude Code plugin, the HUD tools in Claude Code, Codex and Cursor, the message
 //! skill (`agent_skills`), and the
 //! switches they need (the HUD tools, client hooks for HUD approvals). Each is done once and recorded in `auto-setup.json`:
 //! one the user removes later in Settings is not put back, and one whose
@@ -44,6 +44,10 @@ pub(crate) fn on_launch(app: &tauri::AppHandle) {
             super::mcp_clients::add_once(&app, "claudeCode")
         });
         step("codexMcp", &|| super::mcp_clients::add_once(&app, "codex"));
+        // Local build: Cursor's HUD tools, once Cursor is here.
+        step("cursorMcp", &|| {
+            super::mcp_clients::add_once(&app, "cursor")
+        });
         step("clientHooks", &|| turn_on(&app, "clientHooks"));
         // Every launch: the message skill for Claude Code and Codex, which
         // reaches windows already open (written once, then kept current).
@@ -105,7 +109,7 @@ pub(crate) fn on_launch(app: &tauri::AppHandle) {
             }
         }
         // Every launch: entries left at a moved or renamed app point here again.
-        for client in ["claudeCode", "codex"] {
+        for client in ["claudeCode", "codex", "cursor"] {
             if let Err(error) = super::mcp_clients::repoint(&app, client) {
                 eprintln!("SI Future HUD setup ({client} MCP): {error}");
             }

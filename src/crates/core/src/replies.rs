@@ -66,4 +66,11 @@ pub trait SessionReplies: Send + Sync {
     fn caution(&self, _source: &str) -> Option<String> {
         None
     }
+    /// Local build: when words left now go into `session` of `source`, for a
+    /// carrier that delivers them only at a turn's edge (Cursor's hooks: when
+    /// the turn running now ends, or with the user's next prompt), in the
+    /// app's language; None when they go in at once.
+    fn delivery(&self, _source: &str, _session: &str, _running: bool) -> Option<String> {
+        None
+    }
 }

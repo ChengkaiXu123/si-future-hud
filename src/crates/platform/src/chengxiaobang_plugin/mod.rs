@@ -516,6 +516,9 @@ impl SessionReplies for RepliesBySource {
     fn caution(&self, source: &str) -> Option<String> {
         self.carrier(source)?.caution(source)
     }
+    fn delivery(&self, source: &str, session: &str, running: bool) -> Option<String> {
+        self.carrier(source)?.delivery(source, session, running)
+    }
     fn session_title(&self, source: &str, session: &str) -> Option<String> {
         self.carrier(source)?.session_title(source, session)
     }

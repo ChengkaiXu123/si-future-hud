@@ -1,0 +1,36 @@
+[package]
+name = "agent-hud-updater"
+version.workspace = true
+description = "SI Future HUD's updater: a signed feed, a verified disk image and an in-place swap, as a product extension"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+# The release tool: makes the signing key and writes site/update.json.
+[[bin]]
+name = "si-hud-update"
+path = "src/bin/si-hud-update/main.rs"
+
+# Every crate below is already in Cargo.lock at these versions (reqwest,
+# semver, ring and plist through other workspace crates), so nothing new is
+# fetched.
+[dependencies]
+agent-hud-host.workspace = true
+agent-hud-runtime.workspace = true
+tauri = { version = "=2.12.4", features = ["tray-icon"] }
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+base64.workspace = true
+sha2.workspace = true
+tempfile.workspace = true
+reqwest = { version = "=0.13.5", default-features = false, features = ["blocking", "json", "rustls", "gzip", "socks", "system-proxy"] }
+ring = "=0.17.14"
+semver = "=1.0.28"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+plist = "=1.10.1"

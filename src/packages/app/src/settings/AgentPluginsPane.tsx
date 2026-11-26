@@ -41,6 +41,7 @@ import {
   chengxiaobangMcpRow,
   chengxiaobangPluginRow,
   codexMessagesRow,
+  cursorMessagesRow,
   failure,
   mcpRow,
   pluginRow,
@@ -129,6 +130,9 @@ const nativePlugin: ClaudePluginService = async (action) => {
 const knownClients = [
   { id: "claudeCode", name: "Claude Code", logo: "claude" },
   { id: "codex", name: "Codex", logo: "codex" },
+  // Local build: the HUD writes its tools into Cursor's mcp.json; messages
+  // reach Cursor through the client hooks (Settings → General).
+  { id: "cursor", name: "Cursor", logo: "cursor" },
 ];
 
 let cachedStatus: MCPClientsStatus | null = null;
@@ -657,6 +661,39 @@ function CodexMessagesRow({ zh, active }: { zh: boolean; active: boolean }) {
   );
 }
 
+/** Local build: how Cursor's conversations take messages, through the client
+ * hooks (Settings → General), and whether those are in place. */
+function CursorMessagesRow({
+  zh,
+  snapshot,
+  found,
+}: {
+  zh: boolean;
+  snapshot: Snapshot;
+  found: boolean | null;
+}) {
+  const t = (words: Words) => say(zh, words);
+  const hooks = snapshot.connection.clientHooks;
+  const row = hooks?.clients?.find((client) => client.source === "cursor");
+  return (
+    <PluginRow
+      icon={<MessageSquare size={14} strokeWidth={1.9} />}
+      title={t(["Messages", "收消息"])}
+      description={t([
+        "Messages other agents send through the HUD go into a Cursor conversation by themselves when its turn ends; an idle conversation gets them with the next message you send there. Needs Client hooks.",
+        "其他智能体通过 HUD 发来的消息，会在 Cursor 对话这一轮结束时自动发进去；对话空闲时，等你下次在里面发消息时一起带上。要先打开客户端回调。",
+      ])}
+      state={cursorMessagesRow({
+        found,
+        hooksOn: snapshot.settings.clientHooks === true,
+        installed: row ? row.installed : null,
+      })}
+      zh={zh}
+      onAction={() => {}}
+    />
+  );
+}
+
 /** Local build: native_chengxiaobang_plugin — whether 程小帮 is here, whether
  * Agent HUD's plugin is in its plugins folder, how many sessions run it, and
  * whether its mcp.json lists the HUD tools. */
@@ -1046,6 +1083,9 @@ export function AgentPluginsPane({
               )}
               {card.id === "codex" && (
                 <CodexMessagesRow zh={zh} active={active} />
+              )}
+              {card.id === "cursor" && (
+                <CursorMessagesRow zh={zh} snapshot={snapshot} found={found} />
               )}
               {own.map((item) => (
                 <Fragment key={item.id}>

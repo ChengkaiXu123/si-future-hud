@@ -24,6 +24,14 @@ pub fn configuration(source_name: &str, flag: &str) -> Result<HookConfiguration,
         }
         "--attention-hook" if hooks.attention => vec!["Notification"],
         "--compaction-hook" if hooks.compaction.is_some() => vec!["PreCompact"],
+        "--relay-prompt-hook" => match &hooks.relay {
+            Some(relay) => vec![relay.prompt_event],
+            None => return Err("This client does not support the requested hook".into()),
+        },
+        "--relay-tool-hook" => match &hooks.relay {
+            Some(relay) => vec![relay.tool_event],
+            None => return Err("This client does not support the requested hook".into()),
+        },
         _ => return Err("This client does not support the requested hook".into()),
     };
     let Some(settings) = hooks.settings else {
@@ -138,6 +146,19 @@ fn fixed(flag: &str) -> Map<String, Value> {
         Map::from_iter([("async".into(), json!(true))])
     } else {
         Map::new()
+    }
+}
+/// Local build: what a version-1 handler of SI Future HUD's carries beside its
+/// command for the relay: the send tool's matcher on the tool hook, and on the
+/// completion hook how many follow-ups in a row it may start.
+fn relay_fields(hooks: &Hooks, flag: &str) -> Map<String, Value> {
+    let Some(relay) = &hooks.relay else {
+        return Map::new();
+    };
+    match flag {
+        "--completion-hook" => Map::from_iter([("loop_limit".into(), json!(relay.loop_limit))]),
+        "--relay-tool-hook" => Map::from_iter([("matcher".into(), json!(relay.tool))]),
+        _ => Map::new(),
     }
 }
 /// How long the client waits for this hook, in its own unit.
@@ -273,6 +294,16 @@ pub fn patch_configuration(
         let mut placed = false;
         let mut result =
             setting_handlers(handlers, (source, hooks, flag), key, command, &mut placed);
+        let relay = relay_fields(hooks, flag);
+        if command.is_some() && !relay.is_empty() {
+            for owned in result
+                .iter_mut()
+                .filter(|h| owns(h[key].as_str(), source, hooks, flag))
+                .filter_map(Value::as_object_mut)
+            {
+                owned.extend(relay.clone());
+            }
+        }
         if let Some(command) = command {
             if !placed {
                 let mut new = Map::new();
@@ -281,6 +312,7 @@ pub fn patch_configuration(
                 }
                 new.insert(key.into(), json!(command));
                 new.insert(handler.timeout_key.into(), json!(timeout(hooks, flag)));
+                new.extend(relay);
                 result.push(Value::Object(new));
             }
         }
@@ -329,4 +361,116 @@ pub fn patch_configuration(
         root.insert("hooks".into(), Value::Object(hooks_object));
     }
     Ok(Value::Object(root))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXE: &str = "/Applications/SI Future HUD.app/Contents/MacOS/agent-hud-next";
+
+    fn command(flag: &str) -> String {
+        format!("'{EXE}' {flag} cursor")
+    }
+
+    /// Cursor's hooks.json with another tool's hooks on the same events.
+    fn foreign() -> Value {
+        json!({"version":1,"hooks":{
+            "preToolUse":[{"command":"git-ai checkpoint cursor --hook-input stdin"}],
+            "postToolUse":[{"command":"git-ai checkpoint cursor --hook-input stdin"}],
+            "stop":[{"command":"git-ai stop"}]
+        }})
+    }
+
+    fn install_all(mut current: Value) -> Value {
+        for flag in [
+            "--completion-hook",
+            "--relay-prompt-hook",
+            "--relay-tool-hook",
+        ] {
+            current = patch_configuration("cursor", flag, &current, Some(&command(flag))).unwrap();
+        }
+        current
+    }
+
+    #[test]
+    fn cursor_relay_hooks_install_beside_foreign_ones_and_come_out_again() {
+        let installed = install_all(foreign());
+        let hooks = &installed["hooks"];
+        assert_eq!(installed["version"], 1);
+        // Foreign handlers stay first and unchanged.
+        assert_eq!(hooks["stop"][0], json!({"command":"git-ai stop"}));
+        assert_eq!(hooks["preToolUse"][0], foreign()["hooks"]["preToolUse"][0]);
+        assert_eq!(hooks["postToolUse"], foreign()["hooks"]["postToolUse"]);
+        assert_eq!(
+            hooks["stop"][1],
+            json!({"command":command("--completion-hook"),"timeout":5,"loop_limit":10})
+        );
+        assert_eq!(
+            hooks["beforeSubmitPrompt"],
+            json!([{"command":command("--relay-prompt-hook"),"timeout":5}])
+        );
+        assert_eq!(
+            hooks["preToolUse"][1],
+            json!({"command":command("--relay-tool-hook"),"timeout":5,"matcher":"hud_send_message"})
+        );
+        // Installing again changes nothing.
+        assert_eq!(install_all(installed.clone()), installed);
+        // Each hook names its own commands only.
+        assert_eq!(
+            hook_commands("cursor", "--relay-tool-hook", &installed).unwrap(),
+            vec![command("--relay-tool-hook")]
+        );
+        // Removed, only the foreign handlers are left.
+        let mut removed = installed;
+        for flag in [
+            "--completion-hook",
+            "--relay-prompt-hook",
+            "--relay-tool-hook",
+        ] {
+            removed = patch_configuration("cursor", flag, &removed, None).unwrap();
+        }
+        assert_eq!(removed, foreign());
+    }
+
+    #[test]
+    fn an_older_stop_handler_gets_the_loop_limit_and_keeps_its_own_keys() {
+        let older = json!({"version":1,"hooks":{"stop":[{"command":command("--completion-hook"),"timeout":5,"note":"mine"}]}});
+        let updated = patch_configuration(
+            "cursor",
+            "--completion-hook",
+            &older,
+            Some(&command("--completion-hook")),
+        )
+        .unwrap();
+        assert_eq!(
+            updated["hooks"]["stop"],
+            json!([{"command":command("--completion-hook"),"timeout":5,"note":"mine","loop_limit":10}])
+        );
+    }
+
+    #[test]
+    fn only_a_client_with_a_relay_takes_the_relay_hooks() {
+        assert_eq!(
+            configuration("cursor", "--relay-prompt-hook")
+                .unwrap()
+                .events,
+            ["beforeSubmitPrompt"]
+        );
+        assert_eq!(
+            configuration("cursor", "--relay-tool-hook").unwrap().events,
+            ["preToolUse"]
+        );
+        assert!(configuration("claude", "--relay-prompt-hook").is_err());
+        assert!(configuration("codex", "--relay-tool-hook").is_err());
+        // A client without the relay gets no loop limit on its completion hook.
+        let copilot = patch_configuration(
+            "copilot",
+            "--completion-hook",
+            &json!({}),
+            Some("'x' --completion-hook copilot"),
+        )
+        .unwrap();
+        assert!(!copilot.to_string().contains("loop_limit"));
+    }
 }

@@ -22,6 +22,7 @@ pub static QODER: Hooks = Hooks {
     attention: false,
     compaction: None,
     prefixed_sessions: false,
+    relay: None,
     launch: POSIX_ONLY,
 };
 
@@ -44,6 +45,7 @@ pub static QODER_CN: Hooks = Hooks {
     attention: false,
     compaction: None,
     prefixed_sessions: false,
+    relay: None,
     launch: POSIX_ONLY,
 };
 
@@ -66,5 +68,6 @@ pub static QODER_WORK: Hooks = Hooks {
     attention: false,
     compaction: None,
     prefixed_sessions: false,
+    relay: None,
     launch: POSIX_ONLY,
 };

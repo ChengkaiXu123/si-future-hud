@@ -139,9 +139,10 @@ const caller = (meta: Record<string, unknown> | undefined) => {
       sessionId: thread,
       turnId: typeof turn?.turn_id === "string" ? turn.turn_id : null,
     };
-  // Local build: a client whose MCP entry names it (程小帮's mcp.json sets
-  // AGENT_HUD_CLIENT, written by Agent HUD itself) is that client, whatever
-  // environment it inherited.
+  // Local build: a client whose MCP entry names it (程小帮's and Cursor's
+  // mcp.json set AGENT_HUD_CLIENT, written by Agent HUD itself) is that
+  // client, whatever environment it inherited. Its session comes with the
+  // call (`from_session`), from 程小帮's plugin or the HUD's hook in Cursor.
   const named = process.env.AGENT_HUD_CLIENT;
   if (named) return { client: named, sessionId: null, turnId: null };
   const session = claudeSession() ?? process.env.CLAUDE_CODE_SESSION_ID;
@@ -149,6 +150,16 @@ const caller = (meta: Record<string, unknown> | undefined) => {
     ? { client: "claude", sessionId: session, turnId: null }
     : null;
 };
+/** Local build: a Cursor conversation is the session SI Future HUD's own hook in
+ * Cursor wrote into the call (`from_session`, from Cursor's conversation id):
+ * Cursor tells an MCP server nothing about the conversation calling it. */
+const withSession = (
+  found: ReturnType<typeof caller>,
+  fromSession: string | null | undefined,
+) =>
+  found?.client === "cursor" && fromSession
+    ? { ...found, sessionId: fromSession }
+    : found;
 /** Local build: the session Claude Code's process (this relay's parent) runs
  * now, from its own record, which follows /clear and /resume; the
  * environment keeps the one this relay started with. */
@@ -531,13 +542,13 @@ serveStdio(() => {
     "hud_send_message",
     {
       description:
-        "Send a message to another coding agent's open session through SI Future HUD (Claude Code, Codex Desktop, 程小帮). The user confirms each message on the HUD before it is delivered as that session's next message (unless they turned on SuperRoot mode, which sends at once: status sent), and a paper plane flies between the agents. Returns at once with status pending: the reply, if any, arrives later as a new message in your own session. To reply to a message you received, use the `to` and `session` it names. A Codex conversation takes the reply only once its current turn has ended.",
+        "Send a message to another coding agent's open session through SI Future HUD (Claude Code, Codex Desktop, 程小帮, Cursor). The user confirms each message on the HUD before it is delivered as that session's next message (unless they turned on SuperRoot mode, which sends at once: status sent), and a paper plane flies between the agents. Returns at once with status pending: the reply, if any, arrives later as a new message in your own session. To reply to a message you received, use the `to` and `session` it names. A Codex conversation takes the reply only once its current turn has ended; a Cursor conversation takes it when its current turn ends, or with the user's next message there while it is idle.",
       inputSchema: z.object({
         to: z
           .string()
           .min(1)
           .describe(
-            'The receiving agent: "claude" (Claude Code), "codex" (a Codex Desktop conversation) or "chengxiaobang" (程小帮).',
+            'The receiving agent: "claude" (Claude Code), "codex" (a Codex Desktop conversation), "chengxiaobang" (程小帮) or "cursor" (a Cursor conversation).',
           ),
         session: optionalId().describe(
           "The receiving session's id (as hud_sessions lists it, or as a message you received names it). Omitted: the agent's most recently active session that can receive.",
@@ -548,7 +559,7 @@ serveStdio(() => {
           .min(1)
           .describe("What to tell the other agent, up to 4000 characters."),
         from_session: optionalId(200).describe(
-          "Set by 程小帮's SI Future HUD plugin; leave it out.",
+          "Set by 程小帮's SI Future HUD plugin or SI Future HUD's hook in Cursor; leave it out.",
         ),
       }),
       annotations: { ...localWrite, idempotentHint: false },
@@ -556,8 +567,9 @@ serveStdio(() => {
     (params, context) =>
       guarded("send_message", {
         ...params,
-        caller: caller(
-          context.mcpReq._meta as Record<string, unknown> | undefined,
+        caller: withSession(
+          caller(context.mcpReq._meta as Record<string, unknown> | undefined),
+          params.from_session,
         ),
       }),
   );

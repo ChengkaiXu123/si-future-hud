@@ -25,6 +25,7 @@ pub static HOOKS: Hooks = Hooks {
     attention: false,
     compaction: None,
     prefixed_sessions: true,
+    relay: None,
     launch: POSIX_ONLY,
 };
 

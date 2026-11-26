@@ -96,6 +96,23 @@ fn handle_payload(arguments: &[String], data: &Path, input: &[u8], output: &mut 
     if input.len() > PAYLOAD_LIMIT || !payload.is_object() {
         return 0;
     }
+    // Local build: a client that carries SI Future HUD's messages through its
+    // own hooks (Cursor): the prompt and tool hooks only answer.
+    let relay = agent_hud_agents::hooks::hooks_of(source)
+        .ok()
+        .and_then(|(id, hooks)| Some((id, hooks.relay.as_ref()?)));
+    if let Some((id, relay)) = relay {
+        let answer = match flag.as_str() {
+            "--relay-prompt-hook" => Some(super::relay::prompt(data, id, &payload)),
+            "--relay-tool-hook" => Some(super::relay::tool(relay, &payload)),
+            _ => None,
+        };
+        if let Some(answer) = answer {
+            let _ = serde_json::to_writer(&mut *output, &answer);
+            let _ = output.write_all(b"\n");
+            return 0;
+        }
+    }
     let env: HashMap<String, String> = std::env::vars().collect();
     let home = crate::os::home_dir().ok();
     if flag == "--permission-hook" {
@@ -147,9 +164,16 @@ fn handle_payload(arguments: &[String], data: &Path, input: &[u8], output: &mut 
         .flatten()
         .and_then(|(_, hooks)| hooks.completion.as_ref())
         .and_then(|completion| completion.reply);
-    let response = reply
-        .and_then(|text| serde_json::from_str::<Value>(text).ok())
-        .unwrap_or_else(|| json!({}));
+    // Local build: messages waiting for the conversation go in as its next
+    // message once the turn has ended.
+    let followup = relay
+        .filter(|_| flag == "--completion-hook")
+        .and_then(|(id, relay)| super::relay::followup(data, id, relay, &payload));
+    let response = followup.unwrap_or_else(|| {
+        reply
+            .and_then(|text| serde_json::from_str::<Value>(text).ok())
+            .unwrap_or_else(|| json!({}))
+    });
     let _ = serde_json::to_writer(&mut *output, &response);
     let _ = output.write_all(b"\n");
     0

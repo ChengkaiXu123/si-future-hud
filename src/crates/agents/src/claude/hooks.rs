@@ -30,6 +30,7 @@ pub static HOOKS: Hooks = Hooks {
         legacy_flag: Some("--session-origin-hook"),
     }),
     prefixed_sessions: false,
+    relay: None,
     launch: PerOs {
         macos: Support::Verified(Launch::Command),
         windows: Support::Unverified(Launch::CommandArgs),

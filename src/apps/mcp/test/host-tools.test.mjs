@@ -173,3 +173,55 @@ test("without a caller the host is told so, and without the app there are no hos
     await closed.close();
   }
 });
+
+test("a Cursor caller is the conversation SI Future HUD's hook in Cursor names", async () => {
+  const fake = engine("cursor", [tool]);
+  const client = await connect(fake.file, { AGENT_HUD_CLIENT: "cursor" });
+  try {
+    await client.callTool({
+      name: "hud_send_message",
+      arguments: { to: "claude", text: "hi", from_session: "conv-1" },
+    });
+    await client.callTool({
+      name: "hud_send_message",
+      arguments: { to: "claude", text: "who" },
+    });
+    const sends = fake
+      .requests()
+      .filter((request) => request.method === "send_message");
+    assert.deepEqual(sends[0].params.caller, {
+      client: "cursor",
+      sessionId: "conv-1",
+      turnId: null,
+    });
+    assert.equal(sends[0].params.from_session, "conv-1");
+    // Without the hook's word the host is told no session, and says why.
+    assert.deepEqual(sends[1].params.caller, {
+      client: "cursor",
+      sessionId: null,
+      turnId: null,
+    });
+  } finally {
+    await client.close();
+  }
+});
+
+test("only a Cursor caller takes its session from from_session", async () => {
+  const fake = engine("chengxiaobang", [tool]);
+  const client = await connect(fake.file, {
+    AGENT_HUD_CLIENT: "chengxiaobang",
+  });
+  try {
+    await client.callTool({
+      name: "hud_send_message",
+      arguments: { to: "claude", text: "hi", from_session: "s2" },
+    });
+    const send = fake
+      .requests()
+      .find((request) => request.method === "send_message");
+    assert.equal(send.params.caller.sessionId, null);
+    assert.equal(send.params.from_session, "s2");
+  } finally {
+    await client.close();
+  }
+});

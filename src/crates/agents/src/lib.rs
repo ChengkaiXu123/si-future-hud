@@ -94,6 +94,8 @@ pub const HOOK_FLAGS: &[&str] = &[
     "--attention-hook",
     "--session-origin-hook",
     "--compaction-hook",
+    "--relay-prompt-hook",
+    "--relay-tool-hook",
 ];
 
 pub fn iso(at: i64) -> Value {

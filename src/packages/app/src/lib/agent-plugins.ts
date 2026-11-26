@@ -462,6 +462,58 @@ export function codexMessagesRow(input: {
   };
 }
 
+/** Local build: whether Cursor's conversations take messages, which come in
+ * through the client hooks SI Future HUD installs in Cursor. `installed` is
+ * Cursor's row in the hooks status (null when it has none). */
+export function cursorMessagesRow(input: {
+  found: boolean | null;
+  hooksOn: boolean;
+  installed: boolean | null;
+}): RowState {
+  const base: Pick<RowState, "menu" | "next" | "action" | "busy"> = {
+    menu: [],
+    next: null,
+    action: null,
+    busy: null,
+  };
+  if (input.found === null) return { ...base, tone: "off", status: checking };
+  if (!input.found)
+    return {
+      ...base,
+      tone: "off",
+      status: ["Cursor not found", "没有找到 Cursor"],
+    };
+  if (!input.hooksOn)
+    return {
+      ...base,
+      tone: "attention",
+      status: ["Client hooks off", "客户端回调没开"],
+      next: {
+        words: [
+          "Turn on Client hooks in Settings → General: Cursor takes messages through them.",
+          "在设置 → 通用里打开「客户端回调」：Cursor 靠它收消息。",
+        ],
+      },
+    };
+  if (input.installed === false)
+    return {
+      ...base,
+      tone: "attention",
+      status: ["Hooks need repair", "回调需要修复"],
+      next: {
+        words: [
+          "Turn Client hooks off and on again in Settings → General.",
+          "在设置 → 通用里把「客户端回调」关掉再打开一次。",
+        ],
+      },
+    };
+  return {
+    ...base,
+    tone: "working",
+    status: ["Ready to receive", "可以收消息"],
+  };
+}
+
 /** Local build: Agent HUD's MCP server in 程小帮's mcp.json. */
 export function chengxiaobangMcpRow(input: {
   found: boolean | null;

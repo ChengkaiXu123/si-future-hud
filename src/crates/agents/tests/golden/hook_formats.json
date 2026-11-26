@@ -4067,7 +4067,9 @@
         "--completion-hook",
         "--attention-hook",
         "--session-origin-hook",
-        "--compaction-hook"
+        "--compaction-hook",
+        "--relay-prompt-hook",
+        "--relay-tool-hook"
       ],
       "PERMISSION_SOURCES": [
         "claude",
@@ -13502,6 +13504,7 @@
               "env": {
                 "AGENT_HUD_LOG": "1"
               },
+              "loop_limit": 10,
               "timeout": 30
             }
           ]
@@ -13520,6 +13523,7 @@
               "env": {
                 "AGENT_HUD_LOG": "1"
               },
+              "loop_limit": 10,
               "timeout": 30
             }
           ]
@@ -13560,6 +13564,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -13574,6 +13579,7 @@
           "stop": [
             {
               "command": "'/Users/me/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -13640,6 +13646,7 @@
             },
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -13664,6 +13671,7 @@
             },
             {
               "command": "'/Users/me/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -31687,6 +31695,7 @@
               "env": {
                 "AGENT_HUD_LOG": "1"
               },
+              "loop_limit": 10,
               "timeout": 30
             }
           ]
@@ -31739,6 +31748,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             },
             {
@@ -31776,6 +31786,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -31807,6 +31818,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -31836,6 +31848,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -31936,6 +31949,7 @@
             },
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32055,6 +32069,7 @@
             },
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32120,6 +32135,7 @@
             },
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32177,6 +32193,7 @@
             },
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32242,6 +32259,7 @@
             },
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32294,6 +32312,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32332,6 +32351,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32370,6 +32390,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32450,6 +32471,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32534,6 +32556,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]
@@ -32581,6 +32604,7 @@
           "stop": [
             {
               "command": "'/Applications/Agent HUD.app/Contents/MacOS/agent-hud' --completion-hook cursor",
+              "loop_limit": 10,
               "timeout": 5
             }
           ]

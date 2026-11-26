@@ -33,6 +33,7 @@ pub static CODEBUDDY: Hooks = Hooks {
     attention: false,
     compaction: None,
     prefixed_sessions: true,
+    relay: None,
     launch: POSIX_ONLY,
 };
 
@@ -55,6 +56,7 @@ pub static WORKBUDDY: Hooks = Hooks {
     attention: false,
     compaction: None,
     prefixed_sessions: true,
+    relay: None,
     launch: POSIX_ONLY,
 };
 

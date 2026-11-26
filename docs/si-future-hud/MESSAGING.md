@@ -33,11 +33,11 @@ sequenceDiagram
 ```
 
 1. **An agent calls the HUD's `hud_send_message` tool** — or, in a window opened before the HUD was set up, the HUD's `send` command line (see [From any window](#from-any-window)) — with:
-   - `to`: one of `claude`, `codex` or `chengxiaobang`;
+   - `to`: one of `claude`, `codex`, `chengxiaobang` or `cursor`;
    - `session` *(optional)*: which conversation;
    - `text`: up to 4,000 characters.
 
-   Without `session`, the message goes to the receiving agent's most recently active conversation that can receive (for Codex, the most recent one open in Codex Desktop).
+   Without `session`, the message goes to the receiving agent's most recently active conversation that can receive (for Codex, the most recent Codex conversation).
 2. **The call returns at once** with status *pending*. The sender doesn't wait for the answer.
 3. **The HUD shows a card** with who sends to whom, the target conversation and the whole text. You can scroll through it.
 4. **You choose:**
@@ -50,10 +50,11 @@ sequenceDiagram
 | | Sends | Receives | How it is delivered |
 | --- | :---: | :---: | --- |
 | **Claude Code** | ✓ | ✓ | Through the HUD's Claude Code plugin, into the open conversation; a conversation opened before the plugin gets it through its own inbox (Claude Code's cross-session messaging) |
-| **Codex desktop** | ✓ | ✓ | Over Codex desktop's local IPC socket (`~/.codex/ipc/ipc.sock`), as a new turn in that conversation; a conversation in the middle of a turn gets it when the turn ends |
+| **Codex desktop** | ✓ | ✓ | Into the conversation's own message queue, with Codex's bundled command line (`codex queue`); Codex Desktop runs it within about half a minute when the conversation is open there, after a turn still running, and otherwise when you next open it |
 | **Codex CLI** | ✓ | – | It can send, but it can't receive, so it gets no replies |
 | **Chengxiaobang 程小帮** | ✓ | ✓ | Through its HUD plugin, to the exact conversation that asked |
-| Cursor, Grok Bot, others | – | – | Not supported |
+| **Cursor** | ✓ | ✓ | Through Cursor's own hooks: a conversation at work gets it as its next message when the turn ends; an idle one gets it with the next message you send there (within an hour) |
+| Grok Bot, others | – | – | Not supported |
 
 ## What each agent needs
 
@@ -62,7 +63,8 @@ Nothing, for new windows: the HUD sets everything up on its first launch. Window
 | Agent | To send | To receive |
 | --- | --- | --- |
 | **Claude Code** | New conversations get the HUD tools (`agent-hud` MCP). Conversations opened earlier use the command line, which the `si-future-hud` skill teaches them; a new skill reaches open conversations at once. | The HUD's Claude Code plugin, set up automatically. A conversation opened before it takes messages through Claude Code's own inbox (version 2.1.224 or later); one that skips permission prompts holds them for approval, which the desktop app can't show, so use `/reload-plugins` there. |
-| **Codex** | The same: HUD tools in new conversations, the skill and the command line in older ones. In Codex's sandbox, allow the command to leave it when asked. | The conversation must be open in the **Codex desktop app**. One in the middle of a turn gets the message when the turn ends (within half an hour). |
+| **Codex** | The same: HUD tools in new conversations, the skill and the command line in older ones. In Codex's sandbox, allow the command to leave it when asked. | Nothing: the message waits in the conversation's queue. Codex Desktop runs it once that conversation is open there and its current turn has ended. |
+| **Cursor** | The HUD tools, written into `~/.cursor/mcp.json` on launch (if Cursor asks, turn on `agent-hud` in its MCP settings). Cursor sends with the `hud_send_message` tool only; its terminal can't name the conversation. | **Client hooks** on in Settings → General: the HUD adds three hooks to `~/.cursor/hooks.json` next to any others you have. |
 | **Chengxiaobang** | Nothing: its HUD tools are written into `~/.chengxiaobang/mcp.json` on launch. | Enable the **SI Future HUD** plugin once in Chengxiaobang → Plugins (no restart needed). Settings → Agent plugins shows whether it is enabled, with a button that opens Chengxiaobang. |
 
 Messaging doesn't depend on **Let agents arrange the HUD** or on **Answer questions**: those switches only cover the HUD tools and answering questions.
@@ -77,7 +79,7 @@ What meetings do I have today?
 EOF
 ```
 
-`--to` is `claude`, `codex` or `chengxiaobang`; `--session` names one conversation. Exit code 0 means sent (with the reply, when waiting), 2 no reply in time, 3 denied or never confirmed. The card shows that the message came from the command line.
+`--to` is `claude`, `codex`, `chengxiaobang` or `cursor`; `--session` names one conversation. Exit code 0 means sent (with the reply, when waiting), 2 no reply in time, 3 denied or never confirmed. The card shows that the message came from the command line.
 
 ## Asking for it
 
@@ -97,17 +99,18 @@ The agent writes the message itself, so you see exactly what will be sent before
 - **It never pretends to be you.** A delivered message is wrapped and marked as coming from another agent, so the receiver can't take it for your words. Chengxiaobang's plugin never treats it as your answer to a question.
 - **It doesn't jump into a question.** A conversation that is waiting for *your* answer to a question can't receive messages.
 - **Nothing piles up.** Each sending conversation can have at most **2** messages waiting for your decision.
-- **Codex isn't interrupted.** A message for a Codex conversation in the middle of a turn waits until the turn ends; there is no "steering". It is dropped if the conversation stays busy for half an hour.
-- **No duplicates.** If Codex's receipt is unclear after the write, the message counts as delivered and is not sent again.
+- **Codex and Cursor aren't interrupted.** A message for a conversation in the middle of a turn waits until the turn ends; there is no "steering".
+- **No duplicates.** A message is taken once: by Codex's queue, or by the first Cursor hook that hands it in.
 - **Chengxiaobang to Chengxiaobang** must name a target session.
 - **The command line's identity is checked.** It takes the calling conversation from the agent process it runs under, never from its arguments; a conversation the HUD doesn't list shows as unverified on the card.
 
 ## Limits
 
-- **Some messages wait, others are refused.** A Chengxiaobang conversation that took messages before but isn't open now (Chengxiaobang restarted, say) gets the message once you open it, within an hour; a busy Codex conversation gets it when its turn ends, within half an hour. The card says so. A message is refused when:
+- **Some messages wait, others are refused.** A Chengxiaobang conversation that took messages before but isn't open now (Chengxiaobang restarted, say) gets the message once you open it, within an hour; a Codex conversation gets it once its turn has ended and it is open in Codex Desktop; an idle Cursor conversation gets it with the next message you send there, within an hour. The card says so. A message is refused when:
   - the conversation is closed;
   - a Chengxiaobang conversation never ran the HUD's plugin.
-- **Only Claude Code, Codex (desktop) and Chengxiaobang** take part. Cursor and Grok Bot do not.
+- **Claude Code, Codex (desktop), Chengxiaobang and Cursor** take part. Grok Bot does not.
+- **Cursor can't wake an idle conversation.** Cursor has no way for another app to start a turn, so an idle Cursor conversation reads the message only when you next write there.
 - **The receiving agent processes the text like any prompt.** That means its model provider sees the text, just as if you had typed it there.
 
 ## Privacy

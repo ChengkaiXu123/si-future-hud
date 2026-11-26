@@ -98,6 +98,7 @@ fn receiver(source: &str) -> Option<(&'static str, &'static str)> {
         "claude" | "claude-code" | "claude code" => Some(("claude", "Claude Code")),
         "chengxiaobang" | "程小帮" => Some(("chengxiaobang", "程小帮")),
         "codex" | "codex desktop" | "codex-desktop" => Some(("codex", "Codex")),
+        "cursor" => Some(("cursor", "Cursor")),
         _ => None,
     }
 }
@@ -107,6 +108,7 @@ fn name(source: &str) -> &str {
         "claude" => "Claude Code",
         "codex" => "Codex",
         "chengxiaobang" => "程小帮",
+        "cursor" => "Cursor",
         other => other,
     }
 }
@@ -149,6 +151,7 @@ fn caller_client(caller: &Value) -> Result<&'static str, String> {
         Some("claude") => Ok("claude"),
         Some("codex") => Ok("codex"),
         Some("chengxiaobang") => Ok("chengxiaobang"),
+        Some("cursor") => Ok("cursor"),
         _ => Err(crate::l10n::text(
             "SI Future HUD 认不出是哪个智能体在发消息（Codex 太旧时不带对话编号，更新 Codex 后再试）。",
             "SI Future HUD can't tell which agent is sending (an old Codex sends no thread id; update Codex and try again).",
@@ -199,6 +202,34 @@ struct Target {
 }
 
 impl crate::AgentHudCore {
+    /// A session as the HUD names it (`listed_id`). Local build: a Cursor
+    /// conversation named by its own id, as its hooks and relayed words name
+    /// it, is the one the HUD lists under the dashboard's account
+    /// (`cursor-account:<account>:<id>`), whichever way it is named.
+    fn listed(&self, source: &str, id: &str) -> String {
+        if source != "cursor" {
+            return listed_id(source, id);
+        }
+        let own = id.rsplit(':').next().unwrap_or(id);
+        let listed = self.listed_sessions();
+        listed
+            .iter()
+            .find(|log| log.source == source && log.id == id)
+            .or_else(|| {
+                listed
+                    .iter()
+                    .find(|log| log.source == source && log.id.rsplit(':').next() == Some(own))
+            })
+            .map(|log| log.id.clone())
+            .unwrap_or_else(|| {
+                if id.contains(':') {
+                    id.to_owned()
+                } else {
+                    format!("cursor:{own}")
+                }
+            })
+    }
+
     /// Whether `session` of `source` waits on the user now (a question or a
     /// next-step box): words sent there would be taken as the answer.
     fn session_waits(&self, source: &str, session: &str, now: i64) -> bool {
@@ -240,6 +271,11 @@ impl crate::AgentHudCore {
         {
             return true;
         }
+        self.turn_running(source, session, now)
+    }
+
+    /// Whether `session` of `source` is in the middle of a turn, as the HUD shows it.
+    fn turn_running(&self, source: &str, session: &str, now: i64) -> bool {
         let presentation = self.presentation(now);
         self.logs.values().any(|log| {
             log.source == source
@@ -345,7 +381,7 @@ impl crate::AgentHudCore {
         sender: Option<&str>,
         now: i64,
     ) -> Result<Target, String> {
-        let asked = asked.map(|id| listed_id(source, id));
+        let asked = asked.map(|id| self.listed(source, id));
         if asked.is_some() && asked.as_deref() == sender {
             return Err(crate::l10n::text(
                 "不能发给自己所在的会话。",
@@ -660,7 +696,7 @@ impl crate::AgentHudCore {
         let session = caller["sessionId"]
             .as_str()
             .filter(|id| !id.is_empty())
-            .map(|id| listed_id(from, id))
+            .map(|id| self.listed(from, id))
             .ok_or_else(|| {
                 crate::l10n::text(
                     "等回信需要知道发件会话。",
@@ -777,17 +813,26 @@ impl crate::AgentHudCore {
         let from = caller_client(caller)?;
         let command_line = caller["via"] == "cli";
         // The sender's session counts only when it is one Agent HUD lists. A
-        // 程小帮 caller's comes from its plugin (the relay can't tell it).
+        // 程小帮 caller's comes from its plugin (the relay can't tell it), a
+        // Cursor caller's from SI Future HUD's tool hook in Cursor.
         let named = caller["sessionId"]
             .as_str()
             .filter(|id| !id.is_empty())
             .or_else(|| {
-                (from == "chengxiaobang")
+                matches!(from, "chengxiaobang" | "cursor")
                     .then(|| params["from_session"].as_str())
                     .flatten()
                     .filter(|id| !id.is_empty())
             })
-            .map(|id| listed_id(from, id));
+            .map(|id| self.listed(from, id));
+        // Local build: a Cursor conversation is named only by that hook; one
+        // that isn't can't be told from another, nor take the reply.
+        if from == "cursor" && named.is_none() {
+            return Err(crate::l10n::text(
+                "SI Future HUD 认不出是 Cursor 的哪个对话在发消息：要靠 HUD 装进 Cursor 的回调。在 SI Future HUD 设置 → 通用里打开「客户端回调」（已经开着的话，关掉再打开一次），再发一次。",
+                "SI Future HUD can't tell which Cursor conversation is sending: that takes the hooks the HUD installs in Cursor. Turn on Client hooks in SI Future HUD → Settings → General (if it is on, turn it off and on again), then send again.",
+            ));
+        }
         // The same words asked again (a call that timed out and was tried
         // again) get the card already waiting, not a second one.
         if let Some((id, message)) = self.agent_messages.pending.iter().find(|(_, message)| {
@@ -800,7 +845,7 @@ impl crate::AgentHudCore {
                 && params["session"]
                     .as_str()
                     .filter(|session| !session.is_empty())
-                    .is_none_or(|session| listed_id(&message.to, session) == message.to_session)
+                    .is_none_or(|session| self.listed(&message.to, session) == message.to_session)
         }) {
             return Ok(json!({
                 "status": "pending",
@@ -844,8 +889,8 @@ impl crate::AgentHudCore {
             .is_some_and(|id| self.waits_on_command_line(from, id, now));
         let Some((to, to_name)) = params["to"].as_str().and_then(receiver) else {
             return Err(crate::l10n::text(
-                "只能发给 Claude Code（claude）、Codex 桌面版（codex）或程小帮（chengxiaobang）。",
-                "Messages go to Claude Code (\"claude\"), Codex Desktop (\"codex\") or 程小帮 (\"chengxiaobang\").",
+                "只能发给 Claude Code（claude）、Codex 桌面版（codex）、程小帮（chengxiaobang）或 Cursor（cursor）。",
+                "Messages go to Claude Code (\"claude\"), Codex Desktop (\"codex\"), 程小帮 (\"chengxiaobang\") or Cursor (\"cursor\").",
             ));
         };
         let asked = params["session"].as_str().filter(|id| !id.is_empty());
@@ -889,6 +934,19 @@ impl crate::AgentHudCore {
         let caution_note = caution
             .as_ref()
             .map(|caution| format!("\n\n{caution}"))
+            .unwrap_or_default();
+        // Local build: when the words go in, for a carrier that takes them
+        // only at a turn's edge (Cursor).
+        let delivery = self.session_replies.as_ref().and_then(|replies| {
+            replies.delivery(
+                to,
+                &target.session,
+                self.turn_running(to, &target.session, now),
+            )
+        });
+        let delivery_note = delivery
+            .as_ref()
+            .map(|delivery| format!("\n\n{delivery}"))
             .unwrap_or_default();
         let held = !self.waits_on_command_line(to, &target.session, now)
             && self.session_waits(to, &target.session, now);
@@ -956,7 +1014,7 @@ impl crate::AgentHudCore {
         };
         let detail = if chinese() {
             format!(
-                "从{}发到{to_name}的会话「{to_title}」：\n\n{text}{queued_note}{held_note}{caution_note}{auto_note}",
+                "从{}发到{to_name}的会话「{to_title}」：\n\n{text}{queued_note}{delivery_note}{held_note}{caution_note}{auto_note}",
                 match &from_title {
                     Some(title) => format!("{from_name}的会话「{title}」"),
                     None => from_name.clone(),
@@ -964,7 +1022,7 @@ impl crate::AgentHudCore {
             )
         } else {
             format!(
-                "From {} to {to_name}'s session \"{to_title}\":\n\n{text}{queued_note}{held_note}{caution_note}{auto_note}",
+                "From {} to {to_name}'s session \"{to_title}\":\n\n{text}{queued_note}{delivery_note}{held_note}{caution_note}{auto_note}",
                 match &from_title {
                     Some(title) => format!("{from_name}'s session \"{title}\""),
                     None => from_name.clone(),
@@ -1075,10 +1133,11 @@ impl crate::AgentHudCore {
                         "to": {"agent": to, "session": target.session, "title": target.title, "queued": target.queued},
                         "flight": flight,
                         "note": if chinese() {
-                            format!("SuperRoot 模式开着：消息没等用户确认，已经直接送出。{busy_note}{queued}{reply}{}", caution.as_deref().unwrap_or_default())
+                            format!("SuperRoot 模式开着：消息没等用户确认，已经直接送出。{busy_note}{queued}{}{reply}{}", delivery.as_deref().unwrap_or_default(), caution.as_deref().unwrap_or_default())
                         } else {
                             format!(
-                                "SuperRoot mode is on: the message went without the user's confirmation. {busy_note}{queued}{reply}{}",
+                                "SuperRoot mode is on: the message went without the user's confirmation. {busy_note}{queued}{}{reply}{}",
+                                delivery.map(|delivery| format!("{delivery} ")).unwrap_or_default(),
                                 caution.map(|caution| format!(" {caution}")).unwrap_or_default()
                             )
                         },
@@ -1113,10 +1172,11 @@ impl crate::AgentHudCore {
             "id": id,
             "to": {"agent": to, "session": target.session, "title": target.title, "queued": target.queued},
             "note": if chinese() {
-                format!("{unsent}已请用户在 HUD 上确认，确认后才会送进对方会话。{queued}{reply}{}", caution.as_deref().unwrap_or_default())
+                format!("{unsent}已请用户在 HUD 上确认，确认后才会送进对方会话。{queued}{}{reply}{}", delivery.as_deref().unwrap_or_default(), caution.as_deref().unwrap_or_default())
             } else {
                 format!(
-                    "{unsent}The user confirms it on the HUD before it goes into that session. {queued}{reply}{}",
+                    "{unsent}The user confirms it on the HUD before it goes into that session. {queued}{}{reply}{}",
+                    delivery.map(|delivery| format!("{delivery} ")).unwrap_or_default(),
                     caution.map(|caution| format!(" {caution}")).unwrap_or_default()
                 )
             },
@@ -1226,10 +1286,14 @@ impl crate::AgentHudCore {
 /// The words the receiving session gets: who wrote them first, plainly not the
 /// user's instructions, the text inside markers it cannot hold, then how to reply.
 fn relayed_words(message: &Pending) -> String {
+    // A 程小帮 or Cursor session by its own id, as its client names it.
     let session = message
         .reply_session
         .as_deref()
-        .map(|id| id.strip_prefix("chengxiaobang:").unwrap_or(id));
+        .map(|id| match message.from.as_str() {
+            "cursor" => id.rsplit(':').next().unwrap_or(id),
+            _ => id.strip_prefix("chengxiaobang:").unwrap_or(id),
+        });
     if chinese() {
         let from = match &message.from_title {
             Some(title) => format!("{}（会话「{title}」）", message.from_name),

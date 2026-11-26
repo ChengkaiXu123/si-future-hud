@@ -16,7 +16,9 @@ mod installed;
 fn main() {
     agent_hud_host::run_with_options(
         tauri::generate_context!(),
-        None,
+        // SI Future HUD's own updater: Settings → Updates, the menu bar's
+        // New Version… and the HUD footer's arrow.
+        Some(std::sync::Arc::new(agent_hud_updater::Updater::new())),
         agent_hud_host::HostOptions {
             canonical_executable: installed::installed_executable(),
         },

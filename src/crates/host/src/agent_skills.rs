@@ -2,7 +2,8 @@
 //! how to message another through SI Future HUD. Claude Code and Codex pick up
 //! a new personal skill in sessions that are already open, so a window opened
 //! before SI Future HUD (which never got the MCP tool) can still send, with the
-//! app's `send` command line. Written once per client and recorded in
+//! app's `send` command line. Cursor reads the same folders (`~/.claude/skills`,
+//! `~/.agents/skills`), so it gets the skill too; it sends with the tool only. Written once per client and recorded in
 //! `auto-setup.json`; an update rewrites only skills that are still there, so
 //! one the user deletes stays deleted.
 use serde_json::{json, Map, Value};
@@ -15,7 +16,7 @@ fn skill(executable: &Path) -> String {
     format!(
         r#"---
 name: {NAME}
-description: Message another AI agent's window — Claude Code, Codex or 程小帮 (Chengxiaobang) — through SI Future HUD, or reply to a message SI Future HUD relayed to you. Use when the user asks to ask, tell or message another agent through the HUD (用 HUD / 通过 HUD 问、告诉、发给 Codex、Claude、程小帮), or when you received a "[Relayed by SI Future HUD]" / "【SI Future HUD 转达】" message and want to answer it.
+description: Message another AI agent's window — Claude Code, Codex, 程小帮 (Chengxiaobang) or Cursor — through SI Future HUD, or reply to a message SI Future HUD relayed to you. Use when the user asks to ask, tell or message another agent through the HUD (用 HUD / 通过 HUD 问、告诉、发给 Codex、Claude、程小帮、Cursor), or when you received a "[Relayed by SI Future HUD]" / "【SI Future HUD 转达】" message and want to answer it.
 ---
 
 # Messaging other agents through SI Future HUD
@@ -26,15 +27,17 @@ Every message waits for the user to press **Send** on the HUD before it is deliv
 
 If a tool named `hud_send_message` (such as `mcp__agent-hud__hud_send_message`) is available, use it.
 
+In Cursor, always use the tool: the command line below can't tell which Cursor conversation sends. If Cursor has no such tool, tell the user to add SI Future HUD's HUD tools to Cursor (SI Future HUD → Settings → Agent plugins) and turn on Client hooks (Settings → General).
+
 Otherwise — in a window opened before SI Future HUD was installed, for example — run the command line. It finds your own session by itself:
 
 ```bash
-"{exe}" send --to <claude|codex|chengxiaobang> --wait 1800 <<'EOF'
+"{exe}" send --to <claude|codex|chengxiaobang|cursor> --wait 1800 <<'EOF'
 <your message>
 EOF
 ```
 
-- `--to`: `claude` (Claude Code), `codex` (Codex Desktop) or `chengxiaobang` (程小帮).
+- `--to`: `claude` (Claude Code), `codex` (Codex Desktop), `chengxiaobang` (程小帮) or `cursor` (a Cursor conversation: it takes the message when its current turn ends, or with the user's next message there while it is idle).
 - `--session <id>`: one receiving session; leave it out to reach that agent's most recently active session that can take messages.
 - `--wait <seconds>`: wait for the reply and print it (up to 3600). Use it whenever you need the answer, and wait long: the other agent may finish its own work first, and the user confirms both messages on the HUD. Without it the command returns at once, and a reply comes later as a new message only if this window can take messages.
 - A long wait outlasts a shell tool's time limit (Claude Code's Bash stops a command after 2 minutes unless told otherwise): run the command in the background, or give the tool a timeout longer than the wait. A wait cut short does no harm: a later reply comes as a new message where this window can take one.

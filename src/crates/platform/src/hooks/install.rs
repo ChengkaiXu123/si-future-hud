@@ -272,6 +272,69 @@ mod tests {
     }
 
     #[test]
+    fn cursors_hooks_install_once_beside_another_tools_and_come_out_cleanly() {
+        let root = tempfile::tempdir().unwrap();
+        let home = root.path().join("home");
+        let file = home.join(".cursor/hooks.json");
+        fs::create_dir_all(file.parent().unwrap()).unwrap();
+        let foreign = json!({"version":1,"hooks":{
+            "preToolUse":[{"command":"git-ai checkpoint cursor --hook-input stdin"}],
+            "postToolUse":[{"command":"git-ai checkpoint cursor --hook-input stdin"}],
+            "stop":[{"command":"git-ai stop"}]
+        }});
+        fs::write(&file, serde_json::to_vec_pretty(&foreign).unwrap()).unwrap();
+        let exe = root
+            .path()
+            .join("Applications/SI Future HUD.app/Contents/MacOS/agent-hud-next");
+        fs::create_dir_all(exe.parent().unwrap()).unwrap();
+        fs::write(&exe, "").unwrap();
+        let context = InstallContext {
+            executable: exe.clone(),
+            canonical_executable: Some(exe.clone()),
+            ..context(&home, &[])
+        };
+        let flags = agent_hud_agents::hooks::hooks_by_id("cursor")
+            .unwrap()
+            .flags();
+        let apply = |enabled: bool| {
+            for flag in &flags {
+                let plan = install_plan(&context, "cursor", flag, enabled).unwrap();
+                apply_plan(&plan).unwrap();
+            }
+        };
+        let read = || serde_json::from_slice::<Value>(&fs::read(&file).unwrap()).unwrap();
+        apply(true);
+        let installed = read();
+        let ours = |flag: &str| format!("'{}' {flag} cursor", exe.display());
+        let hooks = &installed["hooks"];
+        assert_eq!(hooks["stop"][0], foreign["hooks"]["stop"][0]);
+        assert_eq!(hooks["stop"][1]["command"], ours("--completion-hook"));
+        assert_eq!(hooks["stop"][1]["loop_limit"], 10);
+        assert_eq!(
+            hooks["beforeSubmitPrompt"][0]["command"],
+            ours("--relay-prompt-hook")
+        );
+        assert_eq!(hooks["preToolUse"][0], foreign["hooks"]["preToolUse"][0]);
+        assert_eq!(hooks["preToolUse"][1]["command"], ours("--relay-tool-hook"));
+        assert_eq!(hooks["preToolUse"][1]["matcher"], "hud_send_message");
+        assert_eq!(hooks["postToolUse"], foreign["hooks"]["postToolUse"]);
+        // Installed: nothing left to change, and a second install writes nothing.
+        for flag in &flags {
+            assert!(
+                !install_plan(&context, "cursor", flag, true)
+                    .unwrap()
+                    .changed,
+                "{flag}"
+            );
+        }
+        apply(true);
+        assert_eq!(read(), installed);
+        // Turned off: only the other tool's hooks are left.
+        apply(false);
+        assert_eq!(read(), foreign);
+    }
+
+    #[test]
     fn settings_follow_each_clients_folder_variable() {
         let home = Path::new("/h");
         let path = |source: &str, env: &[(&str, &str)]| {

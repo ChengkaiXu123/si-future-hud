@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.7-7c8cff?style=for-the-badge" alt="版本 v0.1.7"></a>
+  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.8-7c8cff?style=for-the-badge" alt="版本 v0.1.8"></a>
   <img src="https://img.shields.io/badge/macOS-12%2B%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12 以上，Apple 芯片">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-2ea44f?style=for-the-badge" alt="Apache-2.0"></a>
   <a href="https://github.com/jazzenchen/agent-hud-open"><img src="https://img.shields.io/badge/based%20on-Agent%20HUD-ff8a5c?style=for-the-badge" alt="基于 Agent HUD"></a>
@@ -179,7 +179,7 @@ Claude Code、Codex（桌面版）和程小帮现在可以互相发消息。比�
 | **Claude Code** | ✓ | ✓ | ✓ | ✓ | ✓ | 能发能收 |
 | **Codex** | ✓ | ✓ | ✓ | ✓ | ✓ | 能发能收（桌面版） |
 | **程小帮** | AI Coding Plan（月度、5 小时） | ✓ |  | ✓ | ✓ | 能发能收 |
-| **Cursor** | ✓ | ✓ |  |  | ✓ |  |
+| **Cursor** | ✓ | ✓ |  |  | ✓ | 能发能收 |
 | **Grok Bot** | ✓ | ✓ |  | 只显示 | ✓ |  |
 
 Codex 的审批需要先在 Codex 里信任一次它的回调。Grok Bot 的提问会显示在 HUD 上，但要回到 Grok Bot 里回答。

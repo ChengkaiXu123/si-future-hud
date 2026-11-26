@@ -16,7 +16,7 @@ use std::{
 const HELP: &str = "\
 agent-hud-next send — 通过 SI Future HUD 给另一个智能体窗口发消息 / message another agent's window through SI Future HUD
 
-  agent-hud-next send --to <claude|codex|chengxiaobang> [--session <id>] [--wait <秒/seconds>] --text \"…\"
+  agent-hud-next send --to <claude|codex|chengxiaobang|cursor> [--session <id>] [--wait <秒/seconds>] --text \"…\"
   agent-hud-next send --to codex --wait 1800 <<'EOF'
   …长消息 / a long message…
   EOF
@@ -187,6 +187,15 @@ pub(super) fn run(arguments: &[String]) -> i32 {
     }
 }
 
+/// Local build: why a Cursor conversation can't send from the command line.
+const CURSOR: &str = "Cursor 的对话不能用命令行发消息（命令行认不出是哪个对话）：请调用 HUD 工具 hud_send_message。没有这个工具的话，在 SI Future HUD 设置 → 智能体插件里给 Cursor 添加 HUD 工具，再在设置 → 通用里打开「客户端回调」。/ A Cursor conversation can't send from the command line (it can't tell which conversation calls): call the HUD tool hud_send_message. Without it, add the HUD tools to Cursor in SI Future HUD → Settings → Agent plugins, and turn on Client hooks in Settings → General.";
+
+/// Whether this runs in a Cursor agent's shell, which Cursor marks with
+/// `CURSOR_AGENT=1` and nothing else.
+fn cursor_shell(env: impl Fn(&str) -> Option<String>) -> bool {
+    env("CURSOR_AGENT").is_some_and(|value| value.trim() == "1")
+}
+
 /// The calling agent and its session: the nearest agent process above this
 /// command decides, so a shell an agent runs in another agent's window counts
 /// as the inner one.
@@ -216,6 +225,12 @@ fn caller() -> Result<Value, String> {
                 return Ok(json!({"client":"chengxiaobang","sessionId":id,"via":"cli"}));
             }
         }
+    }
+    // Local build: Cursor's agent shell names no conversation (only
+    // CURSOR_AGENT=1), so a Cursor conversation sends with the HUD tool,
+    // whose call SI Future HUD's hook in Cursor names.
+    if cursor_shell(|key| std::env::var(key).ok()) {
+        return Err(CURSOR.into());
     }
     // No agent process found above: what the shell says, which the card
     // shows as unverified unless the HUD lists that session.
@@ -291,6 +306,21 @@ mod tests {
         assert_eq!(claude_session(root.path(), 42).as_deref(), Some("abc"));
         assert_eq!(claude_session(root.path(), 43), None);
         assert_eq!(claude_session(root.path(), 44), None);
+    }
+
+    #[test]
+    fn a_cursor_agents_shell_is_told_to_use_the_hud_tool() {
+        let shell = |value: Option<&'static str>| {
+            cursor_shell(|key: &str| {
+                (key == "CURSOR_AGENT")
+                    .then(|| value.map(str::to_owned))
+                    .flatten()
+            })
+        };
+        assert!(shell(Some("1")));
+        assert!(!shell(None));
+        assert!(!shell(Some("0")));
+        assert!(CURSOR.contains("hud_send_message"));
     }
 
     #[test]

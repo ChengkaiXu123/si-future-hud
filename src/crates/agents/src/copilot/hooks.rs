@@ -29,6 +29,7 @@ pub static HOOKS: Hooks = Hooks {
     attention: false,
     compaction: None,
     prefixed_sessions: true,
+    relay: None,
     launch: PerOs {
         macos: Support::Verified(Launch::Command),
         windows: Support::Unverified(Launch::ExecArgs),

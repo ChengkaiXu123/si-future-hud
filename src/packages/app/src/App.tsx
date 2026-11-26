@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { Button } from "@agent-hud/ui/components/button";
-import { Card, CardContent } from "@agent-hud/ui/components/card";
 import { Tabs, TabsList, TabsTrigger } from "@agent-hud/ui/components/tabs";
 import {
   DropdownMenu,
@@ -36,7 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@agent-hud/ui/components/dropdown-menu";
-import { Tooltip, TooltipProvider } from "@agent-hud/ui/components/tooltip";
+import { TooltipProvider } from "@agent-hud/ui/components/tooltip";
 import {
   Alert,
   AlertDescription,
@@ -73,6 +72,7 @@ const NativeHUDSurface = lazy(() => import("./HUDSurface"));
 const Statistics = lazy(() => import("./Statistics"));
 const SessionStatistics = lazy(() => import("./SessionStatistics"));
 const SettingsPane = lazy(() => import("./SettingsPanes"));
+const UpdatesPane = lazy(() => import("./settings/UpdatesPane"));
 
 class ViewErrorBoundary extends Component<
   { children: ReactNode; onReset?: () => void; chinese?: boolean },
@@ -157,7 +157,8 @@ const pages = [
     label: "Updates",
     icon: Download,
     color: "#007aff",
-    description: "Manage SI Future HUD updates and Beta participation.",
+    description:
+      "Check for, download and install new versions of SI Future HUD.",
   },
 ] as const;
 const chinesePages: Record<string, [string, string]> = {
@@ -172,7 +173,7 @@ const chinesePages: Record<string, [string, string]> = {
     "SI Future HUD 为编程智能体添加的功能，都在这台 Mac 上运行。",
   ],
   display: ["显示", "自定义灵动岛光晕与面板内容，更改自动生效。"],
-  updates: ["更新", "管理 SI Future HUD 更新与 Beta 参与设置。"],
+  updates: ["更新", "检查、下载并安装 SI Future HUD 的新版本。"],
 };
 const selectedScreenKey = "agenthud.next.selected-screen";
 
@@ -842,32 +843,10 @@ function AppContent({
                         />
                       )}
                       {page === "updates" && (
-                        <section className="preference-group">
-                          <h2>{currentPage?.label}</h2>
-                          <Card>
-                            <CardContent>
-                              <div className="preference-row">
-                                <div>
-                                  <span>
-                                    {chinese
-                                      ? "自动更新检查"
-                                      : "Automatic update checks"}
-                                  </span>
-                                  <p>
-                                    {chinese
-                                      ? "这个预览版暂不支持自动更新。"
-                                      : "This preview does not update itself yet."}
-                                  </p>
-                                </div>
-                                <Tooltip>
-                                  <Button variant="outline" disabled>
-                                    {chinese ? "不可用" : "Unavailable"}
-                                  </Button>
-                                </Tooltip>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </section>
+                        <UpdatesPane
+                          snapshot={settingsProps.snapshot}
+                          request={extensionRequest}
+                        />
                       )}
                     </Suspense>
                   )}

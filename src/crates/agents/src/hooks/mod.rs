@@ -31,8 +31,30 @@ pub struct Hooks {
     pub compaction: Option<Compaction>,
     /// Its session ids carry the client's id in front (`codebuddy:<id>`).
     pub prefixed_sessions: bool,
+    /// Local build: hooks that carry other agents' messages in and out of its
+    /// conversations, for a client SI Future HUD has no plugin for.
+    pub relay: Option<Relay>,
     /// How a hook is launched on each OS.
     pub launch: PerOs<Launch>,
+}
+
+/// Local build: SI Future HUD's messages through a client's own hooks, as
+/// Cursor's version-1 hooks take them. Messages waiting for a conversation go
+/// in as the completion hook's follow-up when a turn ends (`followup_message`),
+/// or ride along with the user's next prompt (`--relay-prompt-hook`,
+/// `additional_context`); the HUD's send tool is told which conversation
+/// calls it (`--relay-tool-hook`, `updated_input.from_session`).
+pub struct Relay {
+    /// The event before the user's prompt goes.
+    pub prompt_event: &'static str,
+    /// The event before a tool runs.
+    pub tool_event: &'static str,
+    /// The HUD's send tool: the tool hook's matcher (a regular expression the
+    /// client tests against the tool's name, `MCP:<tool>` for an MCP tool).
+    pub tool: &'static str,
+    /// How many follow-ups in a row the completion hook may start, written
+    /// on its handler (`loop_limit`); past it, messages wait for a prompt.
+    pub loop_limit: u64,
 }
 
 impl Hooks {
@@ -53,6 +75,10 @@ impl Hooks {
         }
         if self.origin.is_some() {
             flags.push("--session-origin-hook");
+        }
+        if self.relay.is_some() {
+            flags.push("--relay-prompt-hook");
+            flags.push("--relay-tool-hook");
         }
         flags
     }
@@ -241,6 +267,14 @@ mod tests {
             ["--permission-hook", "--completion-hook"]
         );
         assert_eq!(flags("workbuddy"), ["--permission-hook"]);
+        assert_eq!(
+            flags("cursor"),
+            [
+                "--completion-hook",
+                "--relay-prompt-hook",
+                "--relay-tool-hook"
+            ]
+        );
         for agent in ALL {
             for flag in agent.hooks.map(Hooks::flags).unwrap_or_default() {
                 assert!(crate::HOOK_FLAGS.contains(&flag), "{} {flag}", agent.id);

@@ -306,8 +306,8 @@ impl Service {
             });
         // Local build: each client that takes words has its carrier: Claude
         // Code (above), 程小帮 through Agent HUD's 程小帮 plugin (written into
-        // its plugins folder when 程小帮 is here), and Codex Desktop threads
-        // through the desktop app's IPC.
+        // its plugins folder when 程小帮 is here), Codex Desktop threads
+        // through the desktop app's IPC, and Cursor through its own hooks.
         let replies = {
             use agent_hud_runtime::chengxiaobang_plugin::{
                 chengxiaobang_directory, ChengxiaobangPlugin, RepliesBySource,
@@ -346,6 +346,17 @@ impl Service {
                 .and_then(agent_hud_runtime::codex_client::message::carrier)
             {
                 carriers.push(("codex", codex));
+            }
+            // Cursor's conversations, through the hooks the HUD installs in
+            // Cursor ("Client hooks"); the carrier says when they're missing.
+            if let (Ok(data), Ok(home)) = (
+                agent_hud_runtime::local_tools_directory(),
+                agent_hud_runtime::home_directory(),
+            ) {
+                carriers.push((
+                    "cursor",
+                    agent_hud_runtime::cursor_client::carrier(&data, &home),
+                ));
             }
             (!carriers.is_empty()).then(|| Arc::new(RepliesBySource(carriers)) as Carrier)
         };

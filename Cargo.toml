@@ -3,7 +3,7 @@ members = ["src/crates/*", "src/apps/desktop/src-tauri"]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 rust-version = "1.90"
 license = "Apache-2.0"
@@ -25,6 +25,7 @@ agent-hud-l10n = { path = "src/crates/l10n" }
 agent-hud-lan = { path = "src/crates/lan" }
 agent-hud-platform = { path = "src/crates/platform" }
 agent-hud-runtime = { path = "src/crates/runtime" }
+agent-hud-updater = { path = "src/crates/updater" }
 
 base64 = "=0.22.1"
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
