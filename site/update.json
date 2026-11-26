@@ -1,0 +1,15 @@
+{
+  "version": "0.1.8",
+  "pubDate": "2026-11-26T14:34:25Z",
+  "notes": {
+    "zh": "Codex：消息排进对话队列（Codex 桌面版并进 ChatGPT 后旧通道没了）；Cursor 能收发传话；HUD 能自己更新。",
+    "en": "Codex: messages go into the conversation's queue (Codex Desktop, now inside ChatGPT, dropped the old channel); Cursor sends and receives messages; the HUD updates itself."
+  },
+  "sha256": "ad738effa4e596b2fd29526080eac5ed9528fcd035a92153a9e6a35759106d15",
+  "size": 46964594,
+  "urls": [
+    "https://pages.release.ctripcorp.com/ckxu/si-future-hud/SI-Future-HUD.dmg",
+    "https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.8/SI-Future-HUD_0.1.8_aarch64.dmg"
+  ],
+  "signature": "te5zRy9KChMoeETfB9I3deJd5+87rUeq3RtWqXKS9+68xuZ/xWaV2XssB7zxl+FYeJK8Xn03AxBfYNMHmSQBBQ=="
+}
