@@ -253,8 +253,33 @@ footer a{color:var(--muted)}
   .film-ui button{padding:7px 12px;font-size:13px}
   .numbers{gap:12px}.num{padding:24px 18px}
 }
+/* ---------- next generation: Vanguard ---------- */
+.bar nav a.vg{color:#ffb340}
+.bar nav a.vg:hover{color:#ffd27a}
+.nextgen{display:inline-flex;align-items:center;gap:10px;margin:0 0 20px;padding:6px 16px 6px 6px;border-radius:999px;border:1px solid rgba(255,179,64,.35);background:rgba(255,159,10,.08);color:var(--ink);font-size:14px;text-decoration:none;opacity:0;animation:fadeup 1.2s var(--ease) .05s forwards;transition:background .25s,border-color .25s}
+.nextgen img{width:26px;height:26px;border-radius:7px}
+.nextgen b{color:#ffb340;font-weight:700}
+.nextgen:hover{background:rgba(255,159,10,.16);border-color:rgba(255,179,64,.6)}
+.hero-copy .nextgen+br{display:block}
+.vg-next{background:linear-gradient(180deg,var(--bg),#0c0905 45%,var(--bg))}
+.vg-next .kicker{color:#ffb340}
+.vg-next .grad-vg{background:linear-gradient(90deg,#FFD60A,#FF9F0A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.vg-next .head{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.vg-next .head img{width:76px;height:76px;border-radius:19px;box-shadow:0 18px 44px rgba(255,159,10,.3)}
+.vg-next .shot{margin:56px 0 0;border-radius:26px;overflow:hidden;border:1px solid var(--line);box-shadow:0 40px 120px rgba(255,159,10,.14)}
+.vg-next .shot img{display:block;width:100%}
+.vg-next .feats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px}
+.vg-next .feats div{padding:22px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.vg-next .feats b{display:block;font-size:17px}
+.vg-next .feats span{display:block;color:var(--muted);font-size:14.5px;margin-top:6px}
+.vg-next .actions{justify-content:flex-start;margin-top:36px;opacity:1;animation:none}
+.vg-next .btn.vgbtn{background:linear-gradient(90deg,#FFD60A,#FF9F0A);color:#1d1203;box-shadow:0 12px 40px rgba(255,159,10,.3)}
+.vg-next .stay{color:var(--faint);font-size:14.5px;margin-top:16px}
+@media (max-width:900px){.vg-next .feats{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.vg-next .feats{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
+  .nextgen{opacity:1}
   .reveal,.zoom{opacity:1;transform:none;filter:none}
   h1 .line>span{transform:none}
   .lead,.actions,.meta{opacity:1}
@@ -276,6 +301,7 @@ footer a{color:var(--muted)}
       <a href="#ecosystem">One more thing</a>
       <a href="#install"><span class="zh">安装</span><span class="en">Install</span></a>
       <a href="#docs"><span class="zh">文档</span><span class="en">Docs</span></a>
+      <a class="vg" href="https://pages.release.ctripcorp.com/ckxu/vanguard/">Vanguard ↗</a>
     </nav>
     <div class="lang" role="group" aria-label="Language / 语言">
       <button type="button" data-set-lang="zh" aria-pressed="true">中文</button>
@@ -289,6 +315,7 @@ footer a{color:var(--muted)}
 <div class="hero">
   <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <div class="hero-copy wrap">
+    <a class="nextgen" href="#vanguard"><img src="assets/vanguard-icon.png" alt=""><span class="zh">下一代综合体 <b>Vanguard</b> 已发布 →</span><span class="en">Meet <b>Vanguard</b>, the next generation →</span></a><br>
     <span class="eyebrow"><i></i>SI Future HUD <small>· v0.1.7</small></span>
     <h1>
       <span class="zh"><span class="line"><span style="--d:.15s">你的 AI 助手们，</span></span><span class="line"><span style="--d:.32s">就住在<span class="grad">屏幕边上。</span></span></span></span>
@@ -476,6 +503,29 @@ footer a{color:var(--muted)}
   </div>
 </section>
 
+<!-- ======================= next generation: Vanguard ======================= -->
+<section class="vg-next" id="vanguard">
+  <div class="wrap">
+    <div class="kicker reveal"><span class="zh">下一代综合体</span><span class="en">The next generation</span></div>
+    <div class="head reveal" style="--d:.08s">
+      <img src="assets/vanguard-icon.png" alt="Vanguard">
+      <h2 style="margin:0"><span class="zh">SI Future HUD 的下一代，<br><span class="grad-vg">是 Vanguard。</span></span><span class="en">The next generation<br>of SI Future HUD <span class="grad-vg">is Vanguard.</span></span></h2>
+    </div>
+    <p class="sub reveal" style="--d:.16s"><span class="zh">这块 HUD 已经内置在 Vanguard 里。在它之上，Vanguard 把 Claude Code、Codex、程小帮和你电脑上的其他 agent 组成一支小队：你派活、拍板、看全局，它们互相接力。</span><span class="en">This HUD is built into Vanguard. On top of it, Vanguard turns Claude Code, Codex, Chengxiaobang and the other agents on your Mac into one squad: you assign, decide and oversee, and they hand work to each other.</span></p>
+    <div class="shot reveal"><img loading="lazy" src="media/vanguard-overview.webp" alt="Vanguard"></div>
+    <div class="feats">
+      <div class="reveal"><b><span class="zh">工作区</span><span class="en">Workspaces</span></b><span><span class="zh">终端和聊天，本机的 agent 任选。</span><span class="en">Terminal or chat, any agent on your Mac.</span></span></div>
+      <div class="reveal" style="--d:.06s"><b><span class="zh">Bots 和群聊</span><span class="en">Bots and groups</span></b><span><span class="zh">@ 谁就叫醒谁，Bot 之间会接力。</span><span class="en">Mention a Bot to wake it; Bots hand off.</span></span></div>
+      <div class="reveal" style="--d:.12s"><b><span class="zh">所有对话打通</span><span class="en">Everything connected</span></b><span><span class="zh">一句话问遍各处，每条线经你同意。</span><span class="en">Ask everywhere at once, with your OK.</span></span></div>
+      <div class="reveal" style="--d:.18s"><b><span class="zh">像素办公室</span><span class="en">Pixel office</span></b><span><span class="zh">余光里看见整支队伍在干活。</span><span class="en">See the whole team at work.</span></span></div>
+    </div>
+    <div class="actions reveal">
+      <a class="btn vgbtn" href="https://pages.release.ctripcorp.com/ckxu/vanguard/"><span class="zh">了解 Vanguard ↗</span><span class="en">Explore Vanguard ↗</span></a>
+    </div>
+    <p class="stay reveal"><span class="zh">只想要刘海上的 HUD？留在这里就好：SI Future HUD 会继续维护，往下看怎么安装。</span><span class="en">Just want the notch HUD? You're in the right place: SI Future HUD stays maintained. Install it below.</span></p>
+  </div>
+</section>
+
 <!-- ======================= install ======================= -->
 <section id="install">
   <div class="wrap">
@@ -552,7 +602,7 @@ footer a{color:var(--muted)}
 <footer>
   <div class="wrap">
     <div><span class="zh">所有数据都留在你的电脑上，没有遥测，也没有自动更新。宣传片和截图均为演示数据。</span><span class="en">Everything stays on your Mac: no telemetry, no auto‑update. The film and screenshots use sample data.</span></div>
-    <div><span class="zh">基于 <a href="https://github.com/jazzenchen/agent-hud-open">Agent HUD</a>（Apache‑2.0）· 作者 <a href="http://git.dev.sh.ctripcorp.com/ckxu">许成凯</a> · <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/issues">反馈问题</a></span><span class="en">Built on <a href="https://github.com/jazzenchen/agent-hud-open">Agent HUD</a> (Apache‑2.0) · by <a href="http://git.dev.sh.ctripcorp.com/ckxu">Chengkai Xu</a> · <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/issues">Report a problem</a></span></div>
+    <div><span class="zh">基于 <a href="https://github.com/jazzenchen/agent-hud-open">Agent HUD</a>（Apache‑2.0）· 作者 <a href="http://git.dev.sh.ctripcorp.com/ckxu">许成凯</a> · <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/issues">反馈问题</a> · 下一代综合体 <a href="https://pages.release.ctripcorp.com/ckxu/vanguard/">Vanguard ↗</a></span><span class="en">Built on <a href="https://github.com/jazzenchen/agent-hud-open">Agent HUD</a> (Apache‑2.0) · by <a href="http://git.dev.sh.ctripcorp.com/ckxu">Chengkai Xu</a> · <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/issues">Report a problem</a> · next generation: <a href="https://pages.release.ctripcorp.com/ckxu/vanguard/">Vanguard ↗</a></span></div>
   </div>
 </footer>
 
