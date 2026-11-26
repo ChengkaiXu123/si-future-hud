@@ -1,0 +1,233 @@
+src/crates/platform/src/hooks/mod.rs
+  s_d48b3b8d3c26d0::t_61c7722bb150fe 20
+src/crates/host/src/mcp_clients.rs
+  s_d48b3b8d3c26d0::t_31bcd2568fc474 16-17,63-65,69-75,77-79,146,151-155,202-218,260,281-288,439-464,468-484,488-499,503-549,552,556-559,564-590,592-596
+  s_d48b3b8d3c26d0::t_0fb34fb5c72cc6 406-411
+  s_d48b3b8d3c26d0::t_96f11aed45473e 422-424
+  s_d48b3b8d3c26d0::t_67fc699dc958be 425-428,430-432
+  s_d48b3b8d3c26d0::t_a4222b1b9e18da 429,433
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 465-467,485-487,500-502,550-551,553-555,560-563,591
+src/crates/updater/src/state.rs
+  s_d48b3b8d3c26d0::t_98014fde18eed2 1-63,65-67,69-176,182-215,220-223,228-247,252-253
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 216-219,224-227,248-251
+  s_d48b3b8d3c26d0::t_2b0933a04a7c50 64,68
+  s_d48b3b8d3c26d0::t_0c293e0d14cbf9 177-181
+src/crates/updater/src/bin/si-hud-update/elsewhere.rs
+  s_d48b3b8d3c26d0::t_b33359e6fa6e04 1-14
+src/crates/agents/src/qwen/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 32
+site/index.html
+  s_d48b3b8d3c26d0::t_156e3c78c6a509 497
+src/packages/app/test/updates.test.ts
+  s_d48b3b8d3c26d0::t_dfde77dab6279c 12-19,28-31,38-41
+  s_d48b3b8d3c26d0::t_382e655a5ef1c4 1-11,20-27,32-37,42-61
+src/crates/updater/Cargo.toml
+  s_d48b3b8d3c26d0::t_7c93a5fe8c4c2a 16
+  s_d48b3b8d3c26d0::t_667a81c0f6b5f2 1-15,17-36
+src/crates/platform/src/hooks/entry.rs
+  s_d48b3b8d3c26d0::t_14f1ef936931df 99-102,105,107-115
+  s_d48b3b8d3c26d0::t_e75027147394d9 167-170,172-176
+  s_d48b3b8d3c26d0::t_10cf2d24938aad 103-104,106,171
+docs/si-future-hud/MESSAGING.zh-CN.md
+  s_d48b3b8d3c26d0::t_f7c80e18ffdf71 82
+  s_d48b3b8d3c26d0::t_156e3c78c6a509 36,40,53,56-57,66-67,102-103,109,112-113
+src/crates/updater/src/bin/si-hud-update/unix.rs
+  s_d48b3b8d3c26d0::t_d4115dc161b346 1-10,15-24
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 11-14
+Cargo.lock
+  s_d48b3b8d3c26d0::t_c9884037bf04c8 13,31,49,58,87,98,105,126,129,136,161,170-185
+src/crates/agents/src/claude/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 33
+src/crates/agents/src/devin/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 32
+src/packages/app/src/lib/updates.ts
+  s_d48b3b8d3c26d0::t_1256e9b562bbdf 1-104
+src/crates/agents/src/deepseek/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 15
+src/crates/agents/src/copilot/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 32
+src/crates/updater/src/policy.rs
+  s_d48b3b8d3c26d0::t_079dcf1cd6d484 5,14-16,18-22,94-105
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 111-120
+  s_d48b3b8d3c26d0::t_424f3724459e99 1-4,6-13,17,23-93,106-110,121-184
+src/apps/mcp/test/host-tools.test.mjs
+  s_d48b3b8d3c26d0::t_3d7216a0223f8a 176-227
+docs/si-future-hud/INSTALL.md
+  s_d48b3b8d3c26d0::t_91cacae4f542b5 31,40
+README.zh-CN.md
+  s_d48b3b8d3c26d0::t_156e3c78c6a509 182
+  s_d48b3b8d3c26d0::t_d105e09e4b1bc7 15
+src/crates/agents/src/antigravity/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 28
+src/crates/platform/src/clients/codex/message.rs
+  s_d48b3b8d3c26d0::t_35e5bb03567788 1-5,14-21,23-24,26,28-29,33-44,51-75,88-99,104-111,114-117,130-131,141-142,144-150,152,158-163,166-167,178,192,195,211-212,214-226,231-233,238,257,263-267,270
+  s_d48b3b8d3c26d0::t_2e54aa974c36c4 6-13
+  s_d48b3b8d3c26d0::t_377de0961b8a25 118,122
+  s_d48b3b8d3c26d0::t_26c5b9be305f8a 230,239,244,256,258
+  s_d48b3b8d3c26d0::t_67fc699dc958be 45-50,76-87,100-103,119-121,134-139,153-157,235-237,240-243,245-251,259-262
+  s_d48b3b8d3c26d0::t_0ef8e4b84dd04e 126-128,140,143
+src/crates/platform/src/chengxiaobang_plugin/mod.rs
+  s_d48b3b8d3c26d0::t_b9c7365442da9c 519-521
+src/crates/runtime/src/lib.rs
+  s_d48b3b8d3c26d0::t_b9c7365442da9c 23
+Cargo.toml
+  s_d48b3b8d3c26d0::t_91cacae4f542b5 6
+  s_d48b3b8d3c26d0::t_9f9cabb4addf0d 28
+src/crates/updater/src/lib.rs
+  s_d48b3b8d3c26d0::t_470455922711bb 36-39
+  s_d48b3b8d3c26d0::t_7c93a5fe8c4c2a 41
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 52-53
+  s_d48b3b8d3c26d0::t_01f4e5d6bf2cad 1-35,40,42-51,54-60
+src/crates/host/src/cli/send.rs
+  s_d48b3b8d3c26d0::t_420daa89a7805d 312,319,323-325
+  s_d48b3b8d3c26d0::t_0b7d782d886d30 19,193-198,232
+  s_d48b3b8d3c26d0::t_31512547a4af5c 313-318,320-322
+  s_d48b3b8d3c26d0::t_c45b0bb8b174bf 190-192,229-231,233
+package.json
+  s_d48b3b8d3c26d0::t_91cacae4f542b5 4
+src/crates/agents/src/cursor/hooks.rs
+  s_d48b3b8d3c26d0::t_8b8569a63db2f1 27-36
+  s_d48b3b8d3c26d0::t_86450652d0173d 2
+src/crates/platform/src/clients/mod.rs
+  s_d48b3b8d3c26d0::t_b9c7365442da9c 7
+src/apps/desktop/src-tauri/src/main.rs
+  s_d48b3b8d3c26d0::t_2ebd0d6537ee06 19-21
+src/crates/agents/src/buddy/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 36,59
+src/crates/agents/src/zcode/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 25
+src/crates/agents/src/codex/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 26
+src/crates/agents/src/hooks/mod.rs
+  s_d48b3b8d3c26d0::t_2f8db726d4939d 270-277
+  s_d48b3b8d3c26d0::t_4bc805a68179a0 79-82
+  s_d48b3b8d3c26d0::t_a7c56b6fe0f2a4 34-36,41-57
+src/crates/updater/src/text.rs
+  s_d48b3b8d3c26d0::t_6f8e8439ce7acc 1-28
+src/crates/updater/src/unsupported.rs
+  s_d48b3b8d3c26d0::t_86e53634419f6c 1-59
+src/crates/agents/src/qoder/hooks.rs
+  s_d48b3b8d3c26d0::t_8183a629773f00 25,48,71
+src/packages/app/src/settings/UpdatesPane.tsx
+  s_d48b3b8d3c26d0::t_dfde77dab6279c 190,210-213
+  s_d48b3b8d3c26d0::t_d14ebffd430fa2 1,252,254,256-257,263
+  s_d48b3b8d3c26d0::t_8aaf69950dd80d 2-189,191-209,214-251,253,255,258-262,264-275
+CHANGELOG.md
+  s_d48b3b8d3c26d0::t_f0c937d9877c08 3-11
+docs/si-future-hud/MESSAGING.md
+  s_d48b3b8d3c26d0::t_156e3c78c6a509 40,53,56-57,66-67,102-103,109,112-113
+  s_d48b3b8d3c26d0::t_e1a2afb59231e2 36,82
+src/crates/platform/src/clients/cursor.rs
+  s_d48b3b8d3c26d0::t_9f2ef9917d8947 131-135
+  s_d48b3b8d3c26d0::t_162c66fcd8af3b 1-130,136-190,194-233,237-257
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 191-193,234-236
+src/crates/core/src/tests/cursor_messages.rs
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 47-50,83-86,92-95,137-140
+  s_d48b3b8d3c26d0::t_3ec02252584b28 1-46,51-82,87-91,96-136,141-149
+src/crates/core/src/replies.rs
+  s_d48b3b8d3c26d0::t_b9c7365442da9c 69-75
+src/apps/mcp/src/index.ts
+  s_d48b3b8d3c26d0::t_2d55ee9514b010 145
+  s_d48b3b8d3c26d0::t_a51a9fbf8fb77e 142-144,153-162,545,551,562,570-572
+src/crates/core/src/clients/agent_message.rs
+  s_d48b3b8d3c26d0::t_d1c07ea15995b8 101,111,154,205-232,384,699,816-817,822,827-835,848,892-893
+  s_d48b3b8d3c26d0::t_b4f7876b14613d 274-278,938-950,1017,1025,1136,1139-1140,1175,1178-1179,1289
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 1293-1296
+src/crates/updater/src/updater.rs
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 90-91,309-311,509-510,609-613,653-654,829-837
+  s_d48b3b8d3c26d0::t_079dcf1cd6d484 20,400-402,432-433,436-440,463
+  s_d48b3b8d3c26d0::t_c660f35681776a 1-19,21-89,92-112,115-308,312-399,403-431,434-435,441-462,464-508,511-608,614-652,655-702,705-708,712-828,838-841
+  s_d48b3b8d3c26d0::t_909eb9d960b08e 703-704,709-711
+  s_d48b3b8d3c26d0::t_7c93a5fe8c4c2a 113-114
+src/crates/agents/src/lib.rs
+  s_d48b3b8d3c26d0::t_35418c6601ae84 97-98
+README.md
+  s_d48b3b8d3c26d0::t_156e3c78c6a509 182
+  s_d48b3b8d3c26d0::t_d105e09e4b1bc7 15
+docs/si-future-hud/INSTALL.zh-CN.md
+  s_d48b3b8d3c26d0::t_91cacae4f542b5 31,40
+src/packages/app/src/settings/AgentPluginsPane.tsx
+  s_d48b3b8d3c26d0::t_fc37b507299af5 664-696,1087-1088
+  s_d48b3b8d3c26d0::t_18d3c19305dfec 44
+  s_d48b3b8d3c26d0::t_2267e7385a5129 133-135
+src/crates/platform/src/hooks/relay.rs
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 30-31,39-44,70-72,84-87,135-139,159-163,167-171,236-239,241-245,261-268,270-275,280-283
+  s_d48b3b8d3c26d0::t_dba60f984464fb 1-29,32-38,45-69,73-83,88-134,140-158,164-166,172-176,233-235,240,246-260,269,276-279,284-292
+  s_d48b3b8d3c26d0::t_7479a16773597e 177-232
+src/apps/desktop/src-tauri/Cargo.toml
+  s_d48b3b8d3c26d0::t_2ebd0d6537ee06 19
+src/crates/host/src/agent_skills.rs
+  s_d48b3b8d3c26d0::t_37c27259a9d7e4 5-6,19,30-31,35,40
+src/crates/updater/src/bin/si-hud-update/main.rs
+  s_d48b3b8d3c26d0::t_856d3021a400da 1-102,105-119,124-132,137,142-219,224-231,235,241-245,248-254,260-262
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 103-104,120-123,133-136,138-141,220-223,232-234,236-240,246-247,255-259
+src/packages/app/src/App.tsx
+  s_d48b3b8d3c26d0::t_98d4422d4c2854 38,75,176
+  s_d48b3b8d3c26d0::t_3b0b5c2a9caaa6 847
+  s_d48b3b8d3c26d0::t_dbe90fd29afa91 846,848-849
+  s_d48b3b8d3c26d0::t_dfde77dab6279c 160-161
+src/crates/platform/src/hooks/install.rs
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 313-316,323-328
+  s_d48b3b8d3c26d0::t_7dffc0c4d60e0f 275-312,317-322,329-336
+src/crates/core/src/tests/mod.rs
+  s_d48b3b8d3c26d0::t_b44f42c75b255e 7
+src/crates/host/src/auto_setup.rs
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 48-50
+  s_d48b3b8d3c26d0::t_53e773e59b6bca 3,47,112
+src/crates/platform/src/claude_plugin/mod.rs
+  s_d48b3b8d3c26d0::t_88f08deeb0ea03 420-446,452,454-461,466-487,493-513
+  s_d48b3b8d3c26d0::t_672332c304189f 540
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 448-451,462-465,488-492
+  s_d48b3b8d3c26d0::t_060b85bbbf4221 447,453
+src/crates/updater/src/feed.rs
+  s_d48b3b8d3c26d0::t_ef469f33f9aa6b 24
+  s_d48b3b8d3c26d0::t_dbcba48b5f9ae7 1-23,25-208,213-229,239,243-255
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 209-212,230-238,240-242
+src/crates/host/src/lib.rs
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 356-359
+  s_d48b3b8d3c26d0::t_c45b0bb8b174bf 309-310,350-355
+src/crates/agents/tests/golden/hook_formats.json
+  s_d48b3b8d3c26d0::t_b2fab3ef27f8b8 4070-4072,13507,13526,13567,13582,13649,13674,31698,31751,31789,31821,31851,31952,32072,32138,32196,32262,32315,32354,32393,32474,32559,32607
+src/crates/updater/src/fetch.rs
+  s_d48b3b8d3c26d0::t_ee41df5863bc55 1-81,94-95,104-185,190-336,344-398,410-412,416-426,435-439,444-446
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 82-93,96-103,186-189,337-343,399-409,413-415,427-434,440-443
+src/crates/agents/src/hooks/configuration.rs
+  s_d48b3b8d3c26d0::t_7f4496041bfca1 386-390,426-430,439-445,455-457
+  s_d48b3b8d3c26d0::t_617a88f721ec41 151-163
+  s_d48b3b8d3c26d0::t_899d39190aa35a 27-34
+  s_d48b3b8d3c26d0::t_64f4f5a302549b 365-385,391-425,431-438,446-454,458-476
+  s_d48b3b8d3c26d0::t_3c8e749c32fec5 297-306,315
+src/apps/desktop/src-tauri/tauri.conf.json
+  s_d48b3b8d3c26d0::t_91cacae4f542b5 4
+src/packages/app/test/agent-plugins.test.ts
+  s_d48b3b8d3c26d0::t_f6051ba2b02656 331-335
+  s_d48b3b8d3c26d0::t_9f8cafac7e5a92 6,321-330,336-345
+src/crates/updater/src/tests_macos.rs
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 65-67,113-116,154-157,166-169,204-207,239-245,258-261,267-275,300-304
+  s_d48b3b8d3c26d0::t_7cea467033a9b1 1-64,68-112,117-153,158-165,170-203,208-238,246-257,262-266,276-299,305-343
+  s_d48b3b8d3c26d0::t_a12ddbec58ed92 344-383
+src/crates/updater/src/macos.rs
+  s_d48b3b8d3c26d0::t_b9f1563750bf39 1-33,39-308,312-324,328-374,382-413,418-422,424-456,467-481,485-489,492-494,498-515,521-524,530-538,543-544,549-556,561,566-567,572-580,585,588-640,646-671,677-689
+  s_d48b3b8d3c26d0::t_2bc2c11ec500f3 34-38,309-311,325-327,375-381,414-417,423,457-466,482-484,490-491,495-497,516-520,525-529,539-542,545-548,557-560,562-565,568-571,581-584,586-587,641-645,672-676
+src/packages/app/src/lib/agent-plugins.ts
+  s_d48b3b8d3c26d0::t_fc37b507299af5 465-480,486-509
+  s_d48b3b8d3c26d0::t_f6051ba2b02656 481-485,510-511
+src/apps/desktop/package.json
+  s_d48b3b8d3c26d0::t_91cacae4f542b5 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.52-trip",
+  "base_commit_sha": "d9aab0c4a614e213a6a95ad71a34821dc3326a95",
+  "prompts": {},
+  "sessions": {
+    "s_d48b3b8d3c26d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "462dd081-3f06-4cb3-9651-602a779f7ae4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
