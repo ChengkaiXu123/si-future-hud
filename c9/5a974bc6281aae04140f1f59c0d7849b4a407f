@@ -1,0 +1,23 @@
+site/index.html
+  s_79e09696275200::t_b1ab41cd1f6078 304
+  s_79e09696275200::t_8495b90f7ae0d9 506-528
+  s_79e09696275200::t_188830fc977cd2 605
+  s_79e09696275200::t_0c0bf512de08a9 318
+  s_79e09696275200::t_b7a798527cb1eb 256-279,282
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.52-trip",
+  "base_commit_sha": "c95a974bc6281aae04140f1f59c0d7849b4a407f",
+  "prompts": {},
+  "sessions": {
+    "s_79e09696275200": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a3906cee-717c-48d3-a2ef-e5f00d53fafd",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chengkai Xu <129282871+ChengkaiXu123@users.noreply.github.com>"
+    }
+  }
+}
