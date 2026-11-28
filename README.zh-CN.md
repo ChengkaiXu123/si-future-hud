@@ -51,15 +51,12 @@
 
 <img src="docs/si-future-hud/media/film/omt-zh.webp" width="100%" alt="还有一件事。公司的知识，每个 agent 都能问。">
 
-## One more thing：让每个助手都懂公司的业务
-
 **程小帮**是携程的 AI 工作台，连着公司的知识库、MCP 和插件。通过 HUD，编程助手可以向它请教代码里找不到答案的业务问题：
 - 同行人有人数上限吗？
 - 儿童怎么计价？
 
 程小帮查完资料，把答案分别送回给每个助手。助手们再互相讨论，直到达成一致。
 
-<img src="docs/si-future-hud/media/ecosystem.jpg" width="100%" alt="Claude and Codex on either side of Chengxiaobang, which is connected to the company knowledge base, MCP and plugins">
 <p align="center"><img src="docs/si-future-hud/media/ask-chengxiaobang.webp" width="100%" alt=""><br><sub><b>去问懂行的。</b>每一条消息照样等你点发送。</sub></p>
 <p align="center"><img src="docs/si-future-hud/media/debate.webp" width="100%" alt=""><br><sub><b>然后达成一致。</b>Codex 和 Claude 一起把细节定下来。</sub></p>
 <img src="docs/si-future-hud/media/conclusion.jpg" width="100%" alt="The agreed conclusion">
@@ -68,11 +65,9 @@
 
 ## 三种外观，任意一条屏幕边
 
-| | |
-| --- | --- |
-| **刘海** | MacBook 刘海边的一圈光。鼠标移上去，完整面板弹下来。 |
-| **动态** | 任意一条边上的一排图标。哪个助手在干活，它的图标就变成小机器人。 |
-| **简约** | 任意一条边上的一小条额度圆环。放在上下边自动横排，放在左右边自动竖排。 |
+- **刘海**：MacBook 刘海边的一圈光。鼠标移上去，完整面板弹下来。
+- **动态**：任意一条边上的一排图标。哪个助手在干活，它的图标就变成小机器人。
+- **简约**：任意一条边上的一小条额度圆环。放在上下边自动横排，放在左右边自动竖排。
 
 <p align="center"><img src="docs/si-future-hud/media/looks.webp" width="100%" alt=""><br><sub><b>动态。</b>助手一干活，它的图标就醒过来。</sub></p>
 <p align="center"><img src="docs/si-future-hud/media/drag.webp" width="100%" alt=""><br><sub><b>简洁。</b>拖到任意一条屏幕边。</sub></p>

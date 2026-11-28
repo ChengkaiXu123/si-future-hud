@@ -51,15 +51,12 @@
 
 <img src="docs/si-future-hud/media/film/omt.webp" width="100%" alt="One more thing. Your company's knowledge, for every agent.">
 
-## One more thing: your company's knowledge, for every agent.
-
 **Chengxiaobang (程小帮)** is Trip.com's AI workbench. It is connected to the company's knowledge base, MCP servers and plugins. Through the HUD, your coding agents can ask it the business questions they can't answer from the code:
 - *Is there a limit on travellers?*
 - *How are children priced?*
 
 Chengxiaobang looks it up and sends each agent its answer. The agents then compare notes until they agree.
 
-<img src="docs/si-future-hud/media/ecosystem.jpg" width="100%" alt="Claude and Codex on either side of Chengxiaobang, which is connected to the company knowledge base, MCP and plugins">
 <p align="center"><img src="docs/si-future-hud/media/ask-chengxiaobang.webp" width="100%" alt=""><br><sub><b>Ask the one who knows.</b> Every message still waits for your Send.</sub></p>
 <p align="center"><img src="docs/si-future-hud/media/debate.webp" width="100%" alt=""><br><sub><b>Then they agree.</b> Codex and Claude settle the details together.</sub></p>
 <img src="docs/si-future-hud/media/conclusion.jpg" width="100%" alt="The agreed conclusion">
@@ -68,11 +65,9 @@ Chengxiaobang looks it up and sends each agent its answer. The agents then compa
 
 ## Three looks. Any edge.
 
-| | |
-| --- | --- |
-| **Notch** | A ring of light around the MacBook's notch. Hover it and the full panel drops open. |
-| **Dynamic** | A row of agent logos on any edge. Each logo turns into its bot while that agent works. |
-| **Simple** | A small strip of quota rings on any edge. It turns horizontal on the top or bottom edge and vertical on the sides. |
+- **Notch**: A ring of light around the MacBook's notch. Hover it and the full panel drops open.
+- **Dynamic**: A row of agent logos on any edge. Each logo turns into its bot while that agent works.
+- **Simple**: A small strip of quota rings on any edge. It turns horizontal on the top or bottom edge and vertical on the sides.
 
 <p align="center"><img src="docs/si-future-hud/media/looks.webp" width="100%" alt=""><br><sub><b>Dynamic.</b> Logos that wake up when their agent works.</sub></p>
 <p align="center"><img src="docs/si-future-hud/media/drag.webp" width="100%" alt=""><br><sub><b>Simple.</b> Drag it to any edge.</sub></p>
