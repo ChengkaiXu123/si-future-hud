@@ -23,10 +23,17 @@ fn source(root: &Path) -> Connection {
     db
 }
 
+/// When the test reply was written: an hour ago, fixed for the whole run. A fixed calendar date
+/// would age out of the ledger's 31-day retention and empty `calls` (it did on 2026-11-20).
+fn created_ms() -> i64 {
+    static AT: std::sync::OnceLock<i64> = std::sync::OnceLock::new();
+    *AT.get_or_init(|| (chrono::Utc::now().timestamp() - 3_600) * 1_000)
+}
+
 fn message(input: u64, output: u64) -> String {
     json!({
         "role":"assistant",
-        "time":{"created":1_792_470_000_000i64,"completed":1_792_470_001_000i64},
+        "time":{"created":created_ms(),"completed":created_ms() + 1_000},
         "modelID":"gpt-5","providerID":"openai",
         "tokens":{"input":input,"output":output}
     })
@@ -158,7 +165,7 @@ fn opencode_rebuilds_an_old_reader_checkpoint_without_a_source_change() {
     session.count_source(
         "opencode:old".into(),
         "gpt-5#openai",
-        1_792_470_000_000,
+        created_ms(),
         Usage {
             input: 10,
             output: 1,
