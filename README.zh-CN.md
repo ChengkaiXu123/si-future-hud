@@ -1,130 +1,55 @@
+<a href="https://chengkaixu123.github.io/si-future-hud/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/si-future-hud/media/film/hero-dark-zh.webp">
+    <img src="docs/si-future-hud/media/film/hero-zh.webp" width="100%" alt="SI Future HUD：你的 AI 助手们，就住在屏幕边上。MacBook 刘海四周流转着一圈光，额度面板浮在下面。">
+  </picture>
+</a>
+
 <p align="center">
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
-    <img src="docs/si-future-hud/media/hero.jpg" alt="SI Future HUD：你的 AI 助手们，就住在屏幕边上。MacBook 的刘海弹开成一块面板，列出 Claude、OpenAI、程小帮、Cursor 和 Grok Bot 的额度" width="100%">
+  <b>你的 AI 助手们，就住在屏幕边上。</b><br>
+  Claude Code、Codex、Cursor、Grok Bot 和程小帮的额度、实时状态、审批和互相传话，都在 MacBook 的刘海周围。
+</p>
+
+<p align="center">
+  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest"><img alt="最新版本" src="https://img.shields.io/github/v/release/ChengkaiXu123/si-future-hud?style=flat-square&label=release&color=30D158"></a>
+  <img alt="macOS 12 及以上" src="https://img.shields.io/badge/macOS-12%2B-1D1D1F?style=flat-square&logo=apple&logoColor=white">
+  <img alt="Apple 芯片" src="https://img.shields.io/badge/Apple%20silicon-arm64-1D1D1F?style=flat-square">
+  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases"><img alt="下载次数" src="https://img.shields.io/github/downloads/ChengkaiXu123/si-future-hud/total?style=flat-square&color=0A7CFF"></a>
+  <a href="LICENSE"><img alt="Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-6E6E73?style=flat-square"></a>
+  <a href="https://github.com/jazzenchen/agent-hud-open"><img alt="基于 Agent HUD" src="https://img.shields.io/badge/based%20on-Agent%20HUD-6E6E73?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <a href="https://chengkaixu123.github.io/si-future-hud/SI-Future-HUD.dmg">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/si-future-hud/media/film/download-dark-zh.svg">
+      <img src="docs/si-future-hud/media/film/download-light-zh.svg" height="52" alt="下载 Mac 版">
+    </picture>
   </a>
 </p>
 
-<h1 align="center">SI Future HUD</h1>
-
 <p align="center">
-  <strong>你的 AI 助手们，就住在屏幕边上。</strong><br>
-  额度、实时状态、审批，还有助手之间的互相传话，都在 MacBook 刘海旁边。
+  <a href="https://chengkaixu123.github.io/si-future-hud/"><b>官网</b></a>
+  &nbsp;·&nbsp; <a href="#影片">影片</a>
+  &nbsp;·&nbsp; <a href="docs/si-future-hud/INSTALL.zh-CN.md">安装</a>
+  &nbsp;·&nbsp; <a href="docs/si-future-hud/GUIDE.zh-CN.md">使用指南</a>
+  &nbsp;·&nbsp; <a href="docs/si-future-hud/MESSAGING.zh-CN.md">传话</a>
+  &nbsp;·&nbsp; <a href="docs/si-future-hud/TROUBLESHOOTING.zh-CN.md">排查问题</a>
+  &nbsp;·&nbsp; <a href="README.md">English</a>
 </p>
 
-<p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.8-7c8cff?style=for-the-badge" alt="版本 v0.1.8"></a>
-  <img src="https://img.shields.io/badge/macOS-12%2B%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12 以上，Apple 芯片">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-2ea44f?style=for-the-badge" alt="Apache-2.0"></a>
-  <a href="https://github.com/jazzenchen/agent-hud-open"><img src="https://img.shields.io/badge/based%20on-Agent%20HUD-ff8a5c?style=for-the-badge" alt="基于 Agent HUD"></a>
-</p>
+<br>
 
-<p align="center">
-  <a href="README.md">English</a> · <strong>简体中文</strong>
-  &nbsp;|&nbsp;
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/"><b>产品网页</b></a>（<a href="https://chengkaixu123.github.io/si-future-hud/">公司外网</a>） ·
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">看宣传片</a> ·
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">下载</a>（<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest">GitHub</a>）·
-  <a href="docs/si-future-hud/INSTALL.zh-CN.md">安装</a> ·
-  <a href="docs/si-future-hud/GUIDE.zh-CN.md">使用指南</a> ·
-  <a href="docs/si-future-hud/MESSAGING.zh-CN.md">互相传话</a> ·
-  <a href="docs/si-future-hud/TROUBLESHOOTING.zh-CN.md">常见问题</a>
-</p>
+<img src="docs/si-future-hud/media/film/statement-zh.webp" width="100%" alt="你把活交给 Claude Code、Codex、Cursor、Grok Bot 和程小帮，然后回去忙自己的。SI Future HUD 让它们都待在你的余光里：谁在思考，谁在等你，额度还剩多少，什么需要你点头。">
+<img src="docs/si-future-hud/media/film/glance-zh.webp" width="100%" alt="鼠标移到刘海上，弹出所有助手的额度面板；移开就收成一圈光。">
+<img src="docs/si-future-hud/media/film/approve-zh.webp" width="100%" alt="不切窗口就地点头：权限请求从 HUD 里滑出来，写清要跑的命令。">
+<img src="docs/si-future-hud/media/film/relay-zh.webp" width="100%" alt="助手们互相聊，发送键在你手里：Claude 问 Codex 一个问题，回信像纸飞机一样飞回来。">
+<img src="docs/si-future-hud/media/film/quota-zh.webp" width="100%" alt="每个额度窗口都在你的余光里：快见底、五种看法、满血复活。">
 
----
+<p align="center"><img src="docs/si-future-hud/media/bots.webp" width="100%" alt="一格一格的小机器人：每行一个助手，每列一种状态：思考、干活、等你、完成。"><br>
+<sub><b>每个助手都活了过来。</b>它们变成小机器人，演出自己正在做的事：思考、干活、等你、完成。</sub></p>
 
-你把活交给 Claude Code、Codex、Cursor、Grok Bot 和程小帮，然后去忙自己的事。**SI Future HUD 让它们一直待在你的余光里：**
-- 谁在思考，谁在等你；
-- 每家还剩多少额度；
-- 哪件事要你点头。
-
-两个助手需要对一对口径时，现在可以互相发消息。每一条都会先停在 HUD 上，等你按「发送」。
-
-SI Future HUD 基于开源项目 [Agent HUD](https://github.com/jazzenchen/agent-hud-open) 定制。在它之上加了：助手之间互相传话、接入程小帮、Cursor 和 Grok Bot 的实时状态，以及装好就自动配置。
-
-<p align="center">
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
-    <img src="docs/si-future-hud/media/poster.jpg" alt="宣传片片头：暗色地平线上发光的刘海" width="72%">
-  </a><br>
-  <sub>▶ <b>看 3 分钟的宣传片</b>（1080p60，MP4，46 MB）· 不在公司网络里，<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.5/SI-Future-HUD-film-1080p60.mp4">从 GitHub 下载</a> · 片中均为演示数据</sub>
-</p>
-
-## 鼠标移上刘海，一切尽收眼底
-
-鼠标移到刘海上，带发光边的刘海整块弹下来，变成一张竖排的面板，列出每个助手的：
-- 账户和套餐；
-- 每个额度窗口的进度条和重置时间；
-- 五种看法：额度、消耗速度、回复速度、累计消耗、估算花费。
-
-鼠标移开，它又收回成一圈安静的光。
-
-<p align="center">
-  <img src="docs/si-future-hud/media/notch-drop.webp" alt="鼠标碰到刘海，发光的刘海弹开成竖排面板，列出 Claude、OpenAI、程小帮、Cursor 和 Grok Bot 的额度窗口" width="88%">
-</p>
-
-光圈的颜色跟着最紧的那份额度走：用量 70% 以下是绿色，70% 起变黄，90% 起变红。助手干活时，它会呼吸得更快。
-
-## 每个助手都活了过来
-
-每个助手都有一个小机器人，告诉你它此刻在做什么：
-- **思考**；
-- **压缩上下文**；
-- **改代码**；
-- **跑命令**；
-- **等你批准**；
-- **提问**；
-- **完成**；
-- **额度用完**。
-
-不用切窗口就知道。
-
-<p align="center">
-  <img src="docs/si-future-hud/media/bots.webp" alt="机器人图鉴：每行一个助手，每列一种状态（思考、压缩上下文、改代码、跑命令、等你批准、提问、完成、额度用完），深色和浅色背景各一遍" width="88%">
-</p>
-
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/strip-arrival.webp" alt="Clawd 从 Claude 窗口跳到屏幕左边，竖条随后一格格长出来" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/quota-out.webp" alt="Claude 的圆环涨到 100%，HUD 提示额度即将耗尽，Clawd 晕倒" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>住在屏幕边上。</b>每个助手待在自己的额度圆环里。</sub></td>
-    <td align="center"><sub><b>额度不会突然见底。</b>先提醒你，用完了小机器人就晕倒。</sub></td>
-  </tr>
-</table>
-
-## 在 HUD 上直接处理
-
-助手要执行命令时，请求会弹到 HUD 上，你不用离开手头的事就能点「批准一次」「拒绝」或「始终允许」。提问也一样，包括 Claude 在桌面 App 里问你的问题。
-
-回复写完时，HUD 上会出现「有新回复」，点一下就回到那个对话。请求放着不管的话，10 分钟后会交还给助手，HUD 从不替你做决定。
-
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/approval.webp" alt="Claude 请求运行 swift test，HUD 卡片显示完整命令，点了「批准一次」" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/usage-lens.webp" alt="Claude 圆环旁边打开用量面板，放大镜显示主会话用了 268M token" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>在 HUD 上审批。</b>完整命令看清楚，再点一下。</sub></td>
-    <td align="center"><sub><b>细节随时看。</b>额度、token 和每个会话。</sub></td>
-  </tr>
-</table>
-
-## 助手之间互相传话，每一条都经你同意
-
-Claude Code、Codex（桌面版）和程小帮现在可以互相发消息。比如你让 Claude 去问问 Codex：Claude 调用 HUD 的 `hud_send_message` 工具，消息先停在 HUD 上，你点「发送」后，一架纸飞机把它送进 Codex 打开着的对话。回信会飞回发问的那个对话，不会送错。
-
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/paper-plane.webp" alt="Claude 说要问问 Codex，纸飞机从 Claude 的圆环飞到 Codex，Codex 回应「收到」" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/reply.webp" alt="Codex 回信，纸飞机飞回 Claude，Claude 说「收到回信」" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>发问。</b>你点「发送」后，Claude → Codex。</sub></td>
-    <td align="center"><sub><b>回信。</b>回到发问的那个对话。</sub></td>
-  </tr>
-</table>
-
-不会有任何消息背着你发出去。你点「拒绝」，纸飞机就掉下来。→ [互相传话是怎么工作的](docs/si-future-hud/MESSAGING.zh-CN.md)
+<img src="docs/si-future-hud/media/film/omt-zh.webp" width="100%" alt="还有一件事。公司的知识，每个 agent 都能问。">
 
 ## One more thing：让每个助手都懂公司的业务
 
@@ -134,24 +59,12 @@ Claude Code、Codex（桌面版）和程小帮现在可以互相发消息。比�
 
 程小帮查完资料，把答案分别送回给每个助手。助手们再互相讨论，直到达成一致。
 
-<p align="center">
-  <img src="docs/si-future-hud/media/ecosystem.jpg" alt="Claude 和 Codex 分在两边，中间是程小帮，连着公司知识库、MCP 和插件" width="88%">
-</p>
+<img src="docs/si-future-hud/media/ecosystem.jpg" width="100%" alt="Claude and Codex on either side of Chengxiaobang, which is connected to the company knowledge base, MCP and plugins">
+<p align="center"><img src="docs/si-future-hud/media/ask-chengxiaobang.webp" width="100%" alt=""><br><sub><b>去问懂行的。</b>每一条消息照样等你点发送。</sub></p>
+<p align="center"><img src="docs/si-future-hud/media/debate.webp" width="100%" alt=""><br><sub><b>然后达成一致。</b>Codex 和 Claude 一起把细节定下来。</sub></p>
+<img src="docs/si-future-hud/media/conclusion.jpg" width="100%" alt="The agreed conclusion">
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/ask-chengxiaobang.webp" alt="Claude 向程小帮请教业务问题，HUD 先弹出这条消息等你确认，然后纸飞机送出" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/debate.webp" alt="Claude 和 Codex 来回传纸飞机，用气泡讨论各自的方案" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>问懂行的人。</b>每一条照样要你点「发送」。</sub></td>
-    <td align="center"><sub><b>再一起拍板。</b>Codex 和 Claude 把细节对齐。</sub></td>
-  </tr>
-</table>
-
-<p align="center">
-  <img src="docs/si-future-hud/media/conclusion.jpg" alt="讨论出的结论：最多 8 位，后端校验加前端提示，儿童单独计价" width="88%">
-</p>
+<br>
 
 ## 三种外观，任意一条屏幕边
 
@@ -161,16 +74,20 @@ Claude Code、Codex（桌面版）和程小帮现在可以互相发消息。比�
 | **动态** | 任意一条边上的一排图标。哪个助手在干活，它的图标就变成小机器人。 |
 | **简约** | 任意一条边上的一小条额度圆环。放在上下边自动横排，放在左右边自动竖排。 |
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/looks.webp" alt="动态模式：刘海旁的一排图标依次变成干活的小机器人" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/drag.webp" alt="简约模式：把圆环竖条从左边拖到顶边，自动变成横排，再拖回来" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>动态。</b>助手一干活，图标就醒过来。</sub></td>
-    <td align="center"><sub><b>简约。</b>拖到哪条边都行。</sub></td>
-  </tr>
-</table>
+<p align="center"><img src="docs/si-future-hud/media/looks.webp" width="100%" alt=""><br><sub><b>动态。</b>助手一干活，它的图标就醒过来。</sub></p>
+<p align="center"><img src="docs/si-future-hud/media/drag.webp" width="100%" alt=""><br><sub><b>简洁。</b>拖到任意一条屏幕边。</sub></p>
+
+<br>
+
+## 影片
+
+<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.5/SI-Future-HUD-film-1080p60.mp4"><img src="docs/si-future-hud/media/film/poster-film.jpg" width="100%" alt="SI Future HUD 宣传片：暗色地平线上发光的刘海。点击播放。"></a>
+<p align="center"><sub>▶ <b>宣传片</b> · 3 分钟 · 1080p60 · 随 v0.1.5 发布</sub></p>
+
+<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.7/SI-Future-HUD-one-brain-four-agents-1080p.mp4"><img src="docs/si-future-hud/media/film/poster-one-brain.jpg" width="100%" alt="一个大脑，四个助手：Claude、Codex、程小帮和 Grok Bot 同时开工。点击播放。"></a>
+<p align="center"><sub>▶ <b>一个大脑，四个助手</b> · 45 秒 · 1080p · 随 v0.1.7 发布</sub></p>
+
+<br>
 
 ## 支持的助手
 
@@ -214,7 +131,7 @@ Agent HUD 支持的其他助手也都保留，比如 DeepSeek、GitHub Copilot C
 ## 隐私
 
 - **所有数据都留在你的电脑上。** HUD 读取本机 AI 工具的使用记录，并用你已经登录的账号查询额度。
-- **不向任何第三方服务器上报。** 没有遥测，也没有自动更新。
+- **不向任何第三方服务器上报。** 没有遥测。自动更新只下载、不上传：从官网或本仓库读取 `update.json`，每次下载都校验 Ed25519 签名。
 - **程小帮的本地数据库只读打开。**
 - **你不点「发送」，助手之间一条消息也不会传。**
 
@@ -242,6 +159,9 @@ App 会生成在 `target/release/bundle/macos/`。要发给别人用的版本，
 
 改动的文件清单见 **[docs/si-future-hud/CHANGES.md](docs/si-future-hud/CHANGES.md)**，版本记录见 [CHANGELOG.md](CHANGELOG.md)。
 
+<a href="https://github.com/ChengkaiXu123/vanguard-app"><img src="docs/si-future-hud/media/film/family-zh.jpg" width="100%" alt="两款产品。Vanguard，整支小队；SI Future HUD，只要刘海。"></a>
+<p align="center">想带整支小队、HUD 也内置？看看 <a href="https://github.com/ChengkaiXu123/vanguard-app"><b>Vanguard</b></a>。</p>
+
 ## 致谢与许可
 
 SI Future HUD 基于 Jazzen Chen 和贡献者们开发的 **[Agent HUD](https://github.com/jazzenchen/agent-hud-open)**，感谢他们把它开源。Agent HUD 原来的说明保留在 [README.upstream.zh-CN.md](README.upstream.zh-CN.md)。
@@ -250,4 +170,4 @@ SI Future HUD 基于 Jazzen Chen 和贡献者们开发的 **[Agent HUD](https://
 
 Claude、Codex、Cursor、Grok、程小帮是各自所有者的商标，本项目与它们没有隶属关系。宣传片和截图里都是演示数据。
 
-<p align="center"><sub>作者 <a href="http://git.dev.sh.ctripcorp.com/ckxu">许成凯 Chengkai Xu</a> · SI Future</sub></p>
+<p align="center"><sub>作者 <a href="https://github.com/ChengkaiXu123">许成凯 Chengkai Xu</a> · SI Future</sub></p>

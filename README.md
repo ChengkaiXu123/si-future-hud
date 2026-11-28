@@ -1,130 +1,55 @@
+<a href="https://chengkaixu123.github.io/si-future-hud/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/si-future-hud/media/film/hero-dark.webp">
+    <img src="docs/si-future-hud/media/film/hero.webp" width="100%" alt="SI Future HUD: your AI agents, living at the edge of your screen. A glowing ring of light circles the MacBook's notch while the quota panel floats below it.">
+  </picture>
+</a>
+
 <p align="center">
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
-    <img src="docs/si-future-hud/media/hero.jpg" alt="SI Future HUD: your AI agents, living at the edge of your screen. The MacBook's notch dropped open into a panel listing every agent's quota: Claude, OpenAI, Chengxiaobang, Cursor and Grok Bot" width="100%">
+  <b>Your AI agents, living at the edge of your screen.</b><br>
+  Quotas, live states, approvals and agent‑to‑agent messages for Claude Code, Codex, Cursor, Grok Bot and Chengxiaobang, right around your MacBook's notch.
+</p>
+
+<p align="center">
+  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/ChengkaiXu123/si-future-hud?style=flat-square&label=release&color=30D158"></a>
+  <img alt="macOS 12 or later" src="https://img.shields.io/badge/macOS-12%2B-1D1D1F?style=flat-square&logo=apple&logoColor=white">
+  <img alt="Apple silicon" src="https://img.shields.io/badge/Apple%20silicon-arm64-1D1D1F?style=flat-square">
+  <a href="https://github.com/ChengkaiXu123/si-future-hud/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/ChengkaiXu123/si-future-hud/total?style=flat-square&color=0A7CFF"></a>
+  <a href="LICENSE"><img alt="Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-6E6E73?style=flat-square"></a>
+  <a href="https://github.com/jazzenchen/agent-hud-open"><img alt="Based on Agent HUD" src="https://img.shields.io/badge/based%20on-Agent%20HUD-6E6E73?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <a href="https://chengkaixu123.github.io/si-future-hud/SI-Future-HUD.dmg">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/si-future-hud/media/film/download-dark.svg">
+      <img src="docs/si-future-hud/media/film/download-light.svg" height="52" alt="Download for macOS">
+    </picture>
   </a>
 </p>
 
-<h1 align="center">SI Future HUD</h1>
-
 <p align="center">
-  <strong>Your AI agents, living at the edge of your screen.</strong><br>
-  Quotas, live states, approvals and agent‑to‑agent messages, right around your MacBook's notch.
+  <a href="https://chengkaixu123.github.io/si-future-hud/"><b>Website</b></a>
+  &nbsp;·&nbsp; <a href="#films">Films</a>
+  &nbsp;·&nbsp; <a href="docs/si-future-hud/INSTALL.md">Install</a>
+  &nbsp;·&nbsp; <a href="docs/si-future-hud/GUIDE.md">Guide</a>
+  &nbsp;·&nbsp; <a href="docs/si-future-hud/MESSAGING.md">Messaging</a>
+  &nbsp;·&nbsp; <a href="docs/si-future-hud/TROUBLESHOOTING.md">Troubleshooting</a>
+  &nbsp;·&nbsp; <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-<p align="center">
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest"><img src="https://img.shields.io/badge/release-v0.1.8-7c8cff?style=for-the-badge" alt="Release v0.1.8"></a>
-  <img src="https://img.shields.io/badge/macOS-12%2B%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 12+ on Apple silicon">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-2ea44f?style=for-the-badge" alt="Apache-2.0"></a>
-  <a href="https://github.com/jazzenchen/agent-hud-open"><img src="https://img.shields.io/badge/based%20on-Agent%20HUD-ff8a5c?style=for-the-badge" alt="Based on Agent HUD"></a>
-</p>
+<br>
 
-<p align="center">
-  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
-  &nbsp;|&nbsp;
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/"><b>Website</b></a> (<a href="https://chengkaixu123.github.io/si-future-hud/">outside the company</a>) ·
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">Watch the film</a> ·
-  <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">Download</a> (<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest">GitHub</a>) ·
-  <a href="docs/si-future-hud/INSTALL.md">Install</a> ·
-  <a href="docs/si-future-hud/GUIDE.md">Guide</a> ·
-  <a href="docs/si-future-hud/MESSAGING.md">Messaging</a> ·
-  <a href="docs/si-future-hud/TROUBLESHOOTING.md">Troubleshooting</a>
-</p>
+<img src="docs/si-future-hud/media/film/statement.webp" width="100%" alt="You hand work to Claude Code, Codex, Cursor, Grok Bot and Chengxiaobang, then go back to your own. SI Future HUD keeps all of them in the corner of your eye: who is thinking, who is waiting for you, how much quota is left, and what needs your OK.">
+<img src="docs/si-future-hud/media/film/glance.webp" width="100%" alt="Hover the notch: it drops open into one panel with every agent's quota windows, then folds back into a ring of light.">
+<img src="docs/si-future-hud/media/film/approve.webp" width="100%" alt="Say yes without switching windows: a permission request slides out of the HUD with the exact command.">
+<img src="docs/si-future-hud/media/film/relay.webp" width="100%" alt="Your agents talk, you hold Send: Claude asks Codex a question, and the reply flies back as a paper plane.">
+<img src="docs/si-future-hud/media/film/quota.webp" width="100%" alt="Every quota window in the corner of your eye: running low, five ways to read it, and back to full.">
 
----
+<p align="center"><img src="docs/si-future-hud/media/bots.webp" width="100%" alt="A grid of bots, one row per agent and one column per state: thinking, working, waiting for you, done."><br>
+<sub><b>Your agents come alive.</b> Each one becomes a little bot that acts out what it's doing: thinking, working, waiting for you, done.</sub></p>
 
-You hand work to Claude Code, Codex, Cursor, Grok Bot and Chengxiaobang, then go back to your own. **SI Future HUD keeps all of them in the corner of your eye:**
-- who is thinking and who is waiting for you;
-- how much quota each one has left;
-- what needs your OK.
-
-When two of your agents need to compare notes, they can now send each other a message. Each one waits on the HUD until you press **Send**.
-
-SI Future HUD is a customized build of the open‑source [Agent HUD](https://github.com/jazzenchen/agent-hud-open). It adds agent‑to‑agent messaging, the Chengxiaobang (程小帮) integration, live states for Cursor and Grok Bot, and an install that sets itself up.
-
-<p align="center">
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">
-    <img src="docs/si-future-hud/media/poster.jpg" alt="The product film's opening title: the notch glowing over a dark horizon" width="72%">
-  </a><br>
-  <sub>▶ <b>Watch the 3‑minute film</b> (1080p60, MP4, 46 MB) · outside the company network, <a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.5/SI-Future-HUD-film-1080p60.mp4">download it from GitHub</a> · sample data throughout</sub>
-</p>
-
-## Hover the notch. See everything.
-
-Move the pointer onto the notch and its glowing rim drops open into one panel with every agent:
-- your account and plan;
-- every quota window with its bar and when it resets;
-- five ways to read each block: quota, burn rate, reply rate, consumed, and estimated cost.
-
-Move the pointer away and it folds back into a quiet ring of light.
-
-<p align="center">
-  <img src="docs/si-future-hud/media/notch-drop.webp" alt="The pointer touches the notch; the glowing notch drops open into a tall panel listing Claude, OpenAI, Chengxiaobang, Cursor and Grok Bot with their quota windows" width="88%">
-</p>
-
-The ring's colour comes from the tightest quota: green under 70% used, yellow from 70%, red from 90%. It breathes faster while your agents work.
-
-## Your agents come alive.
-
-Every agent has a little bot that shows what it is doing right now:
-- **thinking**;
-- **compacting** its context;
-- **editing code**;
-- **running a command**;
-- **waiting for your approval**;
-- **asking a question**;
-- **done**;
-- **out of quota**.
-
-You don't have to open a window to know.
-
-<p align="center">
-  <img src="docs/si-future-hud/media/bots.webp" alt="A grid of bots, one row per agent and one column per state: thinking, compacting, editing, running a command, waiting for approval, asking, done and out of quota; shown on a dark and a light background" width="88%">
-</p>
-
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/strip-arrival.webp" alt="Clawd leaps from the Claude window to the left edge of the screen and the strip of agents grows below it, ring by ring" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/quota-out.webp" alt="Claude's ring fills to 100%, the HUD warns that the quota is running out, and Clawd faints" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>At home on the edge.</b> Each agent sits in a ring of its quota.</sub></td>
-    <td align="center"><sub><b>Never run out by surprise.</b> A warning first, then the bot faints.</sub></td>
-  </tr>
-</table>
-
-## Answer it right there.
-
-When an agent asks to run a command, the request comes to the HUD. Choose **Allow once**, **Deny** or **Always allow** without leaving what you are doing. Questions work the same way, including the ones Claude asks in its desktop app.
-
-A finished reply shows up as a **New reply** card. One click takes you back into that conversation. If you leave a request alone, it goes back to the agent after 10 minutes: the HUD never decides for you.
-
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/approval.webp" alt="Claude asks to run swift test; the HUD card shows the command and Allow once is clicked" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/usage-lens.webp" alt="The usage panel opens beside Claude's ring; a magnifier shows 268M tokens for the main conversation" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>Approvals on the HUD.</b> The command in full, then one click.</sub></td>
-    <td align="center"><sub><b>Details on demand.</b> Quotas, tokens and every session.</sub></td>
-  </tr>
-</table>
-
-## Agents talk to each other, with your OK.
-
-Claude Code, Codex (desktop) and Chengxiaobang can now message one another. Ask Claude to check something with Codex. Claude calls the HUD's `hud_send_message` tool, and the message waits on the HUD until you press **Send**. Then a paper plane carries it to Codex's open conversation. The reply flies back into the exact conversation that asked.
-
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/paper-plane.webp" alt="Claude says it will ask Codex; a paper plane flies from Claude's ring to Codex's, and Codex answers that it got it" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/reply.webp" alt="Codex sends its reply; the paper plane flies back to Claude, who says it got the reply" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>Ask.</b> Claude → Codex, after you press Send.</sub></td>
-    <td align="center"><sub><b>Reply.</b> Back to the exact conversation that asked.</sub></td>
-  </tr>
-</table>
-
-Nothing is sent behind your back. Deny a message and its plane falls. → [How messaging works](docs/si-future-hud/MESSAGING.md)
+<img src="docs/si-future-hud/media/film/omt.webp" width="100%" alt="One more thing. Your company's knowledge, for every agent.">
 
 ## One more thing: your company's knowledge, for every agent.
 
@@ -134,24 +59,12 @@ Nothing is sent behind your back. Deny a message and its plane falls. → [How m
 
 Chengxiaobang looks it up and sends each agent its answer. The agents then compare notes until they agree.
 
-<p align="center">
-  <img src="docs/si-future-hud/media/ecosystem.jpg" alt="Claude and Codex on either side of Chengxiaobang, which is connected to the company knowledge base, MCP and plugins" width="88%">
-</p>
+<img src="docs/si-future-hud/media/ecosystem.jpg" width="100%" alt="Claude and Codex on either side of Chengxiaobang, which is connected to the company knowledge base, MCP and plugins">
+<p align="center"><img src="docs/si-future-hud/media/ask-chengxiaobang.webp" width="100%" alt=""><br><sub><b>Ask the one who knows.</b> Every message still waits for your Send.</sub></p>
+<p align="center"><img src="docs/si-future-hud/media/debate.webp" width="100%" alt=""><br><sub><b>Then they agree.</b> Codex and Claude settle the details together.</sub></p>
+<img src="docs/si-future-hud/media/conclusion.jpg" width="100%" alt="The agreed conclusion">
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/ask-chengxiaobang.webp" alt="Claude asks Chengxiaobang a business question; the HUD shows the message for approval and a paper plane carries it" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/debate.webp" alt="Claude and Codex exchange paper planes and short arguments in speech bubbles" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>Ask the one who knows.</b> Every message still waits for your Send.</sub></td>
-    <td align="center"><sub><b>Then they agree.</b> Codex and Claude settle the details together.</sub></td>
-  </tr>
-</table>
-
-<p align="center">
-  <img src="docs/si-future-hud/media/conclusion.jpg" alt="The agreed conclusion: at most 8 travellers, checked on the server, a hint in the app, children priced separately" width="88%">
-</p>
+<br>
 
 ## Three looks. Any edge.
 
@@ -161,16 +74,20 @@ Chengxiaobang looks it up and sends each agent its answer. The agents then compa
 | **Dynamic** | A row of agent logos on any edge. Each logo turns into its bot while that agent works. |
 | **Simple** | A small strip of quota rings on any edge. It turns horizontal on the top or bottom edge and vertical on the sides. |
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/si-future-hud/media/looks.webp" alt="Dynamic mode: agent logos beside the notch turn into working bots one after another" width="100%"></td>
-    <td width="50%"><img src="docs/si-future-hud/media/drag.webp" alt="Simple mode: the strip of rings is dragged from the left edge to the top edge, where it turns horizontal, and back" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub><b>Dynamic.</b> Logos that wake up when their agent works.</sub></td>
-    <td align="center"><sub><b>Simple.</b> Drag it to any edge.</sub></td>
-  </tr>
-</table>
+<p align="center"><img src="docs/si-future-hud/media/looks.webp" width="100%" alt=""><br><sub><b>Dynamic.</b> Logos that wake up when their agent works.</sub></p>
+<p align="center"><img src="docs/si-future-hud/media/drag.webp" width="100%" alt=""><br><sub><b>Simple.</b> Drag it to any edge.</sub></p>
+
+<br>
+
+## Films
+
+<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.5/SI-Future-HUD-film-1080p60.mp4"><img src="docs/si-future-hud/media/film/poster-film.jpg" width="100%" alt="The SI Future HUD film: the notch glowing over a dark horizon. Click to play."></a>
+<p align="center"><sub>▶ <b>The film</b> · 3 minutes · 1080p60 · from v0.1.5</sub></p>
+
+<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/download/v0.1.7/SI-Future-HUD-one-brain-four-agents-1080p.mp4"><img src="docs/si-future-hud/media/film/poster-one-brain.jpg" width="100%" alt="One brain, four agents: Claude, Codex, Chengxiaobang and Grok Bot working at once. Click to play."></a>
+<p align="center"><sub>▶ <b>One brain, four agents</b> · 45 seconds · 1080p · from v0.1.7 · Chinese captions</sub></p>
+
+<br>
 
 ## Supported agents
 
@@ -214,7 +131,7 @@ On first launch it sets itself up:
 ## Privacy
 
 - **Everything stays on your Mac.** The HUD reads your agents' local usage records, and checks quotas with the accounts you are already signed in to.
-- **Nothing goes to any third‑party server.** There is no telemetry and no auto‑update.
+- **Nothing goes to any third‑party server.** There is no telemetry. The updater only downloads: it reads `update.json` from the site or this repository, and checks every download against an Ed25519 signature.
 - **Chengxiaobang's local database is opened read‑only.**
 - **No message moves between agents until you press Send.**
 
@@ -242,6 +159,9 @@ Without a whole signature, a downloaded copy is reported as *damaged*. Toolchain
 
 The full list of changed files is in **[docs/si-future-hud/CHANGES.md](docs/si-future-hud/CHANGES.md)**. The release history is in [CHANGELOG.md](CHANGELOG.md).
 
+<a href="https://github.com/ChengkaiXu123/vanguard-app"><img src="docs/si-future-hud/media/film/family.jpg" width="100%" alt="Two products. Vanguard, the whole squad. SI Future HUD, just the notch."></a>
+<p align="center">Want the whole squad, with the HUD built in? Meet <a href="https://github.com/ChengkaiXu123/vanguard-app"><b>Vanguard</b></a>.</p>
+
 ## Credits & license
 
 SI Future HUD is built on **[Agent HUD](https://github.com/jazzenchen/agent-hud-open)** by Jazzen Chen and contributors. Thank you for making it open. Agent HUD's own README is kept as [README.upstream.md](README.upstream.md).
@@ -250,4 +170,4 @@ Licensed under the [Apache License 2.0](LICENSE), like the project it is built o
 
 Claude, Codex, Cursor, Grok and Chengxiaobang are trademarks of their owners. This project is not affiliated with them. The film and screenshots use sample data.
 
-<p align="center"><sub>Made by <a href="http://git.dev.sh.ctripcorp.com/ckxu">Chengkai Xu (许成凯)</a> · SI Future</sub></p>
+<p align="center"><sub>Made by <a href="https://github.com/ChengkaiXu123">Chengkai Xu (许成凯)</a> · SI Future</sub></p>
