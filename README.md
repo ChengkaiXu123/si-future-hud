@@ -21,7 +21,7 @@
 <p align="center">
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
   &nbsp;|&nbsp;
-  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/"><b>Website</b></a> ·
+  <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/"><b>Website</b></a> (<a href="https://chengkaixu123.github.io/si-future-hud/">outside the company</a>) ·
   <a href="https://pages.release.ctripcorp.com/ckxu/si-future-hud/media/film-1080p60.mp4">Watch the film</a> ·
   <a href="http://git.dev.sh.ctripcorp.com/ckxu/si-future-hud/-/releases/permalink/latest">Download</a> (<a href="https://github.com/ChengkaiXu123/si-future-hud/releases/latest">GitHub</a>) ·
   <a href="docs/si-future-hud/INSTALL.md">Install</a> ·

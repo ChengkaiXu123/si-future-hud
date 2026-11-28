@@ -1,0 +1,46 @@
+name: Site
+
+# Publishes the product site to GitHub Pages (https://chengkaixu123.github.io/si-future-hud/),
+# the copy anyone can open. The company copy stays on GitLab Pages (.gitlab-ci.yml).
+on:
+  push:
+    branches: [main]
+    paths:
+      - site/**
+      - docs/si-future-hud/media/**
+      - scripts/build-site.sh
+      - .github/workflows/site.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          sh scripts/build-site.sh
+          # Outside the company: link the public Vanguard site, and count visits on this domain.
+          sed -i \
+            -e 's#https://pages.release.ctripcorp.com/ckxu/vanguard/#https://chengkaixu123.github.io/vanguard/#g' \
+            -e 's#data-domains="pages.release.ctripcorp.com"#data-domains="chengkaixu123.github.io"#' \
+            public/index.html
+          touch public/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - id: deployment
+        uses: actions/deploy-pages@v4
